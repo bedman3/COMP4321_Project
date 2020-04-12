@@ -2,6 +2,7 @@ package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.Util;
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -15,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class Main {
@@ -42,10 +44,10 @@ public class Main {
                 "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
         };
         Set<String> stopWordsSet = new HashSet<String>(Arrays.asList(stopWords));
-        Map<String, Integer> keyFreqMap = new HashMap<String, Integer>();
 
         char separator = ' ';
         final String rocksDBDirectory = "rocksDBFiles";
+        final Integer extractTopKKeywords = 5;
 
         Util.createDirectoryIfNotExist(rocksDBDirectory);
 
@@ -64,7 +66,8 @@ public class Main {
                     new ColumnFamilyDescriptor("VSpaceModelIndexData".getBytes()),
                     new ColumnFamilyDescriptor("SiteMapData".getBytes()),
                     new ColumnFamilyDescriptor("urlIdData".getBytes()),
-                    new ColumnFamilyDescriptor("wordIdData".getBytes())
+                    new ColumnFamilyDescriptor("wordIdData".getBytes()),
+                    new ColumnFamilyDescriptor("keywordFrequencyData".getBytes())
             );
             List<ColumnFamilyHandle> columnFamilyHandleList = new ArrayList<>();
 
@@ -76,6 +79,7 @@ public class Main {
             ColumnFamilyHandle siteMapDataRocksDBCol = columnFamilyHandleList.get(3);
             ColumnFamilyHandle urlIdDataRocksDBCol = columnFamilyHandleList.get(4);
             ColumnFamilyHandle wordIdDataRocksDBCol = columnFamilyHandleList.get(5);
+            ColumnFamilyHandle keywordFrequencyDataRocksDBCol = columnFamilyHandleList.get(6);
 
 
             // init rocksdb for id data
@@ -83,7 +87,7 @@ public class Main {
             RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, wordIdDataRocksDBCol);
 
             String url = "http://www.cse.ust.hk";
-            Set<String> links = new HashSet<String>();
+            Set<String> linksIdSet = new HashSet<String>();
 
             Connection.Response response = Jsoup.connect(url).execute();
             // extract last modified from response header
@@ -96,9 +100,6 @@ public class Main {
 
             // convert parent url to url id
             String parentUrlId = RocksDBUtil.getUrlIdFromUrl(rocksDB, urlIdDataRocksDBCol, url);
-
-//            String urlToIdKey = String.format("%s%s", urlToIdKeyPrefix, url);
-//            String urlId = RocksDBUtil.getIdMerge(rocksDBUrlIdData, urlToIdKeyPrefix, url, )
 
             Document doc = response.parse();
             Elements linkElements = doc.select("a[href]");
@@ -122,7 +123,7 @@ public class Main {
                     // any link that does not start with http://www.cse.ust.hk
                     continue;
                 }
-                links.add(link);
+                linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDB, urlIdDataRocksDBCol, link));
             }
 
             // tokenize the words
@@ -134,8 +135,9 @@ public class Main {
             // remove all punctuations
             parsedText = parsedText.replaceAll("\\p{P}", "");
 
-
             String[] wordsArray = StringUtils.split(parsedText, " ");
+
+            Map<String, Integer> keyFreqMap = new HashMap<>();
 
             for (String word : wordsArray) {
                 // remove/ignore stopwords when counting frequency
@@ -143,9 +145,53 @@ public class Main {
                     continue;
                 }
 
+                String wordKey = RocksDBUtil.getWordIdFromWord(rocksDB, wordIdDataRocksDBCol, word);
+
                 // increment frequency by 1
-                keyFreqMap.merge(word, 1, Integer::sum);
+                keyFreqMap.merge(wordKey, 1, Integer::sum);
             }
+
+            // build a max heap to get the top 5 key freq
+            PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {
+                // compare in descending order
+                return p1.getValue().compareTo(p2.getValue()) * -1;
+            });
+
+            keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new AbstractMap.SimpleEntry<>(key, value)));
+
+            Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
+            StringBuilder keyFreqTopKValue = new StringBuilder();
+//            List<String> topKKeywordsIdList = new ArrayList<>();
+//            List<Integer> topKFrequencyList = new ArrayList<>();
+
+            for (int index = 0; index < extractTopKKeywords && keyFreqIt.hasNext(); index++) {
+                Map.Entry<String, Integer> pair = keyFreqIt.next();
+                try {
+                    String keyword = RocksDBUtil.getWordFromWordId(rocksDB, wordIdDataRocksDBCol, pair.getKey());
+                    keyFreqTopKValue.append(keyword);
+                    keyFreqTopKValue.append(" ");
+                    keyFreqTopKValue.append(pair.getValue());
+                    keyFreqTopKValue.append(";");
+                } catch (NullPointerException e) {
+                    System.err.println(e.toString());
+                }
+            }
+//            topKKeywordsIdList.forEach(System.out::println);
+//            List<byte[]> topKKeywordByteList = rocksDB.multiGetAsList(Arrays.asList(), topKKeywordsIdList.stream().map(String::getBytes).collect(Collectors.toList()));
+//            System.out.println("testing:::");
+//            topKKeywordByteList.forEach(System.out::println);
+//            List<String> topKKeywordList = topKKeywordByteList.stream().map(String::new).collect(Collectors.toList());
+//            for (int index = 0; index < topKKeywordsIdList.size(); index++) {
+//                keyFreqTopKValue.append(topKKeywordList.get(index)).append(" ").append(topKFrequencyList.get(index)).append(";");
+//            }
+
+            // serialize the map and store it to rocksdb
+            Gson gson = new Gson();
+            String keyFreqJsonString = gson.toJson(keyFreqMap);
+            String keyFreqTopKKeyPrefix = "topK_";
+            String keyFreqTopKKey = String.format("%s%s", keyFreqTopKKeyPrefix, parentUrlId);
+            rocksDB.put(keywordFrequencyDataRocksDBCol, parentUrlId.getBytes(), keyFreqJsonString.getBytes());
+            rocksDB.put(keywordFrequencyDataRocksDBCol, keyFreqTopKKey.getBytes(), keyFreqTopKValue.toString().getBytes());
 
             // store title
             String title = doc.title();
@@ -168,23 +214,23 @@ public class Main {
             // index child links, index in the format of: key = child_{parent_link}, value = {child_link}
             // the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
             // meant to be overwrote if there is update
-            String childLinkKey = String.format("child_%s", url);
-            rocksDB.put(siteMapDataRocksDBCol, childLinkKey.getBytes(), StringUtils.join(links, separator).getBytes());
+            String childLinkKey = String.format("child_%s", parentUrlId);
+            rocksDB.put(siteMapDataRocksDBCol, childLinkKey.getBytes(), StringUtils.join(linksIdSet, separator).getBytes());
 
             // index parent links, index in the format of: key = parent_{child_link}, value = {parent_link}
-            for (String link : links) {
+            for (String link : linksIdSet) {
                 String parentLinkKey = String.format("parent_%s", link);
                 byte[] parentLinkValueByte = rocksDB.get(siteMapDataRocksDBCol, parentLinkKey.getBytes());
 
                 if (parentLinkValueByte == null) {
-                    rocksDB.put(siteMapDataRocksDBCol, parentLinkKey.getBytes(), url.getBytes());
+                    rocksDB.put(siteMapDataRocksDBCol, parentLinkKey.getBytes(), parentUrlId.getBytes());
                 } else {
                     String parentLinkValue = new String(parentLinkValueByte);
-                    if (parentLinkValue.contains(url)) {
+                    if (parentLinkValue.contains(parentUrlId)) {
                         // do nothing
                     } else {
                         // append in the end
-                        parentLinkValue += String.format("%c%s", separator, url);
+                        parentLinkValue += String.format("%c%s", separator, parentUrlId);
                         rocksDB.put(siteMapDataRocksDBCol, parentLinkKey.getBytes(), parentLinkValue.getBytes());
                     }
                 }
@@ -200,7 +246,7 @@ public class Main {
                     System.out.println("key: " + new String(it.key()) + " | value: " + new String(it.value()));
                 }
 
-                System.out.println("\n");
+                System.out.println();
             }
         } catch (RocksDBException e) {
             System.err.println(e.toString());

@@ -13,8 +13,6 @@ public class RocksDBUtil {
     final static String idToWordKeyPrefix = "idToWord_";
 
     public static void initRocksDBWithNextAvailableId(RocksDB rocksDB, ColumnFamilyHandle colHandle) throws RocksDBException {
-        System.out.println("nextavailableid colHandle: " + new String(colHandle.getName()));
-
         byte[] nextAvailableIdByte = rocksDB.get(colHandle, nextAvailableIdLiteral.getBytes());
 
         if (nextAvailableIdByte == null) {
@@ -24,17 +22,32 @@ public class RocksDBUtil {
     }
 
     public static String getUrlIdFromUrl(RocksDB rocksDB, ColumnFamilyHandle colHandle, String url) throws RocksDBException {
-        return getIdMerge(rocksDB, colHandle, urlToIdKeyPrefix, url);
+        return getIdFromKey(rocksDB, colHandle, urlToIdKeyPrefix, idToUrlKeyPrefix, url);
     }
 
     public static String getWordIdFromWord(RocksDB rocksDB, ColumnFamilyHandle colHandle, String word) throws RocksDBException {
-        return getIdMerge(rocksDB, colHandle, wordToIdKeyPrefix, word);
+        return getIdFromKey(rocksDB, colHandle, wordToIdKeyPrefix, idToWordKeyPrefix, word);
     }
 
-    /*
-    This function will check if the key exists in rocksdb, if not it will create one
+    public static String getUrlFromUrlId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String urlId) throws RocksDBException {
+        return getKeyFromId(rocksDB, colHandle, idToUrlKeyPrefix, urlId);
+    }
+
+    public static String getWordFromWordId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String wordId) throws RocksDBException {
+        return getKeyFromId(rocksDB, colHandle, idToWordKeyPrefix, wordId);
+    }
+
+    /**
+     * This function will check if the key exists in rocksdb, if not it will create one
+     * @param rocksDB
+     * @param colHandle
+     * @param keyPrefix
+     * @param reverseKeyPrefix
+     * @param key
+     * @return
+     * @throws RocksDBException
      */
-    public static String getIdMerge(RocksDB rocksDB, ColumnFamilyHandle colHandle, String keyPrefix, String key) throws RocksDBException {
+    public static String getIdFromKey(RocksDB rocksDB, ColumnFamilyHandle colHandle, String keyPrefix, String reverseKeyPrefix, String key) throws RocksDBException {
         String idKey = String.format("%s%s", keyPrefix, key);
         byte[] urlIdByte = rocksDB.get(colHandle, idKey.getBytes());
         if (urlIdByte == null) {
@@ -49,9 +62,26 @@ public class RocksDBUtil {
             // register this url with the new unique id
             rocksDB.put(colHandle, idKey.getBytes(), nextAvailableId.toString().getBytes());
 
+            // register a reverse index
+            String reverseIdKey = String.format("%s%s", reverseKeyPrefix, nextAvailableId);
+            System.out.println(reverseIdKey);
+            rocksDB.put(colHandle, reverseIdKey.getBytes(), key.getBytes());
+
             return nextAvailableId.toString();
         } else {
             return new String(urlIdByte);
         }
+    }
+
+    /**
+     * This function assumes the required key has already ran through {@link #getIdFromKey(RocksDB, ColumnFamilyHandle, String, String, String)}
+     * @param rocksDB
+     * @param colHandle
+     * @return
+     */
+    public static String getKeyFromId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String reversePrefix, String id) throws RocksDBException {
+        String reverseIdKey = String.format("%s%s", reversePrefix, id);
+        System.out.println(reverseIdKey);
+        return new String(rocksDB.get(colHandle, reverseIdKey.getBytes()));
     }
 }

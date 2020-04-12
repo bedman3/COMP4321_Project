@@ -14,5 +14,7 @@ public class Util {
         } else {
             System.out.println("directory " + checkDir.toAbsolutePath().toString() + " exists");
         }
+        System.out.println("\n");
+        System.out.println("\n");
     }
 }
