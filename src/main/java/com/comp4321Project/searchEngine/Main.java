@@ -161,8 +161,6 @@ public class Main {
 
             Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
             StringBuilder keyFreqTopKValue = new StringBuilder();
-//            List<String> topKKeywordsIdList = new ArrayList<>();
-//            List<Integer> topKFrequencyList = new ArrayList<>();
 
             for (int index = 0; index < extractTopKKeywords && keyFreqIt.hasNext(); index++) {
                 Map.Entry<String, Integer> pair = keyFreqIt.next();
@@ -176,14 +174,6 @@ public class Main {
                     System.err.println(e.toString());
                 }
             }
-//            topKKeywordsIdList.forEach(System.out::println);
-//            List<byte[]> topKKeywordByteList = rocksDB.multiGetAsList(Arrays.asList(), topKKeywordsIdList.stream().map(String::getBytes).collect(Collectors.toList()));
-//            System.out.println("testing:::");
-//            topKKeywordByteList.forEach(System.out::println);
-//            List<String> topKKeywordList = topKKeywordByteList.stream().map(String::new).collect(Collectors.toList());
-//            for (int index = 0; index < topKKeywordsIdList.size(); index++) {
-//                keyFreqTopKValue.append(topKKeywordList.get(index)).append(" ").append(topKFrequencyList.get(index)).append(";");
-//            }
 
             // serialize the map and store it to rocksdb
             Gson gson = new Gson();

@@ -64,7 +64,6 @@ public class RocksDBUtil {
 
             // register a reverse index
             String reverseIdKey = String.format("%s%s", reverseKeyPrefix, nextAvailableId);
-            System.out.println(reverseIdKey);
             rocksDB.put(colHandle, reverseIdKey.getBytes(), key.getBytes());
 
             return nextAvailableId.toString();
@@ -81,7 +80,6 @@ public class RocksDBUtil {
      */
     public static String getKeyFromId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String reversePrefix, String id) throws RocksDBException {
         String reverseIdKey = String.format("%s%s", reversePrefix, id);
-        System.out.println(reverseIdKey);
         return new String(rocksDB.get(colHandle, reverseIdKey.getBytes()));
     }
 }

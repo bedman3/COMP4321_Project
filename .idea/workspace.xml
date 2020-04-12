@@ -26,19 +26,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_code_findbugs_jsr305_3_0_2.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_code_gson_gson_2_8_6.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_errorprone_error_prone_annotations_2_3_4.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_failureaccess_1_0_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_guava_28_2_jre.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_guava_listenablefuture_9999_0_empty_to_avoid_conflict_with_guava.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_google_j2objc_j2objc_annotations_1_3.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_checkerframework_checker_qual_2_10_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_openjfx_javafx_base_14.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_openjfx_javafx_base_linux_14.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/COMP4321_Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/COMP4321_Project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/RocksDBUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/RocksDBUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/Util.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/Util.java" afterDir="false" />
@@ -157,7 +145,7 @@
       <workItem from="1586450939788" duration="1181000" />
       <workItem from="1586508893416" duration="12908000" />
       <workItem from="1586629688346" duration="11193000" />
-      <workItem from="1586679048068" duration="22200000" />
+      <workItem from="1586679048068" duration="22448000" />
     </task>
     <task id="LOCAL-00001" summary="feat: init project">
       <created>1585742485760</created>
@@ -236,7 +224,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586705239946</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="feat: added keyword frequency count and store features">
+      <created>1586713932363</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1586713932363</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -266,7 +261,8 @@
     <MESSAGE value="feat: added stop words and list of words from doc" />
     <MESSAGE value="feat: added word count to hashmap" />
     <MESSAGE value="feat: added column family and word-to-id and url-to-id db" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: added column family and word-to-id and url-to-id db" />
+    <MESSAGE value="feat: added keyword frequency count and store features" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: added keyword frequency count and store features" />
   </component>
   <component name="WindowStateProjectService">
     <state x="914" y="408" key="#Inspections" timestamp="1585744745292">
@@ -297,46 +293,46 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1001" y="573" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.2560.1440@0.0.2560.1440" timestamp="1586621782458" />
-    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586705239890">
+    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586713932312">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586705239890" />
+    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586713932312" />
     <state x="1060" y="434" key="FileChooserDialogImpl" timestamp="1586452403480">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1060" y="434" key="FileChooserDialogImpl/0.0.2560.1440@0.0.2560.1440" timestamp="1586452403480" />
-    <state width="2513" height="422" key="GridCell.Tab.0.bottom" timestamp="1586712906413">
+    <state width="2513" height="422" key="GridCell.Tab.0.bottom" timestamp="1586713900329">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906413" />
-    <state width="2513" height="422" key="GridCell.Tab.0.center" timestamp="1586712906412">
+    <state width="2513" height="422" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900329" />
+    <state width="2513" height="422" key="GridCell.Tab.0.center" timestamp="1586713900328">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906412" />
-    <state width="2513" height="422" key="GridCell.Tab.0.left" timestamp="1586712906411">
+    <state width="2513" height="422" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900328" />
+    <state width="2513" height="422" key="GridCell.Tab.0.left" timestamp="1586713900328">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906411" />
-    <state width="2513" height="422" key="GridCell.Tab.0.right" timestamp="1586712906412">
+    <state width="2513" height="422" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900328" />
+    <state width="2513" height="422" key="GridCell.Tab.0.right" timestamp="1586713900329">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906412" />
-    <state width="2513" height="422" key="GridCell.Tab.1.bottom" timestamp="1586712906416">
+    <state width="2513" height="422" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900329" />
+    <state width="2513" height="422" key="GridCell.Tab.1.bottom" timestamp="1586713900332">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906416" />
-    <state width="2513" height="422" key="GridCell.Tab.1.center" timestamp="1586712906414">
+    <state width="2513" height="422" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900332" />
+    <state width="2513" height="422" key="GridCell.Tab.1.center" timestamp="1586713900330">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906414" />
-    <state width="2513" height="422" key="GridCell.Tab.1.left" timestamp="1586712906414">
+    <state width="2513" height="422" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900330" />
+    <state width="2513" height="422" key="GridCell.Tab.1.left" timestamp="1586713900330">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906414" />
-    <state width="2513" height="422" key="GridCell.Tab.1.right" timestamp="1586712906415">
+    <state width="2513" height="422" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900330" />
+    <state width="2513" height="422" key="GridCell.Tab.1.right" timestamp="1586713900331">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2513" height="422" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586712906415" />
+    <state width="2513" height="422" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586713900331" />
     <state x="818" y="384" key="Maven.ArtifactSearchDialog" timestamp="1586710990455">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -345,10 +341,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="768" y="304" key="SettingsEditor/0.0.2560.1440@0.0.2560.1440" timestamp="1585993536160" />
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586705241429">
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586713933253">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586705241429" />
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586713933253" />
     <state x="1082" y="508" key="chooseDestDirectoryDialog" timestamp="1586509637620">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
