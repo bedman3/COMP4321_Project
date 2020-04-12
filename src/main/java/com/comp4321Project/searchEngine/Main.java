@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -14,9 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @SpringBootApplication
 public class Main {
@@ -43,6 +42,8 @@ public class Main {
                 "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so",
                 "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"
         };
+        Set<String> stopWordsSet = new HashSet<String>(Arrays.asList(stopWords));
+        Map<String, Integer> keyFreqMap = new HashMap<String, Integer>();
 
         char separator = ' ';
 
@@ -101,11 +102,30 @@ public class Main {
             }
 
             // tokenize the words
-            String[] wordsArray = StringUtils.split(docText, " ");
-            System.out.println(Arrays.toString(wordsArray));
+            String parsedText = docText;
+
+            // convert all text to lower case
+            parsedText = parsedText.toLowerCase();
+
+            // remove all punctuations
+            parsedText = parsedText.replaceAll("\\p{P}", "");
+
+
+            String[] wordsArray = StringUtils.split(parsedText, " ");
+
+            for (String word : wordsArray) {
+                // remove/ignore stopwords when counting frequency
+                if (stopWordsSet.contains(word)) {
+                    continue;
+                }
+
+                // increment frequency by 1
+                keyFreqMap.merge(word, 1, Integer::sum);
+            }
+
+            keyFreqMap.forEach((String word, Integer freq) -> System.out.println("word: " + word + " freq: " + freq.toString()));
 
             // store title
-//			Elements titleElements = doc.select("title");
             String title = doc.title();
 
             // extract the size
