@@ -1,15 +1,14 @@
 package com.comp4321Project.searchEngine;
 
-import org.apache.commons.lang3.ArrayUtils;
+import com.comp4321Project.searchEngine.Util.RocksDBUtil;
+import com.comp4321Project.searchEngine.Util.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.rocksdb.Options;
-import org.rocksdb.RocksDB;
-import org.rocksdb.RocksDBException;
+import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,23 +45,42 @@ public class Main {
         Map<String, Integer> keyFreqMap = new HashMap<String, Integer>();
 
         char separator = ' ';
+        final String rocksDBDirectory = "rocksDBFiles";
 
-//		String dbPath = "rocksdbFiles";
-        String websiteMetaDbPath = "rocksDbFiles/WebsiteMetaData/";
-        String vSpaceModelIndexDbPath = "rocksDbFiles/VSpaceModelIndexData/";
-        String siteMapDbPath = "rocksDbFiles/SiteMapData";
+        Util.createDirectoryIfNotExist(rocksDBDirectory);
 
         RocksDB.loadLibrary();
 
         try {
             // The Options class contains a set of configurable DB options
             // that determines the behaviour of the database.
-            Options options = new Options();
-            options.setCreateIfMissing(true);
+            DBOptions dbOptions = new DBOptions();
+            dbOptions.setCreateIfMissing(true);
+            dbOptions.setCreateMissingColumnFamilies(true);
 
-            RocksDB rocksDBWebsiteMetaData = RocksDB.open(options, websiteMetaDbPath);
-            RocksDB rocksDBVSpaceModelIndexData = RocksDB.open(options, vSpaceModelIndexDbPath);
-            RocksDB rocksDBSiteMapData = RocksDB.open(options, siteMapDbPath);
+            List<ColumnFamilyDescriptor> columnFamilyDescriptorList = Arrays.asList(
+                    new ColumnFamilyDescriptor(RocksDB.DEFAULT_COLUMN_FAMILY),
+                    new ColumnFamilyDescriptor("WebsiteMetaData".getBytes()),
+                    new ColumnFamilyDescriptor("VSpaceModelIndexData".getBytes()),
+                    new ColumnFamilyDescriptor("SiteMapData".getBytes()),
+                    new ColumnFamilyDescriptor("urlIdData".getBytes()),
+                    new ColumnFamilyDescriptor("wordIdData".getBytes())
+            );
+            List<ColumnFamilyHandle> columnFamilyHandleList = new ArrayList<>();
+
+            RocksDB rocksDB = RocksDB.open(dbOptions, rocksDBDirectory, columnFamilyDescriptorList, columnFamilyHandleList);
+
+            ColumnFamilyHandle defaultRocksDBCol = columnFamilyHandleList.get(0);
+            ColumnFamilyHandle websiteMetaDataRocksDBCol = columnFamilyHandleList.get(1);
+            ColumnFamilyHandle vSpaceModelIndexDataRocksDBCol = columnFamilyHandleList.get(2);
+            ColumnFamilyHandle siteMapDataRocksDBCol = columnFamilyHandleList.get(3);
+            ColumnFamilyHandle urlIdDataRocksDBCol = columnFamilyHandleList.get(4);
+            ColumnFamilyHandle wordIdDataRocksDBCol = columnFamilyHandleList.get(5);
+
+
+            // init rocksdb for id data
+            RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, urlIdDataRocksDBCol);
+            RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, wordIdDataRocksDBCol);
 
             String url = "http://www.cse.ust.hk";
             Set<String> links = new HashSet<String>();
@@ -75,6 +93,12 @@ public class Main {
             }
 
             String size = response.header("Content-Length");
+
+            // convert parent url to url id
+            String parentUrlId = RocksDBUtil.getUrlIdFromUrl(rocksDB, urlIdDataRocksDBCol, url);
+
+//            String urlToIdKey = String.format("%s%s", urlToIdKeyPrefix, url);
+//            String urlId = RocksDBUtil.getIdMerge(rocksDBUrlIdData, urlToIdKeyPrefix, url, )
 
             Document doc = response.parse();
             Elements linkElements = doc.select("a[href]");
@@ -123,8 +147,6 @@ public class Main {
                 keyFreqMap.merge(word, 1, Integer::sum);
             }
 
-            keyFreqMap.forEach((String word, Integer freq) -> System.out.println("word: " + word + " freq: " + freq.toString()));
-
             // store title
             String title = doc.title();
 
@@ -132,30 +154,30 @@ public class Main {
             if (size == null) {
                 // remove all whitespaces and get the length = number of characters
                 int length = docText.replaceAll("\\s+", "").length();
-                size = Integer.toString(length) + "characters";
+                size = length + " characters";
             } else {
-                size += "bytes";
+                size += " bytes";
             }
 
             String metaKey = String.format("meta_%s", url);
             // use a separator that will rarely appear in the title
-//			String metaValue = String.format("%s |,.| %s |,.| %s |,.| %s |,.| %s |,.| %s |,.| %s", title, url, lastModified, size, keyFreq, parentLinks, childLinks)
-//			rocksDBWebsiteMetaData.put(titleKey.getBytes(), title.getBytes());
+			String metaValue = String.format("%s |,.| %s |,.| %s |,.| %s", title, url, lastModified, size);
+			rocksDB.put(websiteMetaDataRocksDBCol, metaKey.getBytes(), metaValue.getBytes());
 
 
             // index child links, index in the format of: key = child_{parent_link}, value = {child_link}
             // the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
             // meant to be overwrote if there is update
             String childLinkKey = String.format("child_%s", url);
-            rocksDBSiteMapData.put(childLinkKey.getBytes(), StringUtils.join(links, separator).getBytes());
+            rocksDB.put(siteMapDataRocksDBCol, childLinkKey.getBytes(), StringUtils.join(links, separator).getBytes());
 
             // index parent links, index in the format of: key = parent_{child_link}, value = {parent_link}
             for (String link : links) {
                 String parentLinkKey = String.format("parent_%s", link);
-                byte[] parentLinkValueByte = rocksDBSiteMapData.get(parentLinkKey.getBytes());
+                byte[] parentLinkValueByte = rocksDB.get(siteMapDataRocksDBCol, parentLinkKey.getBytes());
 
                 if (parentLinkValueByte == null) {
-                    rocksDBSiteMapData.put(parentLinkKey.getBytes(), url.getBytes());
+                    rocksDB.put(siteMapDataRocksDBCol, parentLinkKey.getBytes(), url.getBytes());
                 } else {
                     String parentLinkValue = new String(parentLinkValueByte);
                     if (parentLinkValue.contains(url)) {
@@ -163,9 +185,22 @@ public class Main {
                     } else {
                         // append in the end
                         parentLinkValue += String.format("%c%s", separator, url);
-                        rocksDBSiteMapData.put(parentLinkKey.getBytes(), parentLinkValue.getBytes());
+                        rocksDB.put(siteMapDataRocksDBCol, parentLinkKey.getBytes(), parentLinkValue.getBytes());
                     }
                 }
+            }
+
+            // print all storage
+            for (ColumnFamilyHandle col : columnFamilyHandleList) {
+                RocksIterator it = rocksDB.newIterator(col);
+
+                System.out.println("ColumnFamily: " + new String(col.getName()));
+
+                for (it.seekToFirst(); it.isValid(); it.next()) {
+                    System.out.println("key: " + new String(it.key()) + " | value: " + new String(it.value()));
+                }
+
+                System.out.println("\n");
             }
         } catch (RocksDBException e) {
             System.err.println(e.toString());
