@@ -1,6 +1,7 @@
 package com.comp4321Project.searchEngine;
 
 import org.apache.tomcat.util.buf.StringUtils;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -49,10 +50,18 @@ public class Main {
 			String url = "http://www.cse.ust.hk";
 			Set<String> links = new HashSet<String>();
 
-			Document doc = Jsoup.connect(url).get();
-			Elements elements = doc.select("a[href]");
-			for (Element element : elements) {
-				String link = element.attr("href");
+			Connection.Response response = Jsoup.connect(url).execute();
+			// extract last modified from response header
+			String lastModified = response.header("Last-Modified");
+			if (lastModified == null) {
+				lastModified = response.header("Date");
+			}
+			System.out.println(lastModified);
+
+			Document doc = response.parse();
+			Elements linkElements = doc.select("a[href]");
+			for (Element linkElement : linkElements) {
+				String link = linkElement.attr("href");
 				// it will contain links like /admin/qa/
 				// we will need to append the parent url to the relative url
 				// so the result will become http://www.cse.ust.hk/admin/qa/
@@ -70,9 +79,17 @@ public class Main {
 					// any link that does not start with http://www.cse.ust.hk
 					continue;
 				}
-
 				links.add(link);
 			}
+
+			// store title
+			Elements titleElements = doc.select("title");
+			String title = titleElements.first().text();
+
+
+
+			String metaKey = String.format("meta_%s", url);
+//			rocksDBWebsiteMetaData.put(titleKey.getBytes(), title.getBytes());
 
 
 
@@ -80,12 +97,6 @@ public class Main {
 			// the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
 			// meant to be overwrote if there is update
 			String childLinkKey = String.format("child_%s", url);
-			byte[] test = rocksDBSiteMapData.get(childLinkKey.getBytes());
-			if (test != null) {
-				System.out.println(new String(test));
-			} else {
-				System.out.println(test);
-			}
 			rocksDBSiteMapData.put(childLinkKey.getBytes(), StringUtils.join(links, separator).getBytes());
 
 			// index parent links, index in the format of: key = parent_{child_link}, value = {parent_link}
@@ -106,7 +117,6 @@ public class Main {
 					}
 				}
 			}
-
 		} catch (RocksDBException e) {
 			System.err.println(e.toString());
 		}

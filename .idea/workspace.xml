@@ -25,8 +25,7 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="feat: fetch url and list links">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/RocksDBUtil.java" afterDir="false" />
+    <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" afterDir="false" />
     </list>
@@ -103,7 +102,7 @@
       <workItem from="1585993717885" duration="5000" />
       <workItem from="1586450939788" duration="1181000" />
       <workItem from="1586508893416" duration="12908000" />
-      <workItem from="1586629688346" duration="3252000" />
+      <workItem from="1586629688346" duration="5207000" />
     </task>
     <task id="LOCAL-00001" summary="feat: init project">
       <created>1585742485760</created>
@@ -147,7 +146,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586628865156</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="feat: finish child and parent graph path indexing">
+      <created>1586632955575</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1586632955575</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,7 +177,8 @@
     <MESSAGE value="feat: added spider controller" />
     <MESSAGE value="feat: add KeywordFrequencyModel and SearchResultListView" />
     <MESSAGE value="feat: fetch url and list links" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: fetch url and list links" />
+    <MESSAGE value="feat: finish child and parent graph path indexing" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: finish child and parent graph path indexing" />
   </component>
   <component name="WindowStateProjectService">
     <state x="914" y="408" key="#Inspections" timestamp="1585744745292">
@@ -202,46 +209,46 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1001" y="573" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.2560.1440@0.0.2560.1440" timestamp="1586621782458" />
-    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586631325144">
+    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586632955515">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586631325144" />
+    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586632955515" />
     <state x="1060" y="434" key="FileChooserDialogImpl" timestamp="1586452403480">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1060" y="434" key="FileChooserDialogImpl/0.0.2560.1440@0.0.2560.1440" timestamp="1586452403480" />
-    <state width="2517" height="394" key="GridCell.Tab.0.bottom" timestamp="1586632932805">
+    <state width="2513" height="394" key="GridCell.Tab.0.bottom" timestamp="1586666744396">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932805" />
-    <state width="2517" height="394" key="GridCell.Tab.0.center" timestamp="1586632932803">
+    <state width="2513" height="394" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744396" />
+    <state width="2513" height="394" key="GridCell.Tab.0.center" timestamp="1586666744395">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932803" />
-    <state width="2517" height="394" key="GridCell.Tab.0.left" timestamp="1586632932803">
+    <state width="2513" height="394" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744395" />
+    <state width="2513" height="394" key="GridCell.Tab.0.left" timestamp="1586666744394">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932803" />
-    <state width="2517" height="394" key="GridCell.Tab.0.right" timestamp="1586632932804">
+    <state width="2513" height="394" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744394" />
+    <state width="2513" height="394" key="GridCell.Tab.0.right" timestamp="1586666744396">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932804" />
-    <state width="2517" height="394" key="GridCell.Tab.1.bottom" timestamp="1586632932807">
+    <state width="2513" height="394" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744396" />
+    <state width="2513" height="394" key="GridCell.Tab.1.bottom" timestamp="1586666744399">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932807" />
-    <state width="2517" height="394" key="GridCell.Tab.1.center" timestamp="1586632932806">
+    <state width="2513" height="394" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744399" />
+    <state width="2513" height="394" key="GridCell.Tab.1.center" timestamp="1586666744398">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932806" />
-    <state width="2517" height="394" key="GridCell.Tab.1.left" timestamp="1586632932805">
+    <state width="2513" height="394" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744398" />
+    <state width="2513" height="394" key="GridCell.Tab.1.left" timestamp="1586666744397">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932805" />
-    <state width="2517" height="394" key="GridCell.Tab.1.right" timestamp="1586632932807">
+    <state width="2513" height="394" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744397" />
+    <state width="2513" height="394" key="GridCell.Tab.1.right" timestamp="1586666744399">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="394" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586632932807" />
+    <state width="2513" height="394" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586666744399" />
     <state x="818" y="384" key="Maven.ArtifactSearchDialog" timestamp="1586622423509">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -250,10 +257,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="768" y="304" key="SettingsEditor/0.0.2560.1440@0.0.2560.1440" timestamp="1585993536160" />
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586628866283">
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586632957332">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586628866283" />
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586632957332" />
     <state x="1082" y="508" key="chooseDestDirectoryDialog" timestamp="1586509637620">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
