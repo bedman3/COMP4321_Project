@@ -3,6 +3,8 @@ package com.comp4321Project.searchEngine.Service;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
+import com.comp4321Project.searchEngine.View.SiteMetaData;
+import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
@@ -19,7 +21,7 @@ import java.util.*;
 public class SpiderImpl implements Spider {
     private final RocksDBDao rocksDBDao;
     private final Integer topKKeywords;
-    private final Character spaceSeparator = ' ';
+    private final static Character spaceSeparator = ' ';
 
     public SpiderImpl(RocksDBDao rocksDBDao, Integer topKKeywords) {
         this.rocksDBDao = rocksDBDao;
@@ -41,6 +43,7 @@ public class SpiderImpl implements Spider {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
 
         Set<String> linksIdSet = new HashSet<String>();
+        Set<String> linksStringSet = new HashSet<String>();
 
         Connection.Response response = Jsoup.connect(url).execute();
         // extract last modified from response header
@@ -76,6 +79,7 @@ public class SpiderImpl implements Spider {
                 // any link that does not start with http://www.cse.ust.hk
                 continue;
             }
+            linksStringSet.add(link);
             linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDBDao, link));
         }
 
@@ -147,10 +151,6 @@ public class SpiderImpl implements Spider {
             size += " bytes";
         }
 
-        // use a separator that will rarely appear in the title
-        String metaValue = String.format("%s |,.| %s |,.| %s |,.| %s", title, url, lastModified, size);
-        rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
-
         // the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
         // meant to be overwrote if there is update
         rocksDB.put(rocksDBDao.getParentUrlIdToChildUrlIdRocksDBCol(), parentUrlId.getBytes(), StringUtils.join(linksIdSet, spaceSeparator).getBytes());
@@ -171,5 +171,20 @@ public class SpiderImpl implements Spider {
                 }
             }
         }
+
+        // compute parent links list string
+        String childLinksListString = Joiner.on('\n').join(linksStringSet);
+
+        // use a separator that will rarely appear in the title
+        String metaValue = new SiteMetaData(title, url, lastModified, size, -1.0, keyFreqTopKValue.toString(), childLinksListString).toMetaDataString();
+        rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
+    }
+
+    public Integer getTopKKeywords() {
+        return topKKeywords;
+    }
+
+    public static Character getSpaceSeparator() {
+        return spaceSeparator;
     }
 }

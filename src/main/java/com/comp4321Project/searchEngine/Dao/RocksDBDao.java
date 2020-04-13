@@ -1,6 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
-import com.comp4321Project.searchEngine.View.SearchResultView;
+import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -24,7 +24,5 @@ public interface RocksDBDao {
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList();
 
-    public SearchResultView getSiteSearchView(String url) throws RocksDBException;
-
-    public SearchResultView getSiteSearchViewWithUrlId(String urlId) throws RocksDBException;
+    public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException;
 }

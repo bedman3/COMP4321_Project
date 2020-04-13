@@ -2,7 +2,7 @@ package com.comp4321Project.searchEngine.Dao;
 
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.Util;
-import com.comp4321Project.searchEngine.View.SearchResultView;
+import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.*;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class RocksDBDaoImpl implements RocksDBDao {
     private final ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
     private final ColumnFamilyHandle urlIdToTop5Keyword;
 
-    private HashMap<String, SearchResultView> searchResultViewHashMap;
+    private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
     public RocksDBDaoImpl(String dbPath) throws RocksDBException {
 
@@ -126,14 +126,13 @@ public class RocksDBDaoImpl implements RocksDBDao {
         return columnFamilyHandleList;
     }
 
-    public SearchResultView getSiteSearchView(String url) throws RocksDBException {
-        String siteId = RocksDBUtil.getUrlIdFromUrl(this, url);
-        return getSiteSearchViewWithUrlId(siteId);
-    }
-
-    public SearchResultView getSiteSearchViewWithUrlId(String urlId) throws RocksDBException {
+    public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException {
         // get meta data
-        return null;
-//        this.rocksDB.get(websiteMetaDataRocksDBCol, RocksDBColIndex.getIdToUrlKey(urlId).getBytes());
+        byte[] metaDataStringByte = this.rocksDB.get(urlIdToMetaDataRocksDBCol, urlId.getBytes());
+        if (metaDataStringByte != null) {
+            return SiteMetaData.fromMetaDataString(new String(metaDataStringByte));
+        } else {
+            return null;
+        }
     }
 }

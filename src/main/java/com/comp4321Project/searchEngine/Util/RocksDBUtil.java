@@ -8,7 +8,6 @@ import org.rocksdb.WriteOptions;
 
 public class RocksDBUtil {
 
-
     public static void initRocksDBWithNextAvailableId(RocksDB rocksDB, ColumnFamilyHandle colHandle) throws RocksDBException {
         byte[] nextAvailableIdByte = rocksDB.get(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
 
