@@ -19,17 +19,26 @@ import java.io.IOException;
 import java.util.*;
 
 public class SpiderImpl implements Spider {
+    private final static Character spaceSeparator = ' ';
     private final RocksDBDao rocksDBDao;
     private final Integer topKKeywords;
-    private final static Character spaceSeparator = ' ';
 
     public SpiderImpl(RocksDBDao rocksDBDao, Integer topKKeywords) {
         this.rocksDBDao = rocksDBDao;
         this.topKKeywords = topKKeywords;
     }
 
-    @Override
-    public void scrape(String url) throws IOException, RocksDBException {
+    public static Character getSpaceSeparator() {
+        return spaceSeparator;
+    }
+
+    /**
+     * @param url the url you want to scrape
+     * @return a set of child url
+     * @throws IOException
+     * @throws RocksDBException
+     */
+    public Set<String> scrapeOneSite(String url) throws IOException, RocksDBException {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
 
         Set<String> linksIdSet = new HashSet<String>();
@@ -168,14 +177,39 @@ public class SpiderImpl implements Spider {
         // use a separator that will rarely appear in the title
         String metaValue = new SiteMetaData(title, url, lastModified, size, -1.0, keyFreqTopKValue.toString(), childLinksListString).toMetaDataString();
         rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
+
+        return linksStringSet;
     }
 
     @Override
     public void scrape(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
+        if (limit != null && limit <= 0) {
+            throw new IllegalArgumentException("limit should be greater than 0");
+        }
 
+        if (!recursive) {
+            this.scrapeOneSite(url);
+        } else {
+            // recursive scrape
+            Set<String> scrapedSite = new HashSet<>();
+            Queue<String> scrapeQueue = new LinkedList<>();
+            Set<String> returnSet;
 
+            scrapeQueue.add(url);
+            // BFS for scraping website
+            while (scrapeQueue.peek() != null && (limit == null || scrapedSite.size() < limit)) {
+                String scrapeUrl = scrapeQueue.poll();
+                System.err.println("Scraping " + scrapeUrl);
+                returnSet = this.scrapeOneSite(scrapeUrl);
+                scrapedSite.add(scrapeUrl);
 
-        this.scrape(url);
+                for (String childUrl : returnSet) {
+                    if (!scrapedSite.contains(childUrl)) {
+                        scrapeQueue.add(childUrl);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -183,11 +217,12 @@ public class SpiderImpl implements Spider {
         this.scrape(url, recursive, null);
     }
 
-    public Integer getTopKKeywords() {
-        return topKKeywords;
+    @Override
+    public void scrape(String url) throws IOException, RocksDBException {
+        this.scrapeOneSite(url);
     }
 
-    public static Character getSpaceSeparator() {
-        return spaceSeparator;
+    public Integer getTopKKeywords() {
+        return topKKeywords;
     }
 }

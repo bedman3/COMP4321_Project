@@ -25,10 +25,19 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="">
+    <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="feat: rearranged code">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/COMP4321_Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/COMP4321_Project.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jetbrains_annotations_0_0_1_SNAPSHOT.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Dao/RocksDBDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Dao/RocksDBDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Dao/RocksDBDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Dao/RocksDBDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/QuerySearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/QuerySearch.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/SpiderImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/SpiderImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/View/SiteMetaData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/View/SiteMetaData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comp4321Project/searchEngine/MainTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/comp4321Project/searchEngine/MainTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +87,7 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
-  <component name="RunManager" selected="JUnit.MainTests.loadResultFromRocksDB">
+  <component name="RunManager" selected="JUnit.MainTests">
     <configuration name="MainTests" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="COMP4321_Project" />
       <extension name="coverage">
@@ -110,38 +119,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MainTests.playGround" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="COMP4321_Project" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.comp4321Project.searchEngine.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.comp4321Project.searchEngine" />
-      <option name="MAIN_CLASS_NAME" value="com.comp4321Project.searchEngine.MainTests" />
-      <option name="METHOD_NAME" value="playGround" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="MainTests.test1" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="COMP4321_Project" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.comp4321Project.searchEngine.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.comp4321Project.searchEngine" />
-      <option name="MAIN_CLASS_NAME" value="com.comp4321Project.searchEngine.MainTests" />
-      <option name="METHOD_NAME" value="test1" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="SearchEngineApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="COMP4321_Project" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.comp4321Project.searchEngine.Main" />
@@ -149,12 +126,15 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="JUnit.MainTests" />
+      <item itemvalue="JUnit.MainTests.loadResultFromRocksDB" />
+      <item itemvalue="Spring Boot.SearchEngineApplication" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.MainTests.loadResultFromRocksDB" />
         <item itemvalue="JUnit.MainTests" />
-        <item itemvalue="JUnit.MainTests.test1" />
-        <item itemvalue="JUnit.MainTests.playGround" />
+        <item itemvalue="JUnit.MainTests.loadResultFromRocksDB" />
       </list>
     </recent_temporary>
   </component>
@@ -181,7 +161,7 @@
       <workItem from="1586679048068" duration="22665000" />
       <workItem from="1586714290496" duration="1465000" />
       <workItem from="1586747707740" duration="1663000" />
-      <workItem from="1586750983803" duration="11688000" />
+      <workItem from="1586750983803" duration="16223000" />
     </task>
     <task id="LOCAL-00001" summary="feat: init project">
       <created>1585742485760</created>
@@ -302,7 +282,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586764083696</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="feat: rearranged code">
+      <created>1586764391023</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1586764391023</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -338,7 +325,8 @@
     <MESSAGE value="feat: implemented a variety of index col family for id conversion, used id for key index in db" />
     <MESSAGE value="feat: implemented feature to print" />
     <MESSAGE value="feat: created separate test program for scraping and querying" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: created separate test program for scraping and querying" />
+    <MESSAGE value="feat: rearranged code" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: rearranged code" />
   </component>
   <component name="WindowStateProjectService">
     <state x="914" y="408" key="#Inspections" timestamp="1585744745292">
@@ -349,14 +337,14 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="768" y="304" key="#Project_Structure/0.0.2560.1440@0.0.2560.1440" timestamp="1585742801439" />
-    <state x="744" y="384" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586511353875">
+    <state x="744" y="384" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586766748059">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="744" y="384" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2560.1440@0.0.2560.1440" timestamp="1586511353875" />
-    <state x="1093" y="431" width="374" height="560" key="#com.intellij.ide.util.MemberChooser" timestamp="1586762137256">
+    <state x="744" y="384" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.2560.1440@0.0.2560.1440" timestamp="1586766748059" />
+    <state x="1093" y="431" width="374" height="560" key="#com.intellij.ide.util.MemberChooser" timestamp="1586764972676">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="1093" y="431" width="374" height="560" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1440@0.0.2560.1440" timestamp="1586762137256" />
+    <state x="1093" y="431" width="374" height="560" key="#com.intellij.ide.util.MemberChooser/0.0.2560.1440@0.0.2560.1440" timestamp="1586764972676" />
     <state x="888" y="380" key="#com.intellij.ide.util.frameworkSupport.AddFrameworkSupportDialog" timestamp="1585741937258">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -373,10 +361,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1001" y="573" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.2560.1440@0.0.2560.1440" timestamp="1586621782458" />
-    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586764083661">
+    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586768271797">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586764083661" />
+    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586768271797" />
     <state x="1060" y="434" key="FileChooserDialogImpl" timestamp="1586749721608">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -385,38 +373,38 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state width="2517" height="484" key="GridCell.Tab.-1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586751445712" />
-    <state width="2517" height="337" key="GridCell.Tab.0.bottom" timestamp="1586763999405">
+    <state width="2517" height="337" key="GridCell.Tab.0.bottom" timestamp="1586768745188">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586763999405" />
-    <state width="2517" height="337" key="GridCell.Tab.0.center" timestamp="1586763999403">
+    <state width="2517" height="337" key="GridCell.Tab.0.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586768745188" />
+    <state width="2517" height="337" key="GridCell.Tab.0.center" timestamp="1586768745187">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586763999403" />
-    <state width="2517" height="337" key="GridCell.Tab.0.left" timestamp="1586763999402">
+    <state width="2517" height="337" key="GridCell.Tab.0.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586768745187" />
+    <state width="2517" height="337" key="GridCell.Tab.0.left" timestamp="1586768745186">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586763999402" />
-    <state width="2517" height="337" key="GridCell.Tab.0.right" timestamp="1586763999404">
+    <state width="2517" height="337" key="GridCell.Tab.0.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586768745186" />
+    <state width="2517" height="337" key="GridCell.Tab.0.right" timestamp="1586768745188">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586763999404" />
-    <state width="2517" height="337" key="GridCell.Tab.1.bottom" timestamp="1586763408498">
+    <state width="2517" height="337" key="GridCell.Tab.0.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586768745188" />
+    <state width="2517" height="337" key="GridCell.Tab.1.bottom" timestamp="1586766759390">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586763408498" />
-    <state width="2517" height="337" key="GridCell.Tab.1.center" timestamp="1586763408497">
+    <state width="2517" height="337" key="GridCell.Tab.1.bottom/0.0.2560.1440@0.0.2560.1440" timestamp="1586766759390" />
+    <state width="2517" height="337" key="GridCell.Tab.1.center" timestamp="1586766759388">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586763408497" />
-    <state width="2517" height="337" key="GridCell.Tab.1.left" timestamp="1586763408496">
+    <state width="2517" height="337" key="GridCell.Tab.1.center/0.0.2560.1440@0.0.2560.1440" timestamp="1586766759388" />
+    <state width="2517" height="337" key="GridCell.Tab.1.left" timestamp="1586766759388">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586763408496" />
-    <state width="2517" height="337" key="GridCell.Tab.1.right" timestamp="1586763408497">
+    <state width="2517" height="337" key="GridCell.Tab.1.left/0.0.2560.1440@0.0.2560.1440" timestamp="1586766759388" />
+    <state width="2517" height="337" key="GridCell.Tab.1.right" timestamp="1586766759389">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="2517" height="337" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586763408497" />
+    <state width="2517" height="337" key="GridCell.Tab.1.right/0.0.2560.1440@0.0.2560.1440" timestamp="1586766759389" />
     <state x="818" y="384" key="Maven.ArtifactSearchDialog" timestamp="1586763101899">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -425,10 +413,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="768" y="304" key="SettingsEditor/0.0.2560.1440@0.0.2560.1440" timestamp="1585993536160" />
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586764084627">
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586764392297">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586764084627" />
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586764392297" />
     <state x="1082" y="508" key="chooseDestDirectoryDialog" timestamp="1586509637620">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -445,17 +433,17 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="974" y="478" width="610" height="476" key="find.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1586762225921" />
-    <state width="473" height="183" key="javadoc.popup.new" timestamp="1586763033540">
+    <state width="473" height="183" key="javadoc.popup.new" timestamp="1586768153276">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state width="473" height="183" key="javadoc.popup.new/0.0.2560.1440@0.0.2560.1440" timestamp="1586763033540" />
+    <state width="473" height="183" key="javadoc.popup.new/0.0.2560.1440@0.0.2560.1440" timestamp="1586768153276" />
     <state x="943" y="342" key="run.anything.popup" timestamp="1586708718819">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="943" y="342" key="run.anything.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1586708718819" />
-    <state x="943" y="336" width="672" height="678" key="search.everywhere.popup" timestamp="1586754948658">
+    <state x="943" y="336" width="672" height="678" key="search.everywhere.popup" timestamp="1586768735258">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="943" y="336" width="672" height="678" key="search.everywhere.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1586754948658" />
+    <state x="943" y="336" width="672" height="678" key="search.everywhere.popup/0.0.2560.1440@0.0.2560.1440" timestamp="1586768735258" />
   </component>
 </project>

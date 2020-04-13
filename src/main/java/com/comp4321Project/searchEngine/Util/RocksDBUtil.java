@@ -35,6 +35,7 @@ public class RocksDBUtil {
 
     /**
      * This function will check if the key exists in rocksdb, if not it will create one
+     *
      * @param rocksDB
      * @param keyToIdColHandle
      * @param idToKeyColHandle
@@ -67,6 +68,7 @@ public class RocksDBUtil {
 
     /**
      * This function assumes the required key has already ran through {@link #getIdFromKey(RocksDB, ColumnFamilyHandle, ColumnFamilyHandle, String)}
+     *
      * @param rocksDB
      * @param idToKeyColHandle
      * @param id

@@ -135,4 +135,19 @@ public class RocksDBDaoImpl implements RocksDBDao {
             return null;
         }
     }
+
+    public void printAllDataInRocksDB() throws RocksDBException {
+        // print all storage
+        for (ColumnFamilyHandle col : this.getColumnFamilyHandleList()) {
+            RocksIterator it = rocksDB.newIterator(col);
+
+            System.err.println("ColumnFamily: " + new String(col.getName()));
+
+            for (it.seekToFirst(); it.isValid(); it.next()) {
+                System.err.println("key: " + new String(it.key()) + " | value: " + new String(it.value()));
+            }
+
+            System.err.println();
+        }
+    }
 }

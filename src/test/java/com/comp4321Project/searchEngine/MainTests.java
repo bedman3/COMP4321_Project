@@ -11,7 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 @SpringBootTest
 class MainTests {
@@ -23,21 +26,48 @@ class MainTests {
             Spider spider = new SpiderImpl(rocksDBDao, 5);
             spider.scrape(url, true, 30);
         } catch (RocksDBException | IOException e) {
-            System.err.println(e.toString());
+            e.printStackTrace();
         }
     }
 
     @Test
     void loadResultFromRocksDB() {
         try {
-            String url = "http://www.cse.ust.hk";
+            String outputFileName = "spider_result.txt";
+            String dashedLineSeparator = "--------------------------------------------------------------------------";
+            File outputFile = new File(outputFileName);
+
+            if (outputFile.exists()) {
+                outputFile.delete();
+            }
+            outputFile.createNewFile();
+
+            PrintWriter printWriter = new PrintWriter(outputFile);
+
             RocksDBDao rocksDBDao = new RocksDBDaoImpl();
             QuerySearch querySearch = new QuerySearch(rocksDBDao);
 
-            SiteMetaData siteMetaData = querySearch.search(url);
-            System.out.println(siteMetaData.toPrint());
-        } catch (RocksDBException e) {
+            List<SiteMetaData> resultsList = querySearch.getAllSiteFromDB();
+            resultsList.forEach(siteMetaData -> System.out.println(siteMetaData.toPrint()));
+            resultsList.forEach(siteMetaData -> {
+                printWriter.println(siteMetaData.toPrint());
+                printWriter.println(dashedLineSeparator);
+            });
+
+            rocksDBDao.getRocksDB().closeE();
+        } catch (RocksDBException | NullPointerException | IOException e) {
             e.printStackTrace();
         }
     }
+
+    // debug code
+//    @AfterAll
+//    static void printAllDataInRocksDB() {
+//        try {
+//            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+//            rocksDBDao.printAllDataInRocksDB();
+//        } catch (RocksDBException | NullPointerException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

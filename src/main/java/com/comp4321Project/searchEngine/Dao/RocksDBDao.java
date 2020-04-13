@@ -13,16 +13,26 @@ public interface RocksDBDao {
     public ColumnFamilyHandle getDefaultRocksDBCol();
 
     public ColumnFamilyHandle getUrlIdToMetaDataRocksDBCol();
+
     public ColumnFamilyHandle getParentUrlIdToChildUrlIdRocksDBCol();
+
     public ColumnFamilyHandle getChildUrlIdToParentUrlIdRocksDBCol();
+
     public ColumnFamilyHandle getUrlToUrlIdRocksDBCol();
+
     public ColumnFamilyHandle getUrlIdToUrlRocksDBCol();
+
     public ColumnFamilyHandle getWordToWordIdRocksDBCol();
+
     public ColumnFamilyHandle getWordIdToWordRocksDBCol();
+
     public ColumnFamilyHandle getUrlIdToKeywordFrequencyRocksDBCol();
+
     public ColumnFamilyHandle getUrlIdToTop5Keyword();
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList();
 
     public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException;
+
+    public void printAllDataInRocksDB() throws RocksDBException;
 }
