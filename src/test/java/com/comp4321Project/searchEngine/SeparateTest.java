@@ -6,7 +6,6 @@ import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import com.comp4321Project.searchEngine.Service.SpiderImpl;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
@@ -15,9 +14,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-class MainTests {
-    @BeforeAll
-    public static void scrapeUrlToRocksDB() {
+public class SeparateTest {
+    @Test
+    public void scrapeUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = new RocksDBDaoImpl();
@@ -59,15 +58,4 @@ class MainTests {
             e.printStackTrace();
         }
     }
-
-    // debug code
-    /*@AfterAll
-    public static void printAllDataInRocksDB() {
-        try {
-            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
-            rocksDBDao.printAllDataInRocksDB();
-        } catch (RocksDBException | NullPointerException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
