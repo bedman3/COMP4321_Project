@@ -1,6 +1,5 @@
 package com.comp4321Project.searchEngine.Dao;
 
-import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SearchResultView;
@@ -13,14 +12,20 @@ import java.util.List;
 
 public class RocksDBDaoImpl implements RocksDBDao {
     private final ColumnFamilyHandle defaultRocksDBCol;
-    private final ColumnFamilyHandle websiteMetaDataRocksDBCol;
-    private final ColumnFamilyHandle vSpaceModelIndexDataRocksDBCol;
-    private final ColumnFamilyHandle siteMapDataRocksDBCol;
-    private final ColumnFamilyHandle urlIdDataRocksDBCol;
-    private final ColumnFamilyHandle wordIdDataRocksDBCol;
-    private final ColumnFamilyHandle keywordFrequencyDataRocksDBCol;
+
+
     private final List<ColumnFamilyHandle> columnFamilyHandleList;
     private final RocksDB rocksDB;
+    private final ColumnFamilyHandle urlIdToMetaDataRocksDBCol;
+    private final ColumnFamilyHandle parentUrlIdToChildUrlIdRocksDBCol;
+    private final ColumnFamilyHandle childUrlIdToParentUrlIdRocksDBCol;
+    private final ColumnFamilyHandle urlToUrlIdRocksDBCol;
+    private final ColumnFamilyHandle urlIdToUrlRocksDBCol;
+    private final ColumnFamilyHandle wordToWordIdRocksDBCol;
+    private final ColumnFamilyHandle wordIdToWordRocksDBCol;
+    private final ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
+    private final ColumnFamilyHandle urlIdToTop5Keyword;
+
     private HashMap<String, SearchResultView> searchResultViewHashMap;
 
     public RocksDBDaoImpl(String dbPath) throws RocksDBException {
@@ -37,28 +42,36 @@ public class RocksDBDaoImpl implements RocksDBDao {
 
         List<ColumnFamilyDescriptor> columnFamilyDescriptorList = Arrays.asList(
                 new ColumnFamilyDescriptor(RocksDB.DEFAULT_COLUMN_FAMILY),
-                new ColumnFamilyDescriptor("WebsiteMetaData".getBytes()),
-                new ColumnFamilyDescriptor("VSpaceModelIndexData".getBytes()),
-                new ColumnFamilyDescriptor("SiteMapData".getBytes()),
-                new ColumnFamilyDescriptor("urlIdData".getBytes()),
-                new ColumnFamilyDescriptor("wordIdData".getBytes()),
-                new ColumnFamilyDescriptor("keywordFrequencyData".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToMetaData".getBytes()),
+                new ColumnFamilyDescriptor("ParentUrlIdToChildUrlIdData".getBytes()),
+                new ColumnFamilyDescriptor("ChildUrlIdToParentUrlIdData".getBytes()),
+                new ColumnFamilyDescriptor("UrlToUrlIdData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToUrlData".getBytes()),
+                new ColumnFamilyDescriptor("WordToWordIdData".getBytes()),
+                new ColumnFamilyDescriptor("WordIdToWordData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes())
+//                new ColumnFamilyDescriptor("VSpaceModelIndexData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
         this.rocksDB = RocksDB.open(dbOptions, dbPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
 
         this.defaultRocksDBCol = columnFamilyHandleList.get(0);
-        this.websiteMetaDataRocksDBCol = columnFamilyHandleList.get(1);
-        this.vSpaceModelIndexDataRocksDBCol = columnFamilyHandleList.get(2);
-        this.siteMapDataRocksDBCol = columnFamilyHandleList.get(3);
-        this.urlIdDataRocksDBCol = columnFamilyHandleList.get(4);
-        this.wordIdDataRocksDBCol = columnFamilyHandleList.get(5);
-        this.keywordFrequencyDataRocksDBCol = columnFamilyHandleList.get(6);
+        this.urlIdToMetaDataRocksDBCol = columnFamilyHandleList.get(1);
+        this.parentUrlIdToChildUrlIdRocksDBCol = columnFamilyHandleList.get(2);
+        this.childUrlIdToParentUrlIdRocksDBCol = columnFamilyHandleList.get(3);
+        this.urlToUrlIdRocksDBCol = columnFamilyHandleList.get(4);
+        this.urlIdToUrlRocksDBCol = columnFamilyHandleList.get(5);
+        this.wordToWordIdRocksDBCol = columnFamilyHandleList.get(6);
+        this.wordIdToWordRocksDBCol = columnFamilyHandleList.get(7);
+        this.urlIdToKeywordFrequencyRocksDBCol = columnFamilyHandleList.get(8);
+        this.urlIdToTop5Keyword = columnFamilyHandleList.get(9);
+
 
         // init rocksdb for id data
-        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, urlIdDataRocksDBCol);
-        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, wordIdDataRocksDBCol);
+        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, urlIdToUrlRocksDBCol);
+        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, wordIdToWordRocksDBCol);
     }
 
     public RocksDBDaoImpl() throws RocksDBException {
@@ -73,28 +86,40 @@ public class RocksDBDaoImpl implements RocksDBDao {
         return defaultRocksDBCol;
     }
 
-    public ColumnFamilyHandle getWebsiteMetaDataRocksDBCol() {
-        return websiteMetaDataRocksDBCol;
+    public ColumnFamilyHandle getUrlIdToMetaDataRocksDBCol() {
+        return urlIdToMetaDataRocksDBCol;
     }
 
-    public ColumnFamilyHandle getvSpaceModelIndexDataRocksDBCol() {
-        return vSpaceModelIndexDataRocksDBCol;
+    public ColumnFamilyHandle getParentUrlIdToChildUrlIdRocksDBCol() {
+        return parentUrlIdToChildUrlIdRocksDBCol;
     }
 
-    public ColumnFamilyHandle getSiteMapDataRocksDBCol() {
-        return siteMapDataRocksDBCol;
+    public ColumnFamilyHandle getChildUrlIdToParentUrlIdRocksDBCol() {
+        return childUrlIdToParentUrlIdRocksDBCol;
     }
 
-    public ColumnFamilyHandle getKeywordFrequencyDataRocksDBCol() {
-        return keywordFrequencyDataRocksDBCol;
+    public ColumnFamilyHandle getUrlToUrlIdRocksDBCol() {
+        return urlToUrlIdRocksDBCol;
     }
 
-    public ColumnFamilyHandle getUrlIdDataRocksDBCol() {
-        return urlIdDataRocksDBCol;
+    public ColumnFamilyHandle getUrlIdToUrlRocksDBCol() {
+        return urlIdToUrlRocksDBCol;
     }
 
-    public ColumnFamilyHandle getWordIdDataRocksDBCol() {
-        return wordIdDataRocksDBCol;
+    public ColumnFamilyHandle getWordToWordIdRocksDBCol() {
+        return wordToWordIdRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getWordIdToWordRocksDBCol() {
+        return wordIdToWordRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getUrlIdToKeywordFrequencyRocksDBCol() {
+        return urlIdToKeywordFrequencyRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getUrlIdToTop5Keyword() {
+        return urlIdToTop5Keyword;
     }
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList() {
@@ -102,7 +127,7 @@ public class RocksDBDaoImpl implements RocksDBDao {
     }
 
     public SearchResultView getSiteSearchView(String url) throws RocksDBException {
-        String siteId = RocksDBUtil.getUrlIdFromUrl(this.rocksDB, this.urlIdDataRocksDBCol, url);
+        String siteId = RocksDBUtil.getUrlIdFromUrl(this, url);
         return getSiteSearchViewWithUrlId(siteId);
     }
 

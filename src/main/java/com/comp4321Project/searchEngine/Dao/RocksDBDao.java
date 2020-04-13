@@ -12,17 +12,15 @@ public interface RocksDBDao {
 
     public ColumnFamilyHandle getDefaultRocksDBCol();
 
-    public ColumnFamilyHandle getWebsiteMetaDataRocksDBCol();
-
-    public ColumnFamilyHandle getvSpaceModelIndexDataRocksDBCol();
-
-    public ColumnFamilyHandle getSiteMapDataRocksDBCol();
-
-    public ColumnFamilyHandle getKeywordFrequencyDataRocksDBCol();
-
-    public ColumnFamilyHandle getUrlIdDataRocksDBCol();
-
-    public ColumnFamilyHandle getWordIdDataRocksDBCol();
+    public ColumnFamilyHandle getUrlIdToMetaDataRocksDBCol();
+    public ColumnFamilyHandle getParentUrlIdToChildUrlIdRocksDBCol();
+    public ColumnFamilyHandle getChildUrlIdToParentUrlIdRocksDBCol();
+    public ColumnFamilyHandle getUrlToUrlIdRocksDBCol();
+    public ColumnFamilyHandle getUrlIdToUrlRocksDBCol();
+    public ColumnFamilyHandle getWordToWordIdRocksDBCol();
+    public ColumnFamilyHandle getWordIdToWordRocksDBCol();
+    public ColumnFamilyHandle getUrlIdToKeywordFrequencyRocksDBCol();
+    public ColumnFamilyHandle getUrlIdToTop5Keyword();
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList();
 
