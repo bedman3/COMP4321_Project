@@ -63,7 +63,7 @@ class MainTests {
     }
 
     // debug code
-    @AfterAll
+    /*@AfterAll
     static void printAllDataInRocksDB() {
         try {
             RocksDBDao rocksDBDao = new RocksDBDaoImpl();
@@ -71,5 +71,5 @@ class MainTests {
         } catch (RocksDBException | NullPointerException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }
