@@ -3,6 +3,7 @@ package com.comp4321Project.searchEngine.Service;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
+import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
@@ -33,18 +34,22 @@ public class SpiderImpl implements Spider {
     }
 
     /**
-     * @param url the url you want to scrape
+     * @param rawUrl the url you want to scrape
      * @return a set of child url
      * @throws IOException
      * @throws RocksDBException
      */
-    public Set<String> scrapeOneSite(String url) throws IOException, RocksDBException {
+    public Set<String> scrapeOneSite(String rawUrl) throws IOException, RocksDBException {
+        String url = UrlProcessing.trimHeaderAndSlashAtTheEnd(rawUrl);
+        String baseUrl = UrlProcessing.getBaseUrl(url);
+        String httpUrl = String.format("http://%s", url);
+
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
 
         Set<String> linksIdSet = new HashSet<String>();
         Set<String> linksStringSet = new HashSet<String>();
 
-        Connection.Response response = Jsoup.connect(url).execute();
+        Connection.Response response = Jsoup.connect(httpUrl).execute();
         // extract last modified from response header
         String lastModified = response.header("Last-Modified");
         if (lastModified == null) {
@@ -64,22 +69,38 @@ public class SpiderImpl implements Spider {
             // it will contain links like /admin/qa/
             // we will need to append the parent url to the relative url
             // so the result will become http://www.cse.ust.hk/admin/qa/
-            if (link.startsWith("/")) {
-                link = url + link;
-            } else if (link.startsWith("#")) {
-                // ignore any links start with element link #
-                continue;
-            } else if (link.equals(url)) {
-                // do not create self loop
-                continue;
-            } else {
-                // if urls not under url, then we ignore the outgoing links
-                // e.g. if url == http://www.cse.ust.hk, we will ignore
-                // any link that does not start with http://www.cse.ust.hk
-                continue;
+
+            try {
+                if (link.startsWith("/")) {
+                    link = UrlProcessing.trimHeaderAndSlashAtTheEnd(baseUrl + link);
+                } else if (link.contains("javascript:")) {
+                    continue;
+                } else if (link.startsWith("#")) {
+                    // ignore any links start with element link #
+                    continue;
+                } else if (link.startsWith("?")) {
+                    continue;
+                } else if (!link.startsWith("/") && !link.contains(".") && !link.contains("://")) {
+                    link = url + "/" + link;
+                } else {
+                    // if urls not under url, then we ignore the outgoing links
+                    // e.g. if url == http://www.cse.ust.hk, we will ignore
+                    // any link that does not start with http://www.cse.ust.hk
+                    continue;
+                }
+
+                if (UrlProcessing.isUrlEqual(link, url)) {
+                    // do not create self loop
+                    continue;
+                }
+
+                linksStringSet.add(link);
+                linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDBDao, link));
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
-            linksStringSet.add(link);
-            linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDBDao, link));
+
+
         }
 
         // tokenize the words

@@ -6,8 +6,9 @@ import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import com.comp4321Project.searchEngine.Service.SpiderImpl;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
+import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -61,13 +62,13 @@ class MainTests {
     }
 
     // debug code
-//    @AfterAll
-//    static void printAllDataInRocksDB() {
-//        try {
-//            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
-//            rocksDBDao.printAllDataInRocksDB();
-//        } catch (RocksDBException | NullPointerException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @AfterAll
+    static void printAllDataInRocksDB() {
+        try {
+            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+            rocksDBDao.printAllDataInRocksDB();
+        } catch (RocksDBException | NullPointerException e) {
+            e.printStackTrace();
+        }
+    }
 }
