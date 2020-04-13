@@ -10,10 +10,9 @@ public class Util {
         Path checkDir = Paths.get(currDir.toString(), path);
         File createDir = new File(checkDir.toString());
         if (createDir.mkdirs()) {
-            System.out.println("created directory: " + checkDir.toAbsolutePath().toString());
+            System.err.println("created directory: " + checkDir.toAbsolutePath().toString());
         } else {
-            System.out.println("directory " + checkDir.toAbsolutePath().toString() + " exists");
+            System.err.println("directory " + checkDir.toAbsolutePath().toString() + " exists");
         }
-        System.out.println("\n");
     }
 }
