@@ -150,4 +150,8 @@ public class RocksDBDaoImpl implements RocksDBDao {
             System.err.println();
         }
     }
+
+    public void closeRocksDB() throws RocksDBException {
+        this.rocksDB.closeE();
+    }
 }

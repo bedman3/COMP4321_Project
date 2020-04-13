@@ -35,4 +35,6 @@ public interface RocksDBDao {
     public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException;
 
     public void printAllDataInRocksDB() throws RocksDBException;
+
+    public void closeRocksDB() throws RocksDBException;
 }
