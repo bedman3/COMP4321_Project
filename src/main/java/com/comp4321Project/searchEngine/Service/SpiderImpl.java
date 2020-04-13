@@ -30,16 +30,6 @@ public class SpiderImpl implements Spider {
 
     @Override
     public void scrape(String url) throws IOException, RocksDBException {
-        this.scrape(url, false);
-    }
-
-    @Override
-    public void scrape(String url, Boolean recursive) throws IOException, RocksDBException {
-        this.scrape(url, recursive, null);
-    }
-
-    @Override
-    public void scrape(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
 
         Set<String> linksIdSet = new HashSet<String>();
@@ -178,6 +168,19 @@ public class SpiderImpl implements Spider {
         // use a separator that will rarely appear in the title
         String metaValue = new SiteMetaData(title, url, lastModified, size, -1.0, keyFreqTopKValue.toString(), childLinksListString).toMetaDataString();
         rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
+    }
+
+    @Override
+    public void scrape(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
+
+
+
+        this.scrape(url);
+    }
+
+    @Override
+    public void scrape(String url, Boolean recursive) throws IOException, RocksDBException {
+        this.scrape(url, recursive, null);
     }
 
     public Integer getTopKKeywords() {

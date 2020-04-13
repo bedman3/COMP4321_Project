@@ -45,7 +45,7 @@ public class SiteMetaData {
         return String.format("%s |,.| %s |,.| %s |,.| %s |,.| %s |,.| %s", pageTitle, url, lastModifiedDate, sizeOfPage, keywordFrequencyModelList, childLinks);
     }
 
-    public SiteMetaData updateParentLinks(RocksDBDao rocksDBDao, String urlId) throws RocksDBException {
+    public void updateParentLinks(RocksDBDao rocksDBDao, String urlId) throws RocksDBException {
         RocksDB rocksDB = rocksDBDao.getRocksDB();
 
         // get parentLinksString
@@ -65,7 +65,6 @@ public class SiteMetaData {
             System.err.println("No child index " + urlId + " in ChildUrlIdToParentUrlIdRocksDBCol");
             this.parentLinks = "None";
         }
-        return this;
     }
 
     public String toPrint() {

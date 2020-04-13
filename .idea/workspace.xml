@@ -27,8 +27,8 @@
   <component name="ChangeListManager">
     <list default="true" id="739b1898-8dbb-4e65-b9c2-d80cd5ac2efb" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/Util.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Util/Util.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/comp4321Project/searchEngine/MainTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/comp4321Project/searchEngine/MainTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/SpiderImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/Service/SpiderImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/View/SiteMetaData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/comp4321Project/searchEngine/View/SiteMetaData.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -181,7 +181,7 @@
       <workItem from="1586679048068" duration="22665000" />
       <workItem from="1586714290496" duration="1465000" />
       <workItem from="1586747707740" duration="1663000" />
-      <workItem from="1586750983803" duration="11484000" />
+      <workItem from="1586750983803" duration="11688000" />
     </task>
     <task id="LOCAL-00001" summary="feat: init project">
       <created>1585742485760</created>
@@ -295,7 +295,14 @@
       <option name="project" value="LOCAL" />
       <updated>1586763529381</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="feat: created separate test program for scraping and querying">
+      <created>1586764083696</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1586764083696</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -330,7 +337,8 @@
     <MESSAGE value="feat: refactor" />
     <MESSAGE value="feat: implemented a variety of index col family for id conversion, used id for key index in db" />
     <MESSAGE value="feat: implemented feature to print" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implemented feature to print" />
+    <MESSAGE value="feat: created separate test program for scraping and querying" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: created separate test program for scraping and querying" />
   </component>
   <component name="WindowStateProjectService">
     <state x="914" y="408" key="#Inspections" timestamp="1585744745292">
@@ -365,10 +373,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="1001" y="573" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.2560.1440@0.0.2560.1440" timestamp="1586621782458" />
-    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586763529347">
+    <state x="838" y="326" key="CommitChangelistDialog2" timestamp="1586764083661">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586763529347" />
+    <state x="838" y="326" key="CommitChangelistDialog2/0.0.2560.1440@0.0.2560.1440" timestamp="1586764083661" />
     <state x="1060" y="434" key="FileChooserDialogImpl" timestamp="1586749721608">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
@@ -417,10 +425,10 @@
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
     <state x="768" y="304" key="SettingsEditor/0.0.2560.1440@0.0.2560.1440" timestamp="1585993536160" />
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586763530170">
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2" timestamp="1586764084627">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
-    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586763530170" />
+    <state x="880" y="462" key="Vcs.Push.Dialog.v2/0.0.2560.1440@0.0.2560.1440" timestamp="1586764084627" />
     <state x="1082" y="508" key="chooseDestDirectoryDialog" timestamp="1586509637620">
       <screen x="0" y="0" width="2560" height="1440" />
     </state>
