@@ -14,6 +14,19 @@ public class SearchResultView {
     private final List<String> parentLinks;
     private final List<String> childLinks;
 
+    public SearchResultView(String pageTitle, String url, String lastModifiedDate, Integer sizeOfPage, Float score,
+                            List<KeywordFrequencyModel> keywordFrequencyModelList, List<String> parentLinks,
+                            List<String> childLinks) {
+        this.pageTitle = pageTitle;
+        this.url = url;
+        this.lastModifiedDate = lastModifiedDate;
+        this.sizeOfPage = sizeOfPage;
+        this.score = score;
+        this.keywordFrequencyModelList = keywordFrequencyModelList;
+        this.parentLinks = parentLinks;
+        this.childLinks = childLinks;
+    }
+
     public String getPageTitle() {
         return pageTitle;
     }
@@ -44,18 +57,5 @@ public class SearchResultView {
 
     public List<String> getChildLinks() {
         return childLinks;
-    }
-
-    public SearchResultView(String pageTitle, String url, String lastModifiedDate, Integer sizeOfPage, Float score,
-                            List<KeywordFrequencyModel> keywordFrequencyModelList, List<String> parentLinks,
-                            List<String> childLinks) {
-        this.pageTitle = pageTitle;
-        this.url = url;
-        this.lastModifiedDate = lastModifiedDate;
-        this.sizeOfPage = sizeOfPage;
-        this.score = score;
-        this.keywordFrequencyModelList = keywordFrequencyModelList;
-        this.parentLinks = parentLinks;
-        this.childLinks = childLinks;
     }
 }

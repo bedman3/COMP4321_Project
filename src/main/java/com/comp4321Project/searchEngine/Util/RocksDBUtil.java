@@ -6,39 +6,36 @@ import org.rocksdb.RocksDBException;
 import org.rocksdb.WriteOptions;
 
 public class RocksDBUtil {
-    final static String nextAvailableIdLiteral = "nextAvailableId";
-    final static String urlToIdKeyPrefix = "urlToId_";
-    final static String wordToIdKeyPrefix = "wordToId_";
-    final static String idToUrlKeyPrefix = "idToUrl_";
-    final static String idToWordKeyPrefix = "idToWord_";
+
 
     public static void initRocksDBWithNextAvailableId(RocksDB rocksDB, ColumnFamilyHandle colHandle) throws RocksDBException {
-        byte[] nextAvailableIdByte = rocksDB.get(colHandle, nextAvailableIdLiteral.getBytes());
+        byte[] nextAvailableIdByte = rocksDB.get(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
 
         if (nextAvailableIdByte == null) {
             // if next available id field does not exist, assumes there is no document in it and we start from 0
-            rocksDB.put(colHandle, new WriteOptions().setSync(true), nextAvailableIdLiteral.getBytes(), "0".getBytes());
+            rocksDB.put(colHandle, new WriteOptions().setSync(true), RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), "0".getBytes());
         }
     }
 
     public static String getUrlIdFromUrl(RocksDB rocksDB, ColumnFamilyHandle colHandle, String url) throws RocksDBException {
-        return getIdFromKey(rocksDB, colHandle, urlToIdKeyPrefix, idToUrlKeyPrefix, url);
+        return getIdFromKey(rocksDB, colHandle, RocksDBColIndex.getUrlToIdKeyPrefix(), RocksDBColIndex.getIdToUrlKeyPrefix(), url);
     }
 
     public static String getWordIdFromWord(RocksDB rocksDB, ColumnFamilyHandle colHandle, String word) throws RocksDBException {
-        return getIdFromKey(rocksDB, colHandle, wordToIdKeyPrefix, idToWordKeyPrefix, word);
+        return getIdFromKey(rocksDB, colHandle, RocksDBColIndex.getWordToIdKeyPrefix(), RocksDBColIndex.getIdToWordKeyPrefix(), word);
     }
 
     public static String getUrlFromUrlId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String urlId) throws RocksDBException {
-        return getKeyFromId(rocksDB, colHandle, idToUrlKeyPrefix, urlId);
+        return getKeyFromId(rocksDB, colHandle, RocksDBColIndex.getIdToUrlKeyPrefix(), urlId);
     }
 
     public static String getWordFromWordId(RocksDB rocksDB, ColumnFamilyHandle colHandle, String wordId) throws RocksDBException {
-        return getKeyFromId(rocksDB, colHandle, idToWordKeyPrefix, wordId);
+        return getKeyFromId(rocksDB, colHandle, RocksDBColIndex.getIdToWordKeyPrefix(), wordId);
     }
 
     /**
      * This function will check if the key exists in rocksdb, if not it will create one
+     *
      * @param rocksDB
      * @param colHandle
      * @param keyPrefix
@@ -55,9 +52,9 @@ public class RocksDBUtil {
             //  when running with multiple workers
 
             // get the next available id
-            byte[] nextAvailableIdStringByte = rocksDB.get(colHandle, nextAvailableIdLiteral.getBytes());
+            byte[] nextAvailableIdStringByte = rocksDB.get(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
             Integer nextAvailableId = Integer.parseInt(new String(nextAvailableIdStringByte));
-            rocksDB.put(colHandle, nextAvailableIdLiteral.getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
+            rocksDB.put(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
 
             // register this url with the new unique id
             rocksDB.put(colHandle, idKey.getBytes(), nextAvailableId.toString().getBytes());
@@ -74,6 +71,7 @@ public class RocksDBUtil {
 
     /**
      * This function assumes the required key has already ran through {@link #getIdFromKey(RocksDB, ColumnFamilyHandle, String, String, String)}
+     *
      * @param rocksDB
      * @param colHandle
      * @return

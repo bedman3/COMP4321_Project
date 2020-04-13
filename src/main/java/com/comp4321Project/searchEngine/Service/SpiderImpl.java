@@ -1,21 +1,182 @@
-//package com.comp4321Project.searchEngine.Service;
-//
-//import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-//
-//public class SpiderImpl {
-//    private final String url;
-//    private final RocksDBDao rocksDBDao;
-//
-//    public Spider(String url, RocksDBDao rocksDBDao) {
-//        this.url = url;
-//        this.rocksDBDao = rocksDBDao;
-//    }
-//
-//    public void scrape() {
-//
-//    }
-//
-//    public void recursiveScrape() {
-//
-//    }
-//}
+package com.comp4321Project.searchEngine.Service;
+
+import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Util.RocksDBUtil;
+import com.comp4321Project.searchEngine.Util.TextProcessing;
+import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.rocksdb.RocksDBException;
+
+import java.io.IOException;
+import java.util.*;
+
+public class SpiderImpl implements Spider {
+    private final RocksDBDao rocksDBDao;
+    private final Integer topKKeywords;
+    private final Character spaceSeparator = ' ';
+
+    public SpiderImpl(RocksDBDao rocksDBDao, Integer topKKeywords) {
+        this.rocksDBDao = rocksDBDao;
+        this.topKKeywords = topKKeywords;
+    }
+
+    @Override
+    public void scrape(String url) throws IOException, RocksDBException {
+        this.scrape(url, false);
+    }
+
+    @Override
+    public void scrape(String url, Boolean recursive) throws IOException, RocksDBException {
+        this.scrape(url, recursive, null);
+    }
+
+    @Override
+    public void scrape(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
+
+
+        Set<String> linksIdSet = new HashSet<String>();
+
+        Connection.Response response = Jsoup.connect(url).execute();
+        // extract last modified from response header
+        String lastModified = response.header("Last-Modified");
+        if (lastModified == null) {
+            lastModified = response.header("Date");
+        }
+
+        String size = response.header("Content-Length");
+
+        // convert parent url to url id
+        String parentUrlId = RocksDBUtil.getUrlIdFromUrl(rocksDBDao.getRocksDB(), rocksDBDao.getUrlIdDataRocksDBCol(), url);
+
+        Document doc = response.parse();
+        Elements linkElements = doc.select("a[href]");
+        String docText = doc.text();
+        for (Element linkElement : linkElements) {
+            String link = linkElement.attr("href");
+            // it will contain links like /admin/qa/
+            // we will need to append the parent url to the relative url
+            // so the result will become http://www.cse.ust.hk/admin/qa/
+            if (link.startsWith("/")) {
+                link = url + link;
+            } else if (link.startsWith("#")) {
+                // ignore any links start with element link #
+                continue;
+            } else if (link.equals(url)) {
+                // do not create self loop
+                continue;
+            } else {
+                // if urls not under url, then we ignore the outgoing links
+                // e.g. if url == http://www.cse.ust.hk, we will ignore
+                // any link that does not start with http://www.cse.ust.hk
+                continue;
+            }
+            linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDBDao.getRocksDB(), rocksDBDao.getUrlIdDataRocksDBCol(), link));
+        }
+
+        // tokenize the words
+        String parsedText = docText;
+
+        // convert all text to lower case
+        parsedText = parsedText.toLowerCase();
+
+        // remove all punctuations
+        parsedText = parsedText.replaceAll("\\p{P}", "");
+
+        String[] wordsArray = StringUtils.split(parsedText, " ");
+
+        Map<String, Integer> keyFreqMap = new HashMap<>();
+        TextProcessing textProcessing = new TextProcessing();
+
+        for (String word : wordsArray) {
+            // remove/ignore stopwords when counting frequency
+            if (textProcessing.isStopWord(word)) {
+                continue;
+            }
+
+            String wordKey = RocksDBUtil.getWordIdFromWord(rocksDBDao.getRocksDB(), rocksDBDao.getWordIdDataRocksDBCol(), word);
+
+            // increment frequency by 1
+            keyFreqMap.merge(wordKey, 1, Integer::sum);
+        }
+
+        // build a max heap to get the top 5 key freq
+        PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {
+            // compare in descending order
+            return p1.getValue().compareTo(p2.getValue()) * -1;
+        });
+
+        keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new AbstractMap.SimpleEntry<>(key, value)));
+
+        Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
+        StringBuilder keyFreqTopKValue = new StringBuilder();
+
+        for (int index = 0; index < this.topKKeywords && keyFreqIt.hasNext(); index++) {
+            Map.Entry<String, Integer> pair = keyFreqIt.next();
+            try {
+                String keyword = RocksDBUtil.getWordFromWordId(rocksDBDao.getRocksDB(), rocksDBDao.getWordIdDataRocksDBCol(), pair.getKey());
+                keyFreqTopKValue.append(keyword);
+                keyFreqTopKValue.append(" ");
+                keyFreqTopKValue.append(pair.getValue());
+                keyFreqTopKValue.append(";");
+            } catch (NullPointerException e) {
+                System.err.println(e.toString());
+            }
+        }
+
+        // serialize the map and store it to rocksdb
+        Gson gson = new Gson();
+        String keyFreqJsonString = gson.toJson(keyFreqMap);
+        String keyFreqTopKKeyPrefix = "topK_";
+        String keyFreqTopKKey = String.format("%s%s", keyFreqTopKKeyPrefix, parentUrlId);
+        rocksDBDao.getRocksDB().put(rocksDBDao.getKeywordFrequencyDataRocksDBCol(), parentUrlId.getBytes(), keyFreqJsonString.getBytes());
+        rocksDBDao.getRocksDB().put(rocksDBDao.getKeywordFrequencyDataRocksDBCol(), keyFreqTopKKey.getBytes(), keyFreqTopKValue.toString().getBytes());
+
+        // store title
+        String title = doc.title();
+
+        // extract the size
+        if (size == null) {
+            // remove all whitespaces and get the length = number of characters
+            int length = docText.replaceAll("\\s+", "").length();
+            size = length + " characters";
+        } else {
+            size += " bytes";
+        }
+
+        String metaKey = String.format("meta_%s", url);
+        // use a separator that will rarely appear in the title
+        String metaValue = String.format("%s |,.| %s |,.| %s |,.| %s", title, url, lastModified, size);
+        rocksDBDao.getRocksDB().put(rocksDBDao.getWebsiteMetaDataRocksDBCol(), metaKey.getBytes(), metaValue.getBytes());
+
+
+        // index child links, index in the format of: key = child_{parent_link}, value = {child_link}
+        // the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
+        // meant to be overwrote if there is update
+        String childLinkKey = String.format("child_%s", parentUrlId);
+        rocksDBDao.getRocksDB().put(rocksDBDao.getSiteMapDataRocksDBCol(), childLinkKey.getBytes(), StringUtils.join(linksIdSet, spaceSeparator).getBytes());
+
+        // index parent links, index in the format of: key = parent_{child_link}, value = {parent_link}
+        for (String link : linksIdSet) {
+            String parentLinkKey = String.format("parent_%s", link);
+            byte[] parentLinkValueByte = rocksDBDao.getRocksDB().get(rocksDBDao.getSiteMapDataRocksDBCol(), parentLinkKey.getBytes());
+
+            if (parentLinkValueByte == null) {
+                rocksDBDao.getRocksDB().put(rocksDBDao.getSiteMapDataRocksDBCol(), parentLinkKey.getBytes(), parentUrlId.getBytes());
+            } else {
+                String parentLinkValue = new String(parentLinkValueByte);
+                if (parentLinkValue.contains(parentUrlId)) {
+                    // do nothing
+                } else {
+                    // append in the end
+                    parentLinkValue += String.format("%c%s", spaceSeparator, parentUrlId);
+                    rocksDBDao.getRocksDB().put(rocksDBDao.getSiteMapDataRocksDBCol(), parentLinkKey.getBytes(), parentLinkValue.getBytes());
+                }
+            }
+        }
+    }
+}
