@@ -37,4 +37,19 @@ public interface RocksDBDao {
     public void printAllDataInRocksDB() throws RocksDBException;
 
     public void closeRocksDB() throws RocksDBException;
+
+    public void initRocksDBWithNextAvailableId(ColumnFamilyHandle colHandle) throws RocksDBException;
+
+    public String getUrlIdFromUrl(String url) throws RocksDBException;
+
+    public String getWordIdFromWord(String word) throws RocksDBException;
+
+    public String getUrlFromUrlId(String urlId) throws RocksDBException;
+
+    public String getWordFromWordId(String wordId) throws RocksDBException;
+
+    public String getIdFromKey(ColumnFamilyHandle keyToIdColHandle, ColumnFamilyHandle idToKeyColHandle, String key) throws RocksDBException;
+
+    public String getKeyFromId(ColumnFamilyHandle idToKeyColHandle, String id) throws RocksDBException;
+
 }

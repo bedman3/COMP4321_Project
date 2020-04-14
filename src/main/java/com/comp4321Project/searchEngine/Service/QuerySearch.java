@@ -18,7 +18,7 @@ public class QuerySearch {
     }
 
     public SiteMetaData search(String url) throws RocksDBException {
-        String urlId = RocksDBUtil.getUrlIdFromUrl(rocksDBDao, url);
+        String urlId = rocksDBDao.getUrlIdFromUrl(url);
 
         SiteMetaData siteMetaData = rocksDBDao.getSiteSearchViewWithUrlId(urlId);
         siteMetaData.updateParentLinks(rocksDBDao, urlId);

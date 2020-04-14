@@ -59,7 +59,7 @@ public class SpiderImpl implements Spider {
         String size = response.header("Content-Length");
 
         // convert parent url to url id
-        String parentUrlId = RocksDBUtil.getUrlIdFromUrl(rocksDBDao, url);
+        String parentUrlId = rocksDBDao.getUrlIdFromUrl(url);
 
         Document doc = response.parse();
         Elements linkElements = doc.select("a[href]");
@@ -95,7 +95,7 @@ public class SpiderImpl implements Spider {
                 }
 
                 linksStringSet.add(link);
-                linksIdSet.add(RocksDBUtil.getUrlIdFromUrl(rocksDBDao, link));
+                linksIdSet.add(rocksDBDao.getUrlIdFromUrl(link));
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
@@ -123,7 +123,7 @@ public class SpiderImpl implements Spider {
                 continue;
             }
 
-            String wordKey = RocksDBUtil.getWordIdFromWord(rocksDBDao, word);
+            String wordKey = rocksDBDao.getWordIdFromWord(word);
 
             // increment frequency by 1
             keyFreqMap.merge(wordKey, 1, Integer::sum);
@@ -143,7 +143,7 @@ public class SpiderImpl implements Spider {
         for (int index = 0; index < this.topKKeywords && keyFreqIt.hasNext(); index++) {
             Map.Entry<String, Integer> pair = keyFreqIt.next();
             try {
-                String keyword = RocksDBUtil.getWordFromWordId(rocksDBDao, pair.getKey());
+                String keyword = rocksDBDao.getWordFromWordId(pair.getKey());
                 keyFreqTopKValue.append(keyword);
                 keyFreqTopKValue.append(" ");
                 keyFreqTopKValue.append(pair.getValue());

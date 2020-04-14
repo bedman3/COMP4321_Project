@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
+import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
@@ -70,8 +71,8 @@ public class RocksDBDaoImpl implements RocksDBDao {
 
 
         // init rocksdb for id data
-        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, urlIdToUrlRocksDBCol);
-        RocksDBUtil.initRocksDBWithNextAvailableId(rocksDB, wordIdToWordRocksDBCol);
+        this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
+        this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
     }
 
     public RocksDBDaoImpl() throws RocksDBException {
@@ -153,5 +154,74 @@ public class RocksDBDaoImpl implements RocksDBDao {
 
     public void closeRocksDB() throws RocksDBException {
         this.rocksDB.closeE();
+    }
+
+    public void initRocksDBWithNextAvailableId(ColumnFamilyHandle colHandle) throws RocksDBException {
+        byte[] nextAvailableIdByte = rocksDB.get(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
+
+        if (nextAvailableIdByte == null) {
+            // if next available id field does not exist, assumes there is no document in it and we start from 0
+            rocksDB.put(colHandle, new WriteOptions().setSync(true), RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), "0".getBytes());
+        }
+    }
+
+    public String getUrlIdFromUrl(String url) throws RocksDBException {
+        return getIdFromKey(this.urlToUrlIdRocksDBCol, this.urlIdToUrlRocksDBCol, url);
+    }
+
+    public String getWordIdFromWord(String word) throws RocksDBException {
+        return getIdFromKey(this.wordToWordIdRocksDBCol, this.wordIdToWordRocksDBCol, word);
+    }
+
+    public String getUrlFromUrlId(String urlId) throws RocksDBException {
+        return getKeyFromId(this.urlIdToUrlRocksDBCol, urlId);
+    }
+
+    public String getWordFromWordId(String wordId) throws RocksDBException {
+        return getKeyFromId(this.wordIdToWordRocksDBCol, wordId);
+    }
+
+    /**
+     * This function will check if the key exists in rocksdb, if not it will create one
+     *
+     * @param keyToIdColHandle
+     * @param idToKeyColHandle
+     * @param key
+     * @return
+     * @throws RocksDBException
+     */
+    public String getIdFromKey(ColumnFamilyHandle keyToIdColHandle, ColumnFamilyHandle idToKeyColHandle, String key) throws RocksDBException {
+        byte[] idByte = this.rocksDB.get(keyToIdColHandle, key.getBytes());
+        if (idByte == null) {
+            // TODO: use merge mechanism in rocksdb to ensure the nextAvailableId is synchronized
+            //  when running with multiple workers
+
+            // get the next available id
+            byte[] nextAvailableIdStringByte = rocksDB.get(idToKeyColHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
+            Integer nextAvailableId = Integer.parseInt(new String(nextAvailableIdStringByte));
+            rocksDB.put(idToKeyColHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
+
+            // register this url with the new unique id
+            rocksDB.put(keyToIdColHandle, key.getBytes(), nextAvailableId.toString().getBytes());
+
+            // register a reverse index
+            rocksDB.put(idToKeyColHandle, nextAvailableId.toString().getBytes(), key.getBytes());
+
+            return nextAvailableId.toString();
+        } else {
+            return new String(idByte);
+        }
+    }
+
+    /**
+     * This function assumes the required key has already ran through {@link #getIdFromKey(ColumnFamilyHandle, ColumnFamilyHandle, String)}
+     *
+     * @param idToKeyColHandle
+     * @param id
+     * @return
+     * @throws RocksDBException
+     */
+    public String getKeyFromId(ColumnFamilyHandle idToKeyColHandle, String id) throws RocksDBException {
+        return new String(this.rocksDB.get(idToKeyColHandle, id.getBytes()));
     }
 }
