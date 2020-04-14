@@ -44,7 +44,6 @@ class MainTests {
             QuerySearch querySearch = new QuerySearch(rocksDBDao);
 
             List<SiteMetaData> resultsList = querySearch.getAllSiteFromDB();
-            resultsList.forEach(siteMetaData -> System.out.println(siteMetaData.toPrint()));
             resultsList.forEach(siteMetaData -> {
                 printWriter.println(siteMetaData.toPrint());
                 printWriter.println(dashedLineSeparator);
@@ -69,5 +68,5 @@ class MainTests {
 }
 ```
 
-If you would like to execute the test separately, for spider run: `mvn -Dtest=SeparateTest#scrapeUrlToRocksDB test`, 
-for test program run: `mvn -Dtest=SeparateTest#loadResultFromRocksDB test` 
+If you would like to execute the test separately, for spider run: `mvn -Dtest=SeparateTest#scrapeUrlToRocksDB test`,
+for test program run: `mvn -Dtest=SeparateTest#loadResultFromRocksDB test`

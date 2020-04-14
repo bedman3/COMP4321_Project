@@ -44,7 +44,6 @@ class MainTests {
             QuerySearch querySearch = new QuerySearch(rocksDBDao);
 
             List<SiteMetaData> resultsList = querySearch.getAllSiteFromDB();
-            resultsList.forEach(siteMetaData -> System.out.println(siteMetaData.toPrint()));
             resultsList.forEach(siteMetaData -> {
                 printWriter.println(siteMetaData.toPrint());
                 printWriter.println(dashedLineSeparator);
