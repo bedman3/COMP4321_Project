@@ -69,7 +69,6 @@ public class RocksDBDaoImpl implements RocksDBDao {
         this.urlIdToKeywordFrequencyRocksDBCol = columnFamilyHandleList.get(8);
         this.urlIdToTop5Keyword = columnFamilyHandleList.get(9);
 
-
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);

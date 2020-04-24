@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
@@ -34,12 +33,12 @@ public class SpiderImpl implements Spider {
     }
 
     /**
-     * @param rawUrl the url you want to scrape
+     * @param rawUrl the url you want to crawl
      * @return a set of child url
      * @throws IOException
      * @throws RocksDBException
      */
-    public Set<String> scrapeOneSite(String rawUrl) throws IOException, RocksDBException {
+    public Set<String> crawlOneSite(String rawUrl) throws IOException, RocksDBException {
         String url = UrlProcessing.trimHeaderAndSlashAtTheEnd(rawUrl);
         String baseUrl = UrlProcessing.getBaseUrl(url);
         String httpUrl = String.format("http://%s", url);
@@ -203,30 +202,30 @@ public class SpiderImpl implements Spider {
     }
 
     @Override
-    public void scrape(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
+    public void crawl(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
         if (limit != null && limit <= 0) {
             throw new IllegalArgumentException("limit should be greater than 0");
         }
 
         if (!recursive) {
-            this.scrapeOneSite(url);
+            this.crawlOneSite(url);
         } else {
-            // recursive scrape
-            Set<String> scrapedSite = new HashSet<>();
-            Queue<String> scrapeQueue = new LinkedList<>();
+            // recursive crawl
+            Set<String> crawledSite = new HashSet<>();
+            Queue<String> crawlQueue = new LinkedList<>();
             Set<String> returnSet;
 
-            scrapeQueue.add(url);
+            crawlQueue.add(url);
             // BFS for scraping website
-            while (scrapeQueue.peek() != null && (limit == null || scrapedSite.size() < limit)) {
-                String scrapeUrl = scrapeQueue.poll();
-                System.err.println("Scraping " + scrapeUrl);
-                returnSet = this.scrapeOneSite(scrapeUrl);
-                scrapedSite.add(scrapeUrl);
+            while (crawlQueue.peek() != null && (limit == null || crawledSite.size() < limit)) {
+                String crawlUrl = crawlQueue.poll();
+                System.err.println("Scraping " + crawlUrl);
+                returnSet = this.crawlOneSite(crawlUrl);
+                crawledSite.add(crawlUrl);
 
                 for (String childUrl : returnSet) {
-                    if (!scrapedSite.contains(childUrl)) {
-                        scrapeQueue.add(childUrl);
+                    if (!crawledSite.contains(childUrl)) {
+                        crawlQueue.add(childUrl);
                     }
                 }
             }
@@ -234,13 +233,13 @@ public class SpiderImpl implements Spider {
     }
 
     @Override
-    public void scrape(String url, Boolean recursive) throws IOException, RocksDBException {
-        this.scrape(url, recursive, null);
+    public void crawl(String url, Boolean recursive) throws IOException, RocksDBException {
+        this.crawl(url, recursive, null);
     }
 
     @Override
-    public void scrape(String url) throws IOException, RocksDBException {
-        this.scrapeOneSite(url);
+    public void crawl(String url) throws IOException, RocksDBException {
+        this.crawlOneSite(url);
     }
 
     public Integer getTopKKeywords() {
