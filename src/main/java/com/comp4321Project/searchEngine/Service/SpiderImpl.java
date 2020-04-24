@@ -114,11 +114,11 @@ public class SpiderImpl implements Spider {
         String[] wordsArray = StringUtils.split(parsedText, " ");
 
         Map<String, Integer> keyFreqMap = new HashMap<>();
-        TextProcessing textProcessing = new TextProcessing();
-
+        String
         for (String word : wordsArray) {
+
             // remove/ignore stopwords when counting frequency
-            if (textProcessing.isStopWord(word)) {
+            if (TextProcessing.isStopWord(word)) {
                 continue;
             }
 

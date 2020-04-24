@@ -5,11 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TextProcessing {
-    private final String[] stopWords;
-    private Set<String> stopWordsSet;
-
-    public TextProcessing() {
-        this.stopWords = new String[]{"a", "about", "above", "across", "after", "again", "against", "all", "almost",
+    private static final String[] stopWords;
+    private static final Set<String> stopWordsSet;
+    static {
+        stopWords = new String[]{"a", "about", "above", "across", "after", "again", "against", "all", "almost",
                 "alone", "along", "already", "also", "although", "always", "among", "an", "and", "another", "any",
                 "anybody", "anyone", "anything", "anywhere", "are", "area", "areas", "around", "as", "ask", "asked",
                 "asking", "asks", "at", "away", "b", "back", "backed", "backing", "backs", "be", "became", "because",
@@ -47,14 +46,15 @@ public class TextProcessing {
                 "were", "what", "when", "where", "whether", "which", "while", "who", "whole", "whose", "why", "will",
                 "with", "within", "without", "work", "worked", "working", "works", "would", "x", "y", "year", "years",
                 "yet", "you", "young", "younger", "youngest", "your", "yours", "z"};
-        this.stopWordsSet = new HashSet<String>(Arrays.asList(stopWords));
+        stopWordsSet = new HashSet<String>(Arrays.asList(stopWords));
     }
 
-    public Set<String> getStopWordsSet() {
+
+    public static Set<String> getStopWordsSet() {
         return stopWordsSet;
     }
 
-    public boolean isStopWord(String word) {
-        return this.stopWordsSet.contains(word);
+    public static boolean isStopWord(String word) {
+        return stopWordsSet.contains(word);
     }
 }
