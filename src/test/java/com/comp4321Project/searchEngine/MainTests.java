@@ -22,7 +22,7 @@ class MainTests {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = new RocksDBDaoImpl();
             Spider spider = new SpiderImpl(rocksDBDao, 5);
-            spider.scrape(url, true, 30);
+            spider.crawl(url, true, 30);
 
             rocksDBDao.getRocksDB().closeE();
         } catch (RocksDBException | IOException e) {

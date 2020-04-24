@@ -29,7 +29,7 @@ public class Main {
             RocksDBDao rocksDBDao = new RocksDBDaoImpl();
 
             Spider spider = new SpiderImpl(rocksDBDao, extractTopKKeywords);
-            spider.scrape(url, true, 30);
+            spider.crawl(url, true, 30);
 
             rocksDBDao.printAllDataInRocksDB();
         } catch (RocksDBException e) {
