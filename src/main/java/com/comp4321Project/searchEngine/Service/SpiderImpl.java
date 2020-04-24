@@ -1,6 +1,7 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.UrlProcessing;
@@ -39,11 +40,12 @@ public class SpiderImpl implements Spider {
      * @throws RocksDBException
      */
     public Set<String> crawlOneSite(String rawUrl) throws IOException, RocksDBException {
+        RocksDB rocksDB = this.rocksDBDao.getRocksDB();
+        InvertedFile invertedFile = new InvertedFile(rocksDBDao);
+
         String url = UrlProcessing.trimHeaderAndSlashAtTheEnd(rawUrl);
         String baseUrl = UrlProcessing.getBaseUrl(url);
         String httpUrl = String.format("http://%s", url);
-
-        RocksDB rocksDB = this.rocksDBDao.getRocksDB();
 
         Set<String> linksIdSet = new HashSet<String>();
         Set<String> linksStringSet = new HashSet<String>();
@@ -114,9 +116,9 @@ public class SpiderImpl implements Spider {
         String[] wordsArray = StringUtils.split(parsedText, " ");
 
         Map<String, Integer> keyFreqMap = new HashMap<>();
-        String
-        for (String word : wordsArray) {
 
+        for (int index = 0; index < wordsArray.length; index++) {
+            String word = wordsArray[index];
             // remove/ignore stopwords when counting frequency
             if (TextProcessing.isStopWord(word)) {
                 continue;
@@ -126,6 +128,7 @@ public class SpiderImpl implements Spider {
 
             // increment frequency by 1
             keyFreqMap.merge(wordKey, 1, Integer::sum);
+            invertedFile.add(wordKey, parentUrlId, index);
         }
 
         // build a max heap to get the top 5 key freq

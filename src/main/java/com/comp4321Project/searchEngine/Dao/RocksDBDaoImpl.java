@@ -27,6 +27,8 @@ public class RocksDBDaoImpl implements RocksDBDao {
     private final ColumnFamilyHandle wordIdToWordRocksDBCol;
     private final ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
     private final ColumnFamilyHandle urlIdToTop5Keyword;
+    private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingList;
+    private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingList;
 
     private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
@@ -52,8 +54,9 @@ public class RocksDBDaoImpl implements RocksDBDao {
                 new ColumnFamilyDescriptor("WordToWordIdData".getBytes()),
                 new ColumnFamilyDescriptor("WordIdToWordData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyData".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes())
-//                new ColumnFamilyDescriptor("VSpaceModelIndexData".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes()),
+                new ColumnFamilyDescriptor("invertedFileForBodyWordIdToPostingList".getBytes()),
+                new ColumnFamilyDescriptor("invertedFileForTitleWordIdToPostingList".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -69,6 +72,8 @@ public class RocksDBDaoImpl implements RocksDBDao {
         this.wordIdToWordRocksDBCol = columnFamilyHandleList.get(7);
         this.urlIdToKeywordFrequencyRocksDBCol = columnFamilyHandleList.get(8);
         this.urlIdToTop5Keyword = columnFamilyHandleList.get(9);
+        this.invertedFileForBodyWordIdToPostingList = columnFamilyHandleList.get(10);
+        this.invertedFileForTitleWordIdToPostingList = columnFamilyHandleList.get(11);
 
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
@@ -121,6 +126,14 @@ public class RocksDBDaoImpl implements RocksDBDao {
 
     public ColumnFamilyHandle getUrlIdToTop5Keyword() {
         return urlIdToTop5Keyword;
+    }
+
+    public ColumnFamilyHandle getInvertedFileForBodyWordIdToPostingList() {
+        return invertedFileForBodyWordIdToPostingList;
+    }
+
+    public ColumnFamilyHandle getInvertedFileForTitleWordIdToPostingList() {
+        return invertedFileForTitleWordIdToPostingList;
     }
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList() {
