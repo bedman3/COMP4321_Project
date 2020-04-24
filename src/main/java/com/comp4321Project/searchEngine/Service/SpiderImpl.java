@@ -1,11 +1,11 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import com.google.common.base.Joiner;
-import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -153,10 +153,9 @@ public class SpiderImpl implements Spider {
         }
 
         // serialize the map and store it to rocksdb
-        Gson gson = new Gson();
-        String keyFreqJsonString = gson.toJson(keyFreqMap);
-        rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), keyFreqJsonString.getBytes());
+        rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
         rocksDB.put(rocksDBDao.getUrlIdToTop5Keyword(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
+
 
         // store title
         String title = doc.title();

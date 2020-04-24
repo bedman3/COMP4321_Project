@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
+import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
 import com.comp4321Project.searchEngine.Util.Util;
@@ -144,7 +145,15 @@ public class RocksDBDaoImpl implements RocksDBDao {
             System.err.println("ColumnFamily: " + new String(col.getName()));
 
             for (it.seekToFirst(); it.isValid(); it.next()) {
-                System.err.println("key: " + new String(it.key()) + " | value: " + new String(it.value()));
+                String value;
+                if (false) {
+                    // for list
+                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol) {
+                    value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
+                } else {
+                    value = new String(it.value());
+                }
+                System.err.println("key: " + new String(it.key()) + " | value: " + value);
             }
 
             System.err.println();
