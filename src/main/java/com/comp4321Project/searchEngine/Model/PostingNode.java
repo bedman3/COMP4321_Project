@@ -8,7 +8,6 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
     private final String urlId;
     private final Integer urlIdInteger;
     private final ArrayList<Integer> locationList;
-
     public PostingNode(String wordId, String urlId, Integer urlIdInteger, ArrayList<Integer> locationList) {
         this.urlId = urlId;
         this.wordId = wordId;
@@ -28,6 +27,10 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
         this.wordId = wordId;
         this.urlIdInteger = Integer.parseInt(urlId);
         locationList = new ArrayList<>();
+    }
+
+    public Integer getUrlIdInteger() {
+        return urlIdInteger;
     }
 
     public ArrayList<Integer> getLocationList() {

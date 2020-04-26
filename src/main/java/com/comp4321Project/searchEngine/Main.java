@@ -33,6 +33,9 @@ public class Main {
             rocksDBDao.getInvertedFileForBody().mergeExistingWithRocksDB();
             rocksDBDao.getInvertedFileForBody().flushToRocksDB();
 
+            rocksDBDao.getInvertedFileForTitle().mergeExistingWithRocksDB();
+            rocksDBDao.getInvertedFileForTitle().flushToRocksDB();
+
             rocksDBDao.printAllDataInRocksDB();
         } catch (RocksDBException e) {
             System.err.println(e.toString());

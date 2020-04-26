@@ -16,6 +16,7 @@ import org.jsoup.select.Elements;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
+import javax.xml.soap.Text;
 import java.io.IOException;
 import java.util.*;
 
@@ -42,6 +43,7 @@ public class SpiderImpl implements Spider {
     public Set<String> crawlOneSite(String rawUrl) throws IOException, RocksDBException {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
         InvertedFile invertedFileForBody = this.rocksDBDao.getInvertedFileForBody();
+        InvertedFile invertedFileForTitle = this.rocksDBDao.getInvertedFileForTitle();
 
         String url = UrlProcessing.trimHeaderAndSlashAtTheEnd(rawUrl);
         String baseUrl = UrlProcessing.getBaseUrl(url);
@@ -64,7 +66,6 @@ public class SpiderImpl implements Spider {
 
         Document doc = response.parse();
         Elements linkElements = doc.select("a[href]");
-        String docText = doc.body().text();
         for (Element linkElement : linkElements) {
             String link = linkElement.attr("href");
             // it will contain links like /admin/qa/
@@ -100,35 +101,50 @@ public class SpiderImpl implements Spider {
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
-
-
         }
 
+        // store title
+        String title = doc.title();
+
         // tokenize the words
-        String parsedText = docText;
+        String parsedBodyText = doc.body().text();
+        String parsedTitleText = doc.title();
 
         // convert all text to lower case
-        parsedText = parsedText.toLowerCase();
+        parsedBodyText = parsedBodyText.toLowerCase();
+        parsedTitleText = parsedTitleText.toLowerCase();
 
         // remove all punctuations
-        parsedText = parsedText.replaceAll("\\p{P}", "");
+        parsedBodyText = parsedBodyText.replaceAll("\\p{P}", "");
+        parsedTitleText = parsedTitleText.replaceAll("\\p{P}", "");
 
-        String[] wordsArray = StringUtils.split(parsedText, " ");
+        String[] wordsBodyArray = StringUtils.split(parsedBodyText, " ");
+        String[] wordsTitleArray = StringUtils.split(parsedTitleText, " ");
 
         Map<String, Integer> keyFreqMap = new HashMap<>();
 
-        for (int index = 0; index < wordsArray.length; index++) {
-            String word = wordsArray[index];
+        for (int index = 0; index < wordsBodyArray.length; index++) {
+            String word = wordsBodyArray[index];
             // remove/ignore stopwords when counting frequency
             if (TextProcessing.isStopWord(word)) {
                 continue;
             }
 
-            String wordKey = rocksDBDao.getWordIdFromWord(word);
+            String wordId = rocksDBDao.getWordIdFromWord(word);
 
             // increment frequency by 1
-            keyFreqMap.merge(wordKey, 1, Integer::sum);
-            invertedFileForBody.add(wordKey, parentUrlId, index, true);
+            keyFreqMap.merge(wordId, 1, Integer::sum);
+            invertedFileForBody.add(wordId, parentUrlId, index, true);
+        }
+
+        for (int index = 0; index < wordsTitleArray.length; index++) {
+            String word = wordsTitleArray[index];
+            if (TextProcessing.isStopWord(word)) {
+                continue;
+            }
+
+            String wordId = rocksDBDao.getWordIdFromWord(word);
+            invertedFileForTitle.add(wordId, parentUrlId, index, true);
         }
 
         // build a max heap to get the top 5 key freq
@@ -159,14 +175,10 @@ public class SpiderImpl implements Spider {
         rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
         rocksDB.put(rocksDBDao.getUrlIdToTop5Keyword(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
 
-
-        // store title
-        String title = doc.title();
-
         // extract the size
         if (size == null) {
             // remove all whitespaces and get the length = number of characters
-            int length = docText.replaceAll("\\s+", "").length();
+            int length = doc.body().text().replaceAll("\\s+", "").length();
             size = length + " characters";
         } else {
             size += " bytes";

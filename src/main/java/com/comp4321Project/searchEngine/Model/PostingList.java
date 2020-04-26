@@ -48,7 +48,6 @@ public class PostingList implements Serializable {
         PostingNode node = this.search(urlId, wordId);
         boolean addNodeToPostingList = false;
         if (node == null) {
-            System.out.println("add node urlid: " + urlId + " wordId: " + wordId);
             addNodeToPostingList = true;
             node = new PostingNode(wordId, urlId);
         }
@@ -64,7 +63,7 @@ public class PostingList implements Serializable {
     public void merge(PostingList newPostingList) {
         this.postingList.addAll(newPostingList.postingList);
         this.postingList = this.postingList.stream().distinct().collect(Collectors.toList());
-        this.postingList.sort(Comparator.comparing(PostingNode::getUrlId));
+        this.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
         this.postingList.size();
     }
 

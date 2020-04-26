@@ -79,6 +79,7 @@ public class RocksDBDao {
         this.invertedFileForTitleWordIdToPostingList = columnFamilyHandleList.get(11);
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingList);
+        this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingList);
 
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
