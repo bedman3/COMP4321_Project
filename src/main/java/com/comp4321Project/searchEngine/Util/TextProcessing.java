@@ -7,6 +7,7 @@ import java.util.Set;
 public class TextProcessing {
     private static final String[] stopWords;
     private static final Set<String> stopWordsSet;
+
     static {
         stopWords = new String[]{"a", "about", "above", "across", "after", "again", "against", "all", "almost",
                 "alone", "along", "already", "also", "although", "always", "among", "an", "and", "another", "any",

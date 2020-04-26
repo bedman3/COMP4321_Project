@@ -1,13 +1,16 @@
 package com.comp4321Project.searchEngine.Model;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class PostingNode implements Serializable, Comparable<PostingNode> {
     private final String wordId;
     private final String urlId;
     private final Integer urlIdInteger;
     private final ArrayList<Integer> locationList;
+
     public PostingNode(String wordId, String urlId, Integer urlIdInteger, ArrayList<Integer> locationList) {
         this.urlId = urlId;
         this.wordId = wordId;

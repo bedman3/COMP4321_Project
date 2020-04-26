@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
 import com.comp4321Project.searchEngine.Model.InvertedFile;
-import com.comp4321Project.searchEngine.Model.PostingList;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.Util;

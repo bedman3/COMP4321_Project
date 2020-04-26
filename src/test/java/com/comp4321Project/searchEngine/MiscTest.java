@@ -9,7 +9,8 @@ import org.rocksdb.RocksDBException;
 import java.util.*;
 
 public class MiscTest {
-    @Test void printDB() {
+    @Test
+    void printDB() {
         try {
             RocksDBDao rocksDBDao = new RocksDBDao();
             rocksDBDao.printAllDataInRocksDB();
@@ -47,7 +48,7 @@ public class MiscTest {
 
     @Test
     public void testSth2() {
-         PostingList postingList = new PostingList();
+        PostingList postingList = new PostingList();
         HashSet<PostingNode> hashSet = new HashSet<>();
         postingList.add("0", "1", 2, hashSet, true);
         postingList.add("0", "1", 3, hashSet, true);

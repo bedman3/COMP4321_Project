@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Model;
 
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
-import sun.util.locale.provider.FallbackLocaleProviderAdapter;
 
 import java.io.Serializable;
 import java.util.*;
@@ -30,7 +29,7 @@ public class PostingList implements Serializable {
         return CustomFSTSerialization.getInstance().asByteArray(this);
     }
 
-    public PostingNode search(String urlId, String wordId) {
+    public PostingNode search(String urlId) {
         PostingNode node;
 
         for (int index = 0; index < postingList.size(); index++) {
@@ -45,7 +44,7 @@ public class PostingList implements Serializable {
 
     public void add(String wordId, String urlId, int location, Set<PostingNode> lazyNodeSet, boolean lazy) {
         // overwrite the posting node every new indexing so as to avoid duplicating data
-        PostingNode node = this.search(urlId, wordId);
+        PostingNode node = this.search(urlId);
         boolean addNodeToPostingList = false;
         if (node == null) {
             addNodeToPostingList = true;
@@ -64,7 +63,6 @@ public class PostingList implements Serializable {
         this.postingList.addAll(newPostingList.postingList);
         this.postingList = this.postingList.stream().distinct().collect(Collectors.toList());
         this.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
-        this.postingList.size();
     }
 
     @Override
