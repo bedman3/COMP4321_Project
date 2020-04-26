@@ -47,6 +47,11 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
     }
 
     @Override
+    public String toString() {
+        return String.format("(urlId %s, locations: %s)", urlId, Arrays.toString(locationList.toArray()));
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o instanceof PostingNode) {
             PostingNode node = (PostingNode) o;

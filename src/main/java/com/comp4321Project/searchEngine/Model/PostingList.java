@@ -20,7 +20,6 @@ public class PostingList implements Serializable {
         if (byteArray == null) {
             return new PostingList();
         } else {
-            System.out.println("parse object from bytes");
             return (PostingList) CustomFSTSerialization.getInstance().asObject(byteArray);
         }
     }

@@ -129,7 +129,6 @@ public class SpiderImpl implements Spider {
             // increment frequency by 1
             keyFreqMap.merge(wordKey, 1, Integer::sum);
             invertedFileForBody.add(wordKey, parentUrlId, index, true);
-            System.out.println("Add word: " + wordKey);
         }
 
         invertedFileForBody.mergeExistingWithRocksDB();
