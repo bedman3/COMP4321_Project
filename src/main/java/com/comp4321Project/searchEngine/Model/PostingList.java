@@ -1,12 +1,14 @@
 package com.comp4321Project.searchEngine.Model;
 
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
+import sun.util.locale.provider.FallbackLocaleProviderAdapter;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PostingList implements Serializable {
-    private final ArrayList<PostingNode> postingList;
+    private List<PostingNode> postingList;
 
     public PostingList() {
         this.postingList = new ArrayList<>();
@@ -28,37 +30,42 @@ public class PostingList implements Serializable {
         return CustomFSTSerialization.getInstance().asByteArray(this);
     }
 
-    public PostingNode binarySearch(String urlId, String wordId) {
-//        PostingNode node = new PostingNode(wordId, urlId);
-//        int index = Arrays.binarySearch(postingList.toArray(), node);
+    public PostingNode search(String urlId, String wordId) {
+        PostingNode node;
+
         for (int index = 0; index < postingList.size(); index++) {
-            PostingNode node = null;
-            try {
-                node = this.postingList.get(index);
-            } catch (Exception e) {
-                this.postingList.get(index);
-            }
+            node = this.postingList.get(index);
 
             if (node.getUrlId().equals(urlId)) {
                 return node;
             }
         }
-        return new PostingNode(wordId, urlId);
+        return null;
     }
 
     public void add(String wordId, String urlId, int location, Set<PostingNode> lazyNodeSet, boolean lazy) {
         // overwrite the posting node every new indexing so as to avoid duplicating data
-        PostingNode node = this.binarySearch(urlId, wordId);
+        PostingNode node = this.search(urlId, wordId);
+        boolean addNodeToPostingList = false;
+        if (node == null) {
+            System.out.println("add node urlid: " + urlId + " wordId: " + wordId);
+            addNodeToPostingList = true;
+            node = new PostingNode(wordId, urlId);
+        }
 
         node.addLocation(location, lazy);
         lazyNodeSet.add(node);
-        postingList.add(node);
+        if (addNodeToPostingList) {
+            postingList.add(node);
+        }
     }
 
     // merge the new posting list into our existing posting list sorted by url id
     public void merge(PostingList newPostingList) {
         this.postingList.addAll(newPostingList.postingList);
-//        Collections.sort(this.postingList);
+        this.postingList = this.postingList.stream().distinct().collect(Collectors.toList());
+        this.postingList.sort(Comparator.comparing(PostingNode::getUrlId));
+        this.postingList.size();
     }
 
     @Override

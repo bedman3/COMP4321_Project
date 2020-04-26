@@ -31,7 +31,7 @@ public class RocksDBDao {
     private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingList;
     private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingList;
 
-    private InvertedFile invertedFileForBody;
+    private final InvertedFile invertedFileForBody;
     private InvertedFile invertedFileForTitle;
     private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
@@ -166,8 +166,6 @@ public class RocksDBDao {
             for (it.seekToFirst(); it.isValid(); it.next()) {
                 String value;
                 if (col == this.invertedFileForBodyWordIdToPostingList || col == this.invertedFileForTitleWordIdToPostingList) {
-                    // for inverted file
-                    PostingList test = (PostingList) CustomFSTSerialization.getInstance().asObject(it.value());
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else if (col == this.urlIdToKeywordFrequencyRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
@@ -258,15 +256,7 @@ public class RocksDBDao {
         return invertedFileForBody;
     }
 
-    public void setInvertedFileForBody(InvertedFile invertedFileForBody) {
-        this.invertedFileForBody = invertedFileForBody;
-    }
-
     public InvertedFile getInvertedFileForTitle() {
         return invertedFileForTitle;
-    }
-
-    public void setInvertedFileForTitle(InvertedFile invertedFileForTitle) {
-        this.invertedFileForTitle = invertedFileForTitle;
     }
 }

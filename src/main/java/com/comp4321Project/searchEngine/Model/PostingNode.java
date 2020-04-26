@@ -6,27 +6,32 @@ import java.util.*;
 public class PostingNode implements Serializable, Comparable<PostingNode> {
     private final String wordId;
     private final String urlId;
+    private final Integer urlIdInteger;
     private final ArrayList<Integer> locationList;
+
+    public PostingNode(String wordId, String urlId, Integer urlIdInteger, ArrayList<Integer> locationList) {
+        this.urlId = urlId;
+        this.wordId = wordId;
+        this.urlIdInteger = Integer.parseInt(urlId);
+        this.locationList = locationList;
+    }
 
     public PostingNode(String wordId, String urlId, ArrayList<Integer> locationList) {
         this.urlId = urlId;
         this.wordId = wordId;
+        this.urlIdInteger = Integer.parseInt(urlId);
         this.locationList = locationList;
     }
 
     public PostingNode(String wordId, String urlId) {
         this.urlId = urlId;
         this.wordId = wordId;
+        this.urlIdInteger = Integer.parseInt(urlId);
         locationList = new ArrayList<>();
     }
 
     public ArrayList<Integer> getLocationList() {
         return locationList;
-    }
-
-    public PostingNode binarySearch(Integer number) {
-//        Arrays.binarySearch()
-        return null;
     }
 
     public void addLocation(Integer location, boolean lazy) {
@@ -70,6 +75,6 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
 
     @Override
     public int compareTo(PostingNode postingNode) {
-        return this.urlId.compareTo(postingNode.urlId);
+        return this.urlIdInteger.compareTo(postingNode.urlIdInteger);
     }
 }
