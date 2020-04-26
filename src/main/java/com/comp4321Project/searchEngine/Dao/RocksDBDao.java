@@ -30,6 +30,10 @@ public interface RocksDBDao {
 
     public ColumnFamilyHandle getUrlIdToTop5Keyword();
 
+    public ColumnFamilyHandle getInvertedFileForBodyWordIdToPostingList();
+
+    public ColumnFamilyHandle getInvertedFileForTitleWordIdToPostingList();
+
     public List<ColumnFamilyHandle> getColumnFamilyHandleList();
 
     public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException;
