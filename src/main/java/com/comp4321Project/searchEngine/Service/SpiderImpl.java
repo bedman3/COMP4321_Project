@@ -41,7 +41,7 @@ public class SpiderImpl implements Spider {
      */
     public Set<String> crawlOneSite(String rawUrl) throws IOException, RocksDBException {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
-        InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingList());
+        InvertedFile invertedFileForBody = this.rocksDBDao.getInvertedFileForBody();
 
         String url = UrlProcessing.trimHeaderAndSlashAtTheEnd(rawUrl);
         String baseUrl = UrlProcessing.getBaseUrl(url);
@@ -130,9 +130,6 @@ public class SpiderImpl implements Spider {
             keyFreqMap.merge(wordKey, 1, Integer::sum);
             invertedFileForBody.add(wordKey, parentUrlId, index, true);
         }
-
-        invertedFileForBody.mergeExistingWithRocksDB();
-        invertedFileForBody.flushToRocksDB();
 
         // build a max heap to get the top 5 key freq
         PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {

@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Dao.RocksDBDaoImpl;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import com.comp4321Project.searchEngine.Service.SpiderImpl;
@@ -20,7 +19,7 @@ class MainTests {
     public static void scrapeUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
-            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+            RocksDBDao rocksDBDao = new RocksDBDao();
             Spider spider = new SpiderImpl(rocksDBDao, 5);
             spider.crawl(url, true, 30);
 
@@ -44,7 +43,7 @@ class MainTests {
 
             PrintWriter printWriter = new PrintWriter(outputFile);
 
-            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+            RocksDBDao rocksDBDao = new RocksDBDao();
             QuerySearch querySearch = new QuerySearch(rocksDBDao);
 
             List<SiteMetaData> resultsList = querySearch.getAllSiteFromDB();

@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Dao.RocksDBDaoImpl;
 import com.comp4321Project.searchEngine.Service.Spider;
 import com.comp4321Project.searchEngine.Service.SpiderImpl;
 import org.rocksdb.RocksDBException;
@@ -26,10 +25,13 @@ public class Main {
         String url = "http://www.cse.ust.hk";
 
         try {
-            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+            RocksDBDao rocksDBDao = new RocksDBDao();
 
             Spider spider = new SpiderImpl(rocksDBDao, extractTopKKeywords);
             spider.crawl(url, true, 30);
+
+            rocksDBDao.getInvertedFileForBody().mergeExistingWithRocksDB();
+            rocksDBDao.getInvertedFileForBody().flushToRocksDB();
 
             rocksDBDao.printAllDataInRocksDB();
         } catch (RocksDBException e) {

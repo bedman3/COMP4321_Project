@@ -14,14 +14,14 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
         this.locationList = locationList;
     }
 
-    public ArrayList<Integer> getLocationList() {
-        return locationList;
-    }
-
     public PostingNode(String wordId, String urlId) {
         this.urlId = urlId;
         this.wordId = wordId;
         locationList = new ArrayList<>();
+    }
+
+    public ArrayList<Integer> getLocationList() {
+        return locationList;
     }
 
     public PostingNode binarySearch(Integer number) {

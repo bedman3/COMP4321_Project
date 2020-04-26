@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Dao.RocksDBDaoImpl;
 import com.comp4321Project.searchEngine.Model.PostingList;
 import com.comp4321Project.searchEngine.Model.PostingNode;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,7 @@ import java.util.*;
 public class MiscTest {
     @Test void printDB() {
         try {
-            RocksDBDao rocksDBDao = new RocksDBDaoImpl();
+            RocksDBDao rocksDBDao = new RocksDBDao();
             rocksDBDao.printAllDataInRocksDB();
         } catch (RocksDBException | NullPointerException e) {
             e.printStackTrace();
