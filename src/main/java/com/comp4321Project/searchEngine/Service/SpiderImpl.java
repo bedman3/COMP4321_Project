@@ -64,7 +64,7 @@ public class SpiderImpl implements Spider {
 
         Document doc = response.parse();
         Elements linkElements = doc.select("a[href]");
-        String docText = doc.text();
+        String docText = doc.body().text();
         for (Element linkElement : linkElements) {
             String link = linkElement.attr("href");
             // it will contain links like /admin/qa/
@@ -128,8 +128,12 @@ public class SpiderImpl implements Spider {
 
             // increment frequency by 1
             keyFreqMap.merge(wordKey, 1, Integer::sum);
-            invertedFileForBody.add(wordKey, parentUrlId, index);
+            invertedFileForBody.add(wordKey, parentUrlId, index, true);
+            System.out.println("Add word: " + wordKey);
         }
+
+        invertedFileForBody.mergeExistingWithRocksDB();
+        invertedFileForBody.flushToRocksDB();
 
         // build a max heap to get the top 5 key freq
         PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {

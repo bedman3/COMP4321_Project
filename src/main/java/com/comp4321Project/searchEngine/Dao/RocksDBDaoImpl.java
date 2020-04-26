@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
+import com.comp4321Project.searchEngine.Model.PostingList;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.RocksDBUtil;
@@ -159,8 +160,10 @@ public class RocksDBDaoImpl implements RocksDBDao {
 
             for (it.seekToFirst(); it.isValid(); it.next()) {
                 String value;
-                if (false) {
-                    // for list
+                if (col == this.invertedFileForBodyWordIdToPostingList || col == this.invertedFileForTitleWordIdToPostingList) {
+                    // for inverted file
+                    PostingList test = (PostingList) CustomFSTSerialization.getInstance().asObject(it.value());
+                    value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else if (col == this.urlIdToKeywordFrequencyRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else {
