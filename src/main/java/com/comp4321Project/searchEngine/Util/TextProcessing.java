@@ -58,4 +58,8 @@ public class TextProcessing {
     public static boolean isStopWord(String word) {
         return stopWordsSet.contains(word);
     }
+
+    public static void stemWordArrays(String[] wordArrays) {
+
+    }
 }
