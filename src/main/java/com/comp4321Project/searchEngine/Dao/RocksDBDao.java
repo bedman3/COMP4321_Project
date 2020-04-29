@@ -7,6 +7,8 @@ import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.*;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,9 +31,10 @@ public class RocksDBDao {
     private final ColumnFamilyHandle urlIdToTop5Keyword;
     private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingList;
     private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingList;
+    private final ColumnFamilyHandle urlIdToLastModifiedDate;
 
     private final InvertedFile invertedFileForBody;
-    private InvertedFile invertedFileForTitle;
+    private final InvertedFile invertedFileForTitle;
     private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
     public RocksDBDao(String dbPath) throws RocksDBException {
@@ -57,8 +60,9 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("WordIdToWordData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes()),
-                new ColumnFamilyDescriptor("invertedFileForBodyWordIdToPostingList".getBytes()),
-                new ColumnFamilyDescriptor("invertedFileForTitleWordIdToPostingList".getBytes())
+                new ColumnFamilyDescriptor("InvertedFileForBodyWordIdToPostingList".getBytes()),
+                new ColumnFamilyDescriptor("InvertedFileForTitleWordIdToPostingList".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToLastModifiedDate".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -76,6 +80,7 @@ public class RocksDBDao {
         this.urlIdToTop5Keyword = columnFamilyHandleList.get(9);
         this.invertedFileForBodyWordIdToPostingList = columnFamilyHandleList.get(10);
         this.invertedFileForTitleWordIdToPostingList = columnFamilyHandleList.get(11);
+        this.urlIdToLastModifiedDate = columnFamilyHandleList.get(12);
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingList);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingList);
@@ -258,5 +263,31 @@ public class RocksDBDao {
 
     public InvertedFile getInvertedFileForTitle() {
         return invertedFileForTitle;
+    }
+
+    public boolean isIgnoreWithLastModifiedDate(String urlId, String newLastModified) throws RocksDBException {
+        byte[] lastModifiedDateByteFromRocksDB = this.rocksDB.get(this.urlIdToLastModifiedDate, urlId.getBytes());
+        if (lastModifiedDateByteFromRocksDB != null) {
+            // if there exists last modified date in rocksdb,
+            // then compare the lastModifiedDateByteFromRocksDB and newLastModified
+            String lastModifiedDateStringFromRocksDB = new String(lastModifiedDateByteFromRocksDB);
+            ZonedDateTime lastModifiedDateObjectFromRocksDB = ZonedDateTime.parse(lastModifiedDateStringFromRocksDB, DateTimeFormatter.RFC_1123_DATE_TIME);
+            ZonedDateTime newLastModifiedDateObject = ZonedDateTime.parse(newLastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
+
+            boolean isIgnore = lastModifiedDateObjectFromRocksDB.compareTo(newLastModifiedDateObject) >= 0;
+
+            if (!isIgnore) {
+                // overwrite the newest last modified date in rocksdb
+                this.rocksDB.put(this.urlIdToLastModifiedDate, urlId.getBytes(), newLastModified.getBytes());
+            }
+
+            return isIgnore;
+        } else {
+            // there doesn't exist a last modified date, record the last modified date in rocksdb,
+            // and do not ignore this site
+            this.rocksDB.put(this.urlIdToLastModifiedDate, urlId.getBytes(), newLastModified.getBytes());
+
+            return false;
+        }
     }
 }

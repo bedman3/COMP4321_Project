@@ -6,6 +6,9 @@ import com.comp4321Project.searchEngine.Model.PostingNode;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
+import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MiscTest {
@@ -48,18 +51,13 @@ public class MiscTest {
 
     @Test
     public void testSth2() {
-        PostingList postingList = new PostingList();
-        HashSet<PostingNode> hashSet = new HashSet<>();
-        postingList.add("0", "1", 2, hashSet, true);
-        postingList.add("0", "1", 3, hashSet, true);
-        for (Iterator<PostingNode> it = hashSet.iterator(); it.hasNext(); ) {
-            PostingNode node = it.next();
-            List<Integer> intList = node.getLocationList();
+        String timeString = "Wed, 29 Apr 2020 07:54:45 GMT";
+        String timeString_1 = "Thu, 30 Apr 2020 07:54:45 GMT";
+        ZonedDateTime zdt = ZonedDateTime.parse(timeString, DateTimeFormatter.RFC_1123_DATE_TIME);
+        ZonedDateTime zdt_1 = ZonedDateTime.parse(timeString_1, DateTimeFormatter.RFC_1123_DATE_TIME);
 
-            System.out.println("wordid: " + node.getWordId() + " urlid: " + node.getUrlId() + " hash: " + node.hashCode());
-            for (int i = 0; i < intList.size(); i++) {
-                System.out.println(intList.get(i));
-            }
-        }
+        System.out.println(zdt.toString());
+        System.out.println(zdt.compareTo(zdt_1));
+        System.out.println(zdt_1.compareTo(zdt));
     }
 }

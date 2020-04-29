@@ -58,10 +58,15 @@ public class SpiderImpl implements Spider {
             lastModified = response.header("Date");
         }
 
-        String size = response.header("Content-Length");
-
         // convert parent url to url id
         String parentUrlId = rocksDBDao.getUrlIdFromUrl(url);
+
+        // check last modification date to determine whether or not to ignore this url,
+        // update the latest modified date accordingly
+        if (rocksDBDao.isIgnoreWithLastModifiedDate(parentUrlId, lastModified)) {
+            System.err.println("skip crawling " + rawUrl + ", parameters -> url: " + url + " lastModified: " + lastModified + " urlId: " + parentUrlId);
+            return null;
+        }
 
         Document doc = response.parse();
         Elements linkElements = doc.select("a[href]");
@@ -174,6 +179,8 @@ public class SpiderImpl implements Spider {
         rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
         rocksDB.put(rocksDBDao.getUrlIdToTop5Keyword(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
 
+        String size = response.header("Content-Length");
+
         // extract the size
         if (size == null) {
             // remove all whitespaces and get the length = number of characters
@@ -227,20 +234,26 @@ public class SpiderImpl implements Spider {
             Set<String> crawledSite = new HashSet<>();
             Queue<String> crawlQueue = new LinkedList<>();
             Set<String> returnSet;
+            Integer numScrapedSite = 1;
 
             crawlQueue.add(url);
             // BFS for scraping website
             while (crawlQueue.peek() != null && (limit == null || crawledSite.size() < limit)) {
                 String crawlUrl = crawlQueue.poll();
-                System.err.println("Scraping " + crawlUrl);
+                System.err.println("Scraping: " + crawlUrl + ", scraped " + numScrapedSite.toString() + " site(s).");
                 returnSet = this.crawlOneSite(crawlUrl);
                 crawledSite.add(crawlUrl);
 
-                for (String childUrl : returnSet) {
-                    if (!crawledSite.contains(childUrl)) {
-                        crawlQueue.add(childUrl);
+                if (returnSet != null) {
+                    // if crawlUrl is not ignored, which means site is crawled
+                    for (String childUrl : returnSet) {
+                        if (!crawledSite.contains(childUrl)) {
+                            crawlQueue.add(childUrl);
+                        }
                     }
                 }
+
+                numScrapedSite++;
             }
         }
     }

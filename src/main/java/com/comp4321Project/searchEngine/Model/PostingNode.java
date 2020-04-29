@@ -59,7 +59,7 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
 
     @Override
     public String toString() {
-        return String.format("(urlId %s, locations: %s)", urlId, Arrays.toString(locationList.toArray()));
+        return String.format("(urlId: %s, locations: %s)", urlId, Arrays.toString(locationList.toArray()));
     }
 
     @Override
