@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/spider")
 public class SpiderController {
 
     private final RocksDBDao rocksDBDao = new RocksDBDao();
