@@ -81,6 +81,7 @@ public class TextProcessing {
         String[] tokenizedWordArray = rawText
                 .toLowerCase()
                 .replaceAll("\\p{P}", "")
+                .replaceAll("\\s+", " ") // remove extra spaces left due to removal of punctuations
                 .split(" ");
 
         // remove stop words

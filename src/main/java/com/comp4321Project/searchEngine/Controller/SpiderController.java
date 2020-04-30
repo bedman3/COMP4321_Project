@@ -16,10 +16,12 @@ import java.io.IOException;
 @RestController
 public class SpiderController {
 
-    private final RocksDBDao rocksDBDao = new RocksDBDao();
-    private final Spider spider = new Spider(rocksDBDao, Constants.getExtractTopKKeywords());
+    private final RocksDBDao rocksDBDao;
+    private final Spider spider;
 
     public SpiderController() throws RocksDBException {
+        this.rocksDBDao = RocksDBDao.getInstance();
+        this.spider = new Spider(rocksDBDao, Constants.getExtractTopKKeywords());
     }
 
     @RequestMapping(value = "/crawl", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -36,7 +38,7 @@ public class SpiderController {
             rocksDBDao.getInvertedFileForTitle().flushToRocksDB();
 
             return new Message(
-                    "Crawling Complete",
+                    "Crawl Complete",
                     null,
                     null
             );

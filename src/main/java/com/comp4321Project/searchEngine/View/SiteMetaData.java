@@ -41,6 +41,14 @@ public class SiteMetaData {
         return new SiteMetaData(splitResult.get(0), splitResult.get(1), splitResult.get(2), splitResult.get(3), -1.0, splitResult.get(4), splitResult.get(5));
     }
 
+    public String getParentLinks() {
+        if (parentLinks == null) {
+            return "Links not fetched from database";
+        } else {
+            return parentLinks;
+        }
+    }
+
     public String toMetaDataString() {
         return String.format("%s |,.| %s |,.| %s |,.| %s |,.| %s |,.| %s", pageTitle, url, lastModifiedDate, sizeOfPage, keywordFrequencyModelList, childLinks);
     }

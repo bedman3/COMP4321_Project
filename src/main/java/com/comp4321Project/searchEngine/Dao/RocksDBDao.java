@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine.Dao;
 
+import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class RocksDBDao {
     private final ColumnFamilyHandle defaultRocksDBCol;
-
+    private static RocksDBDao daoInstance;
 
     private final List<ColumnFamilyHandle> columnFamilyHandleList;
     private final RocksDB rocksDB;
@@ -37,9 +38,11 @@ public class RocksDBDao {
     private final InvertedFile invertedFileForTitle;
     private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
-    public RocksDBDao(String dbPath) throws RocksDBException {
+    private RocksDBDao(String relativeDBPath) throws RocksDBException {
+        Util.createDirectoryIfNotExist(relativeDBPath);
 
-        Util.createDirectoryIfNotExist(dbPath);
+        // delete LOCK file if exists
+        Util.deleteRocksDBLockFile(relativeDBPath);
 
         RocksDB.loadLibrary();
 
@@ -66,7 +69,7 @@ public class RocksDBDao {
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
-        this.rocksDB = RocksDB.open(dbOptions, dbPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
+        this.rocksDB = RocksDB.open(dbOptions, relativeDBPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
 
         this.defaultRocksDBCol = columnFamilyHandleList.get(0);
         this.urlIdToMetaDataRocksDBCol = columnFamilyHandleList.get(1);
@@ -88,11 +91,6 @@ public class RocksDBDao {
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
-    }
-
-
-    public RocksDBDao() throws RocksDBException {
-        this("rocksDBFiles");
     }
 
     public RocksDB getRocksDB() {
@@ -289,5 +287,17 @@ public class RocksDBDao {
 
             return false;
         }
+    }
+
+    public static RocksDBDao getInstance(String dbPath) throws RocksDBException {
+        if (daoInstance == null) {
+            daoInstance = new RocksDBDao(dbPath);
+        }
+
+        return daoInstance;
+    }
+
+    public static RocksDBDao getInstance() throws RocksDBException {
+        return getInstance(Constants.getDefaultDBPath());
     }
 }

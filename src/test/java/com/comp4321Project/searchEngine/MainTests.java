@@ -18,7 +18,7 @@ class MainTests {
     public static void scrapeUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
-            RocksDBDao rocksDBDao = new RocksDBDao();
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
             Spider spider = new Spider(rocksDBDao, 5);
             spider.crawl(url, true, 30);
 
@@ -42,7 +42,7 @@ class MainTests {
 
             PrintWriter printWriter = new PrintWriter(outputFile);
 
-            RocksDBDao rocksDBDao = new RocksDBDao();
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
             QuerySearch querySearch = new QuerySearch(rocksDBDao);
 
             List<SiteMetaData> resultsList = querySearch.getAllSiteFromDB();

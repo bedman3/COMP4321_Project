@@ -1,6 +1,7 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -17,7 +18,7 @@ public class QuerySearch {
     }
 
     public SiteMetaData search(String query) throws RocksDBException {
-        String processedQuery
+        String[] processedQuery = TextProcessing.cleanRawWords(query);
 
 //        String urlId = rocksDBDao.getUrlIdFromUrl(url);
 //
@@ -25,6 +26,7 @@ public class QuerySearch {
 //        siteMetaData.updateParentLinks(rocksDBDao, urlId);
 //
 //        return siteMetaData;
+        return null;
     }
 
     public List<SiteMetaData> getAllSiteFromDB() throws RocksDBException {
