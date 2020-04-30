@@ -1,11 +1,15 @@
 package com.comp4321Project.searchEngine.Util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TextProcessing {
     private static final String[] stopWords;
     private static final Set<String> stopWordsSet;
     private static final Porter porterObject;
+
     static {
         porterObject = new Porter();
     }

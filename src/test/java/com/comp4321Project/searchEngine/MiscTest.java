@@ -1,12 +1,9 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Model.PostingList;
-import com.comp4321Project.searchEngine.Model.PostingNode;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
-import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

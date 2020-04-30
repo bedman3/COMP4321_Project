@@ -3,7 +3,6 @@ package com.comp4321Project.searchEngine;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
-import com.comp4321Project.searchEngine.Service.SpiderImpl;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ class MainTests {
         try {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = new RocksDBDao();
-            Spider spider = new SpiderImpl(rocksDBDao, 5);
+            Spider spider = new Spider(rocksDBDao, 5);
             spider.crawl(url, true, 30);
 
             rocksDBDao.getRocksDB().closeE();

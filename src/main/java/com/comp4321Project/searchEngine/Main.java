@@ -1,14 +1,9 @@
 package com.comp4321Project.searchEngine;
 
-import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Service.Spider;
-import com.comp4321Project.searchEngine.Service.SpiderImpl;
-import org.rocksdb.RocksDBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.io.IOException;
 
 @SpringBootApplication
 public class Main {
@@ -20,26 +15,8 @@ public class Main {
 //	}
 
     // my playground function for doing some RAD
-    public static void main(String[] arg) throws IOException {
-        final Integer extractTopKKeywords = 5;
-        String url = "http://www.cse.ust.hk";
-
-        try {
-            RocksDBDao rocksDBDao = new RocksDBDao();
-
-            Spider spider = new SpiderImpl(rocksDBDao, extractTopKKeywords);
-            spider.crawl(url, true, 30);
-
-            rocksDBDao.getInvertedFileForBody().mergeExistingWithRocksDB();
-            rocksDBDao.getInvertedFileForBody().flushToRocksDB();
-
-            rocksDBDao.getInvertedFileForTitle().mergeExistingWithRocksDB();
-            rocksDBDao.getInvertedFileForTitle().flushToRocksDB();
-
-            rocksDBDao.printAllDataInRocksDB();
-        } catch (RocksDBException e) {
-            System.err.println(e.toString());
-        }
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
     }
 
 }

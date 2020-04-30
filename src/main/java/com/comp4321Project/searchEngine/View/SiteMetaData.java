@@ -1,7 +1,7 @@
 package com.comp4321Project.searchEngine.View;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Service.SpiderImpl;
+import com.comp4321Project.searchEngine.Service.Spider;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import org.rocksdb.ColumnFamilyHandle;
@@ -51,7 +51,7 @@ public class SiteMetaData {
         // get parentLinksString
         try {
             String parentLinksIdString = new String(rocksDB.get(rocksDBDao.getChildUrlIdToParentUrlIdRocksDBCol(), urlId.getBytes()));
-            List<String> parentLinksIdList = Splitter.on(SpiderImpl.getSpaceSeparator()).splitToList(parentLinksIdString);
+            List<String> parentLinksIdList = Splitter.on(Spider.getSpaceSeparator()).splitToList(parentLinksIdString);
             // map url id list to url list
             List<ColumnFamilyHandle> colHandleList = new ArrayList<>();
             for (int index = 0; index < parentLinksIdList.size(); index++) {
