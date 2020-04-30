@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 public class QueryController {
     private final RocksDBDao rocksDBDao = new RocksDBDao();
@@ -20,6 +22,11 @@ public class QueryController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void search(@RequestParam(value = "query") String query) {
+        try {
+            querySearch.search(query);
+        } catch (RocksDBException e) {
+            System.err.println(e.toString());
 
+        }
     }
 }

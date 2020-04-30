@@ -16,13 +16,15 @@ public class QuerySearch {
         this.rocksDBDao = rocksDBDao;
     }
 
-    public SiteMetaData search(String url) throws RocksDBException {
-        String urlId = rocksDBDao.getUrlIdFromUrl(url);
+    public SiteMetaData search(String query) throws RocksDBException {
+        String processedQuery
 
-        SiteMetaData siteMetaData = rocksDBDao.getSiteSearchViewWithUrlId(urlId);
-        siteMetaData.updateParentLinks(rocksDBDao, urlId);
-
-        return siteMetaData;
+//        String urlId = rocksDBDao.getUrlIdFromUrl(url);
+//
+//        SiteMetaData siteMetaData = rocksDBDao.getSiteSearchViewWithUrlId(urlId);
+//        siteMetaData.updateParentLinks(rocksDBDao, urlId);
+//
+//        return siteMetaData;
     }
 
     public List<SiteMetaData> getAllSiteFromDB() throws RocksDBException {

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TextProcessing {
     private static final String[] stopWords;
@@ -65,8 +66,28 @@ public class TextProcessing {
         return stopWordsSet.contains(word);
     }
 
-    public static String[] stemWordArray(String[] wordArrays) {
-        List<String> wordList = Arrays.asList(wordArrays);
-        return wordList.stream().map(porterObject::stripAffixes).toArray(String[]::new);
+    public static boolean isNotStopWord(String word) {return !isStopWord(word); }
+
+    /**
+     * This function will:
+     * 1) convert all words to lowercase
+     * 2) remove punctuations
+     * 3) tokenize words into array
+     * 4) remove stop words
+     * 5) stem words using porter's algorithm
+     * @return cleaned string array
+     */
+    public static String[] cleanRawWords(String rawText) {
+        String[] tokenizedWordArray = rawText
+                .toLowerCase()
+                .replaceAll("\\p{P}", "")
+                .split(" ");
+
+        // remove stop words
+        tokenizedWordArray = Arrays.stream(tokenizedWordArray)
+                .filter(TextProcessing::isNotStopWord)
+                .map(porterObject::stripAffixes) // porter's algorithm
+                .toArray(String[]::new);
+        return tokenizedWordArray;
     }
 }
