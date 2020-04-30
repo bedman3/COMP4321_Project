@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
+import SearchBar from '../../components/SearchBar';
 
 
-const SearchPage = () => {
-    const [test, lol] = useState();
-
-    return (
-        <div>
-            <p>testing</p>
-        </div>
-    );
-};
+const SearchPage = () => (
+    <div>
+        <SearchBar />
+    </div>
+);
 
 export default SearchPage;
