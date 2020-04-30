@@ -1,17 +1,11 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
-import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
 
 class MainTests {
     @BeforeAll
@@ -28,7 +22,7 @@ class MainTests {
         }
     }
 
-    @Test
+    /*@Test
     public void loadResultFromRocksDB() {
         try {
             String outputFileName = "spider_result.txt";
@@ -55,7 +49,7 @@ class MainTests {
         } catch (RocksDBException | NullPointerException | IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     // debug code
     /*@AfterAll

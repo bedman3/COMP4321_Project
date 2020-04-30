@@ -2,9 +2,7 @@ package com.comp4321Project.searchEngine.Util;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TextProcessing {
     private static final String[] stopWords;
@@ -66,7 +64,9 @@ public class TextProcessing {
         return stopWordsSet.contains(word);
     }
 
-    public static boolean isNotStopWord(String word) {return !isStopWord(word); }
+    public static boolean isNotStopWord(String word) {
+        return !isStopWord(word);
+    }
 
     /**
      * This function will:
@@ -75,6 +75,7 @@ public class TextProcessing {
      * 3) tokenize words into array
      * 4) remove stop words
      * 5) stem words using porter's algorithm
+     *
      * @return cleaned string array
      */
     public static String[] cleanRawWords(String rawText) {

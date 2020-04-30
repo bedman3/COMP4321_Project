@@ -3,6 +3,7 @@ package com.comp4321Project.searchEngine.Controller;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.View.Message;
+import com.comp4321Project.searchEngine.View.SearchResultsView;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
@@ -22,13 +23,13 @@ public class QueryController {
         this.querySearch = new QuerySearch(rocksDBDao);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Exception.class)
     public Message error(HttpServletRequest request, Exception e) {
         return new Message(null, "error", ExceptionUtils.getStackTrace(e));
     }
 
     @RequestMapping(value = "/get-all-result", method = RequestMethod.GET)
-    public List<SiteMetaData> getAllResult() throws RocksDBException {
+    public List<SearchResultsView> getAllResult() throws RocksDBException {
         return querySearch.getAllSiteFromDB();
     }
 

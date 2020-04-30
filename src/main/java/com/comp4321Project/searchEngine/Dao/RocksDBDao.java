@@ -16,9 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class RocksDBDao {
-    private final ColumnFamilyHandle defaultRocksDBCol;
     private static RocksDBDao daoInstance;
-
+    private final ColumnFamilyHandle defaultRocksDBCol;
     private final List<ColumnFamilyHandle> columnFamilyHandleList;
     private final RocksDB rocksDB;
     private final ColumnFamilyHandle urlIdToMetaDataRocksDBCol;
@@ -91,6 +90,18 @@ public class RocksDBDao {
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
+    }
+
+    public static RocksDBDao getInstance(String dbPath) throws RocksDBException {
+        if (daoInstance == null) {
+            daoInstance = new RocksDBDao(dbPath);
+        }
+
+        return daoInstance;
+    }
+
+    public static RocksDBDao getInstance() throws RocksDBException {
+        return getInstance(Constants.getDefaultDBPath());
     }
 
     public RocksDB getRocksDB() {
@@ -287,17 +298,5 @@ public class RocksDBDao {
 
             return false;
         }
-    }
-
-    public static RocksDBDao getInstance(String dbPath) throws RocksDBException {
-        if (daoInstance == null) {
-            daoInstance = new RocksDBDao(dbPath);
-        }
-
-        return daoInstance;
-    }
-
-    public static RocksDBDao getInstance() throws RocksDBException {
-        return getInstance(Constants.getDefaultDBPath());
     }
 }

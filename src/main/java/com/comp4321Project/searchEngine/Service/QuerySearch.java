@@ -2,6 +2,7 @@ package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
+import com.comp4321Project.searchEngine.View.SearchResultsView;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -29,16 +30,16 @@ public class QuerySearch {
         return null;
     }
 
-    public List<SiteMetaData> getAllSiteFromDB() throws RocksDBException {
+    public List<SearchResultsView> getAllSiteFromDB() throws RocksDBException {
         // search from meta data and extract all scraped site
 
         RocksDB rocksDB = rocksDBDao.getRocksDB();
         RocksIterator it = rocksDB.newIterator(rocksDBDao.getUrlIdToMetaDataRocksDBCol());
-        List<SiteMetaData> returnList = new ArrayList<>();
+        List<SearchResultsView> returnList = new ArrayList<>();
 
         for (it.seekToFirst(); it.isValid(); it.next()) {
             String urlId = new String(it.key());
-            returnList.add(rocksDBDao.getSiteSearchViewWithUrlId(urlId).updateParentLinks(rocksDBDao, urlId));
+            returnList.add(rocksDBDao.getSiteSearchViewWithUrlId(urlId).updateParentLinks(rocksDBDao, urlId).toSearchResultView());
         }
 
         return returnList;

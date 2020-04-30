@@ -41,11 +41,19 @@ public class SiteMetaData {
         return new SiteMetaData(splitResult.get(0), splitResult.get(1), splitResult.get(2), splitResult.get(3), -1.0, splitResult.get(4), splitResult.get(5));
     }
 
-    public String getParentLinks() {
+    public String getParentLinksString() {
         if (parentLinks == null) {
             return "Links not fetched from database";
         } else {
             return parentLinks;
+        }
+    }
+
+    public String[] getParentLinks() {
+        if (parentLinks == null) {
+            return null;
+        } else {
+            return parentLinks.split("\n");
         }
     }
 
@@ -76,19 +84,19 @@ public class SiteMetaData {
         return this;
     }
 
-    public String toPrint() {
-        String printString = "";
-        printString += this.pageTitle + "\n";
-        printString += this.url + "\n";
-        printString += this.lastModifiedDate + ", " + sizeOfPage + "\n";
-        printString += this.keywordFrequencyModelList + "\n";
-        printString += "Parent Links:\n";
-        printString += this.parentLinks + "\n";
-        printString += "Child Links\n";
-        printString += this.childLinks + "\n";
-
-        return printString;
-    }
+//    public String toPrint() {
+//        String printString = "";
+//        printString += this.pageTitle + "\n";
+//        printString += this.url + "\n";
+//        printString += this.lastModifiedDate + ", " + sizeOfPage + "\n";
+//        printString += this.keywordFrequencyModelList + "\n";
+//        printString += "Parent Links:\n";
+//        printString += this.parentLinks + "\n";
+//        printString += "Child Links\n";
+//        printString += this.childLinks + "\n";
+//
+//        return printString;
+//    }
 
     public String getPageTitle() {
         return pageTitle;
@@ -114,7 +122,24 @@ public class SiteMetaData {
         return keywordFrequencyModelList;
     }
 
-    public String getChildLinks() {
+    public String getChildLinksString() {
         return childLinks;
+    }
+
+    public String[] getChildLinks() {
+        return childLinks.split("\n");
+    }
+
+    public SearchResultsView toSearchResultView() {
+        return new SearchResultsView(
+                pageTitle,
+                url,
+                lastModifiedDate,
+                sizeOfPage,
+                score,
+                keywordFrequencyModelList,
+                getChildLinks(),
+                getParentLinks()
+        );
     }
 }
