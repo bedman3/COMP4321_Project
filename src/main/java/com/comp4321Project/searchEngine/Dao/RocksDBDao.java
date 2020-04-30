@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RocksDBDao {
-    private static RocksDBDao daoInstance;
+    private static RocksDBDao daoInstance; // singleton to avoid rocksdb file lock
     private final ColumnFamilyHandle defaultRocksDBCol;
     private final List<ColumnFamilyHandle> columnFamilyHandleList;
     private final RocksDB rocksDB;
@@ -27,11 +27,11 @@ public class RocksDBDao {
     private final ColumnFamilyHandle wordToWordIdRocksDBCol;
     private final ColumnFamilyHandle wordIdToWordRocksDBCol;
     private final ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
-    private final ColumnFamilyHandle urlIdToTop5Keyword;
-    private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingList;
-    private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingList;
-    private final ColumnFamilyHandle urlIdToLastModifiedDate;
-    private final ColumnFamilyHandle overallStatistics;
+    private final ColumnFamilyHandle urlIdToTop5KeywordRocksDBCol;
+    private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingListRocksDBCol;
+    private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingListRocksDBCol;
+    private final ColumnFamilyHandle urlIdToLastModifiedDateRocksDBCol;
+    private final ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
     private final InvertedFile invertedFileForBody;
     private final InvertedFile invertedFileForTitle;
 
@@ -63,31 +63,31 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("InvertedFileForBodyWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForTitleWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToLastModifiedDate".getBytes()),
-                new ColumnFamilyDescriptor("OverallStatistics".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToKeywordTermFrequencyData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
         this.rocksDB = RocksDB.open(dbOptions, relativeDBPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
 
-        Iterator<ColumnFamilyHandle> ColFamilyIt = columnFamilyHandleList.iterator();
+        Iterator<ColumnFamilyHandle> colFamilyIt = columnFamilyHandleList.iterator();
 
-        this.defaultRocksDBCol = ColFamilyIt.next();
-        this.urlIdToMetaDataRocksDBCol = ColFamilyIt.next();
-        this.parentUrlIdToChildUrlIdRocksDBCol = ColFamilyIt.next();
-        this.childUrlIdToParentUrlIdRocksDBCol = ColFamilyIt.next();
-        this.urlToUrlIdRocksDBCol = ColFamilyIt.next();
-        this.urlIdToUrlRocksDBCol = ColFamilyIt.next();
-        this.wordToWordIdRocksDBCol = ColFamilyIt.next();
-        this.wordIdToWordRocksDBCol = ColFamilyIt.next();
-        this.urlIdToKeywordFrequencyRocksDBCol = ColFamilyIt.next();
-        this.urlIdToTop5Keyword = ColFamilyIt.next();
-        this.invertedFileForBodyWordIdToPostingList = ColFamilyIt.next();
-        this.invertedFileForTitleWordIdToPostingList = ColFamilyIt.next();
-        this.urlIdToLastModifiedDate = ColFamilyIt.next();
-        this.overallStatistics = ColFamilyIt.next();
+        this.defaultRocksDBCol = colFamilyIt.next();
+        this.urlIdToMetaDataRocksDBCol = colFamilyIt.next();
+        this.parentUrlIdToChildUrlIdRocksDBCol = colFamilyIt.next();
+        this.childUrlIdToParentUrlIdRocksDBCol = colFamilyIt.next();
+        this.urlToUrlIdRocksDBCol = colFamilyIt.next();
+        this.urlIdToUrlRocksDBCol = colFamilyIt.next();
+        this.wordToWordIdRocksDBCol = colFamilyIt.next();
+        this.wordIdToWordRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordFrequencyRocksDBCol = colFamilyIt.next();
+        this.urlIdToTop5KeywordRocksDBCol = colFamilyIt.next();
+        this.invertedFileForBodyWordIdToPostingListRocksDBCol = colFamilyIt.next();
+        this.invertedFileForTitleWordIdToPostingListRocksDBCol = colFamilyIt.next();
+        this.urlIdToLastModifiedDateRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordTermFrequencyRocksDBCol = colFamilyIt.next();
 
-        this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingList);
-        this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingList);
+        this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
+        this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
 
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
@@ -106,8 +106,8 @@ public class RocksDBDao {
         return getInstance(Constants.getDefaultDBPath());
     }
 
-    public ColumnFamilyHandle getOverallStatistics() {
-        return overallStatistics;
+    public ColumnFamilyHandle getUrlIdToKeywordTermFrequencyRocksDBCol() {
+        return urlIdToKeywordTermFrequencyRocksDBCol;
     }
 
     public RocksDB getRocksDB() {
@@ -150,16 +150,16 @@ public class RocksDBDao {
         return urlIdToKeywordFrequencyRocksDBCol;
     }
 
-    public ColumnFamilyHandle getUrlIdToTop5Keyword() {
-        return urlIdToTop5Keyword;
+    public ColumnFamilyHandle getUrlIdToTop5KeywordRocksDBCol() {
+        return urlIdToTop5KeywordRocksDBCol;
     }
 
-    public ColumnFamilyHandle getInvertedFileForBodyWordIdToPostingList() {
-        return invertedFileForBodyWordIdToPostingList;
+    public ColumnFamilyHandle getInvertedFileForBodyWordIdToPostingListRocksDBCol() {
+        return invertedFileForBodyWordIdToPostingListRocksDBCol;
     }
 
-    public ColumnFamilyHandle getInvertedFileForTitleWordIdToPostingList() {
-        return invertedFileForTitleWordIdToPostingList;
+    public ColumnFamilyHandle getInvertedFileForTitleWordIdToPostingListRocksDBCol() {
+        return invertedFileForTitleWordIdToPostingListRocksDBCol;
     }
 
     public List<ColumnFamilyHandle> getColumnFamilyHandleList() {
@@ -185,9 +185,9 @@ public class RocksDBDao {
 
             for (it.seekToFirst(); it.isValid(); it.next()) {
                 String value;
-                if (col == this.invertedFileForBodyWordIdToPostingList || col == this.invertedFileForTitleWordIdToPostingList) {
+                if (col == this.invertedFileForBodyWordIdToPostingListRocksDBCol || col == this.invertedFileForTitleWordIdToPostingListRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
-                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol) {
+                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol || col == urlIdToKeywordTermFrequencyRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else {
                     value = new String(it.value());
@@ -281,7 +281,7 @@ public class RocksDBDao {
     }
 
     public boolean isIgnoreWithLastModifiedDate(String urlId, String newLastModified) throws RocksDBException {
-        byte[] lastModifiedDateByteFromRocksDB = this.rocksDB.get(this.urlIdToLastModifiedDate, urlId.getBytes());
+        byte[] lastModifiedDateByteFromRocksDB = this.rocksDB.get(this.urlIdToLastModifiedDateRocksDBCol, urlId.getBytes());
         if (lastModifiedDateByteFromRocksDB != null) {
             // if there exists last modified date in rocksdb,
             // then compare the lastModifiedDateByteFromRocksDB and newLastModified
@@ -293,14 +293,14 @@ public class RocksDBDao {
 
             if (!isIgnore) {
                 // overwrite the newest last modified date in rocksdb
-                this.rocksDB.put(this.urlIdToLastModifiedDate, urlId.getBytes(), newLastModified.getBytes());
+                this.rocksDB.put(this.urlIdToLastModifiedDateRocksDBCol, urlId.getBytes(), newLastModified.getBytes());
             }
 
             return isIgnore;
         } else {
             // there doesn't exist a last modified date, record the last modified date in rocksdb,
             // and do not ignore this site
-            this.rocksDB.put(this.urlIdToLastModifiedDate, urlId.getBytes(), newLastModified.getBytes());
+            this.rocksDB.put(this.urlIdToLastModifiedDateRocksDBCol, urlId.getBytes(), newLastModified.getBytes());
 
             return false;
         }

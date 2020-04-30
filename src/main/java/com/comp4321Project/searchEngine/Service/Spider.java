@@ -114,7 +114,11 @@ public class Spider {
         String[] wordsBodyArray = TextProcessing.cleanRawWords(doc.body().text());
         String[] wordsTitleArray = TextProcessing.cleanRawWords(doc.title());
 
+        // calculate the total number of terms in the document
+        Integer totalNumOfTermsInDoc = wordsBodyArray.length;
+
         Map<String, Integer> keyFreqMap = new HashMap<>();
+        Map<String, Double> keyTermFreqMap = new HashMap<>();
 
         for (int index = 0; index < wordsBodyArray.length; index++) {
             String word = wordsBodyArray[index];
@@ -127,12 +131,13 @@ public class Spider {
 
         for (int index = 0; index < wordsTitleArray.length; index++) {
             String word = wordsTitleArray[index];
-            if (TextProcessing.isStopWord(word)) {
-                continue;
-            }
-
             String wordId = rocksDBDao.getWordIdFromWord(word);
             invertedFileForTitle.add(wordId, parentUrlId, index, true);
+        }
+
+        // calculate the term frequency for TD-IDF
+        for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
+            keyTermFreqMap.put(entry.getKey(), entry.getValue() * 1.0 / totalNumOfTermsInDoc);
         }
 
         // build a max heap to get the top 5 key freq
@@ -161,7 +166,8 @@ public class Spider {
 
         // serialize the map and store it to rocksdb
         rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
-        rocksDB.put(rocksDBDao.getUrlIdToTop5Keyword(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
+        rocksDB.put(rocksDBDao.getUrlIdToKeywordTermFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyTermFreqMap));
+        rocksDB.put(rocksDBDao.getUrlIdToTop5KeywordRocksDBCol(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
 
         String size = response.header("Content-Length");
 
