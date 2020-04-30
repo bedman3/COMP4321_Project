@@ -65,6 +65,10 @@ public class PostingList implements Serializable {
         this.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
     }
 
+    public Integer size() {
+        return this.postingList.size();
+    }
+
     @Override
     public String toString() {
         return Arrays.toString(postingList.toArray());

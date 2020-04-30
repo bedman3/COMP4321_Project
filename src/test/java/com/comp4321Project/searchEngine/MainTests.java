@@ -9,14 +9,13 @@ import java.io.IOException;
 
 class MainTests {
     @Test
-    public static void scrapeUrlToRocksDB() {
+    public void scrapeUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = RocksDBDao.getInstance();
             Spider spider = new Spider(rocksDBDao, 5);
             spider.crawl(url, true, 30);
-
-            rocksDBDao.getRocksDB().closeE();
+            rocksDBDao.updateInvertedFileInRocksDB();
         } catch (RocksDBException | IOException e) {
             e.printStackTrace();
         }

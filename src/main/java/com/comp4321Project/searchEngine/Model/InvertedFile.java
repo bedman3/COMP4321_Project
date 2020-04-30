@@ -71,6 +71,10 @@ public class InvertedFile {
         RocksDB rocksDB = this.rocksDBDao.getRocksDB();
         for (Map.Entry<String, PostingList> entry : this.hashMap.entrySet()) {
             rocksDB.put(this.colHandle, entry.getKey().getBytes(), entry.getValue().toBytesArray());
+            // record the total number of docs this word appear in
+            if (this.colHandle == rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol()) {
+                rocksDB.put(rocksDBDao.getWordIdToDocumentFrequencyRocksDBCol(), entry.getKey().getBytes(), entry.getValue().size().toString().getBytes());
+            }
         }
         this.hashMap.clear();
     }

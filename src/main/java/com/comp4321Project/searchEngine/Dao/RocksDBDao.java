@@ -34,6 +34,7 @@ public class RocksDBDao {
     private final ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
     private final InvertedFile invertedFileForBody;
     private final InvertedFile invertedFileForTitle;
+    private final ColumnFamilyHandle wordIdToDocumentFrequencyRocksDBCol;
 
     private RocksDBDao(String relativeDBPath) throws RocksDBException {
         Util.createDirectoryIfNotExist(relativeDBPath);
@@ -63,7 +64,8 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("InvertedFileForBodyWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForTitleWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToLastModifiedDate".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToKeywordTermFrequencyData".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToKeywordTermFrequencyData".getBytes()),
+                new ColumnFamilyDescriptor("WordIdToDocumentFrequencyData ".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -85,6 +87,7 @@ public class RocksDBDao {
         this.invertedFileForTitleWordIdToPostingListRocksDBCol = colFamilyIt.next();
         this.urlIdToLastModifiedDateRocksDBCol = colFamilyIt.next();
         this.urlIdToKeywordTermFrequencyRocksDBCol = colFamilyIt.next();
+        this.wordIdToDocumentFrequencyRocksDBCol = colFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
@@ -104,6 +107,14 @@ public class RocksDBDao {
 
     public static RocksDBDao getInstance() throws RocksDBException {
         return getInstance(Constants.getDefaultDBPath());
+    }
+
+    public ColumnFamilyHandle getUrlIdToLastModifiedDateRocksDBCol() {
+        return urlIdToLastModifiedDateRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getWordIdToDocumentFrequencyRocksDBCol() {
+        return wordIdToDocumentFrequencyRocksDBCol;
     }
 
     public ColumnFamilyHandle getUrlIdToKeywordTermFrequencyRocksDBCol() {
@@ -315,9 +326,39 @@ public class RocksDBDao {
             try {
                 return Integer.parseInt(totalNumOfDocumentString);
             } catch (NumberFormatException e) {
-                System.err.println("Cannot parse total number of documents");
+                System.err.println("Cannot parse total number of documents, totalNumOfDocumentString: " + totalNumOfDocumentString);
                 return 0;
             }
         }
+    }
+
+    public Double getInverseDocumentFrequency(String wordId) throws RocksDBException {
+        byte[] totalNumOfDocWithTermByte = this.rocksDB.get(this.wordIdToDocumentFrequencyRocksDBCol, wordId.getBytes());
+        int totalNumOfDocuments = this.getTotalNumOfDocuments();
+        if (totalNumOfDocWithTermByte == null) {
+            // no num of doc record for this term, means there is no doc associated with this term
+            return 0.0;
+        } else if (totalNumOfDocuments == 0) {
+            // no document available in the database, skip processing and return 0
+            return 0.0;
+        }
+        else {
+            String totalNumOfDocWithTermString = new String(totalNumOfDocWithTermByte);
+            try {
+                int totalNumOfDocWithTerm = Integer.parseInt(totalNumOfDocWithTermString);
+                return Math.log(totalNumOfDocuments * 1.0 / totalNumOfDocWithTerm) / Constants.getLn2();
+            } catch (NumberFormatException e) {
+                System.err.println("Cannot parse total number of documents with wordId " + wordId + ", totalNumOfDocWithTermString: " + totalNumOfDocWithTermString);
+                return 0.0;
+            }
+        }
+    }
+
+    public void updateInvertedFileInRocksDB() throws RocksDBException {
+        this.invertedFileForBody.mergeExistingWithRocksDB();
+        this.invertedFileForBody.flushToRocksDB();
+
+        this.invertedFileForTitle.mergeExistingWithRocksDB();
+        this.invertedFileForTitle.flushToRocksDB();
     }
 }

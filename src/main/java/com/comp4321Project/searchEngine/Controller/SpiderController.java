@@ -31,12 +31,7 @@ public class SpiderController {
         try {
             spider.crawl(url, recursive, limit);
 
-            rocksDBDao.getInvertedFileForBody().mergeExistingWithRocksDB();
-            rocksDBDao.getInvertedFileForBody().flushToRocksDB();
-
-            rocksDBDao.getInvertedFileForTitle().mergeExistingWithRocksDB();
-            rocksDBDao.getInvertedFileForTitle().flushToRocksDB();
-
+            rocksDBDao.updateInvertedFileInRocksDB();
             return new Message(
                     "Crawl Complete",
                     null,
