@@ -1,11 +1,13 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 class MainTests {
     @Test
@@ -26,6 +28,31 @@ class MainTests {
         try {
             RocksDBDao rocksDBDao = RocksDBDao.getInstance();
             rocksDBDao.printAllDataInRocksDB();
+        } catch (RocksDBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void search() {
+        try {
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
+            QuerySearch querySearch = new QuerySearch(rocksDBDao);
+
+            String query;
+
+//            query = "suck";
+//            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+
+            query = "visualization";
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+
+            query = "computer science";
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+
+            query = "artificial";
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+
         } catch (RocksDBException e) {
             e.printStackTrace();
         }

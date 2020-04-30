@@ -1,15 +1,16 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
-import com.comp4321Project.searchEngine.View.SiteMetaData;
+import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class QuerySearch {
     RocksDBDao rocksDBDao;
@@ -18,8 +19,32 @@ public class QuerySearch {
         this.rocksDBDao = rocksDBDao;
     }
 
-    public SiteMetaData search(String query) throws RocksDBException {
+    public List<SearchResultsView> search(String query) throws RocksDBException {
         String[] processedQuery = TextProcessing.cleanRawWords(query);
+
+        List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
+
+        List<byte[]> wordIdList = rocksDBDao.getRocksDB().multiGetAsList(
+                colHandlesList,
+                Arrays.stream(processedQuery)
+                        .map(String::getBytes)
+                        .collect(Collectors.toList())
+        );
+
+        // filter words that are not indexed, as we are not going to find anything from the database
+        wordIdList = wordIdList
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        // search inverted file for text body
+        InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
+        HashSet<byte[]> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdList);
+
+//        HashSet<byte[]> urlIdSet = new HashSet<>();
+//        List<byte[]> urlIdListWithAtLeastOneKeywordsInDoc = invertedFileForBody.getAllUrlIdList(wordIdList);
+
+
 
 //        String urlId = rocksDBDao.getUrlIdFromUrl(url);
 //

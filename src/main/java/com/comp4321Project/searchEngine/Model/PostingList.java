@@ -73,4 +73,12 @@ public class PostingList implements Serializable {
     public String toString() {
         return Arrays.toString(postingList.toArray());
     }
+
+    public HashSet<byte[]> getAllUrlIdFromPostingList() {
+        HashSet<byte[]> hashSet = new HashSet<>();
+        for (PostingNode node: postingList) {
+            hashSet.add(node.getUrlId().getBytes());
+        }
+        return hashSet;
+    }
 }

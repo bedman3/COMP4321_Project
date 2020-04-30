@@ -1,5 +1,7 @@
 package com.comp4321Project.searchEngine.View;
 
+import java.util.Arrays;
+
 public class SearchResultsView {
     public String pageTitle;
     public String url;
@@ -26,5 +28,19 @@ public class SearchResultsView {
         this.keywordFrequencyModelList = keywordFrequencyModelList;
         this.childLinks = childLinks;
         this.parentLinks = parentLinks;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchResultsView{" +
+                "pageTitle='" + pageTitle + '\'' +
+                ", url='" + url + '\'' +
+                ", lastModifiedDate='" + lastModifiedDate + '\'' +
+                ", sizeOfPage='" + sizeOfPage + '\'' +
+                ", score=" + score +
+                ", keywordFrequencyModelList='" + keywordFrequencyModelList + '\'' +
+                ", childLinks=" + Arrays.toString(childLinks) +
+                ", parentLinks=" + Arrays.toString(parentLinks) +
+                '}';
     }
 }

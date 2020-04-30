@@ -7,6 +7,7 @@ import org.rocksdb.RocksDBException;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public class InvertedFile {
@@ -32,6 +33,19 @@ public class InvertedFile {
         }
         postingList.add(wordId, urlId, location, lazySortNodeSet, lazy);
         this.hashMap.put(wordId, postingList);
+    }
+
+    public HashSet<byte[]> loadInvertedFileWithWordId(List<byte[]> wordIdList) throws RocksDBException {
+        RocksDB rocksDB = rocksDBDao.getRocksDB();
+        HashSet<byte[]> hashSet = new HashSet<>();
+
+        for (byte[] wordId : wordIdList) {
+            PostingList postingList = PostingList.fromBytesArray(rocksDB.get(this.colHandle, wordId));
+            hashSet.addAll(postingList.getAllUrlIdFromPostingList());
+            this.hashMap.put(new String(wordId), postingList);
+        }
+
+        return hashSet;
     }
 
     /**
