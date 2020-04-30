@@ -126,7 +126,8 @@ public class SpiderImpl implements Spider {
         String[] wordsTitleArray = StringUtils.split(parsedTitleText, " ");
 
         // stem words here using Porter's algorithm
-
+        wordsBodyArray = TextProcessing.stemWordArray(wordsBodyArray);
+        wordsTitleArray = TextProcessing.stemWordArray(wordsTitleArray);
 
         Map<String, Integer> keyFreqMap = new HashMap<>();
 

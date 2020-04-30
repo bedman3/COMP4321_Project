@@ -1,12 +1,14 @@
 package com.comp4321Project.searchEngine.Util;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class TextProcessing {
     private static final String[] stopWords;
     private static final Set<String> stopWordsSet;
+    private static final Porter porterObject;
+    static {
+        porterObject = new Porter();
+    }
 
     static {
         stopWords = new String[]{"a", "about", "above", "across", "after", "again", "against", "all", "almost",
@@ -59,7 +61,8 @@ public class TextProcessing {
         return stopWordsSet.contains(word);
     }
 
-    public static void stemWordArrays(String[] wordArrays) {
-
+    public static String[] stemWordArray(String[] wordArrays) {
+        List<String> wordList = Arrays.asList(wordArrays);
+        return wordList.stream().map(porterObject::stripAffixes).toArray(String[]::new);
     }
 }
