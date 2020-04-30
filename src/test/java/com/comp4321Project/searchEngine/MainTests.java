@@ -2,13 +2,13 @@ package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Service.Spider;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
 
 class MainTests {
-    @BeforeAll
+    @Test
     public static void scrapeUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
@@ -18,6 +18,16 @@ class MainTests {
 
             rocksDBDao.getRocksDB().closeE();
         } catch (RocksDBException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void printRocksDB() {
+        try {
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
+            rocksDBDao.printAllDataInRocksDB();
+        } catch (RocksDBException e) {
             e.printStackTrace();
         }
     }

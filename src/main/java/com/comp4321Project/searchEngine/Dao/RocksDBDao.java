@@ -3,7 +3,6 @@ package com.comp4321Project.searchEngine.Dao;
 import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
-import com.comp4321Project.searchEngine.Util.RocksDBColIndex;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.*;
@@ -12,7 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class RocksDBDao {
@@ -32,10 +31,9 @@ public class RocksDBDao {
     private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingList;
     private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingList;
     private final ColumnFamilyHandle urlIdToLastModifiedDate;
-
+    private final ColumnFamilyHandle overallStatistics;
     private final InvertedFile invertedFileForBody;
     private final InvertedFile invertedFileForTitle;
-    private HashMap<String, SiteMetaData> searchResultViewHashMap;
 
     private RocksDBDao(String relativeDBPath) throws RocksDBException {
         Util.createDirectoryIfNotExist(relativeDBPath);
@@ -64,25 +62,29 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForBodyWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForTitleWordIdToPostingList".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToLastModifiedDate".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToLastModifiedDate".getBytes()),
+                new ColumnFamilyDescriptor("OverallStatistics".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
         this.rocksDB = RocksDB.open(dbOptions, relativeDBPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
 
-        this.defaultRocksDBCol = columnFamilyHandleList.get(0);
-        this.urlIdToMetaDataRocksDBCol = columnFamilyHandleList.get(1);
-        this.parentUrlIdToChildUrlIdRocksDBCol = columnFamilyHandleList.get(2);
-        this.childUrlIdToParentUrlIdRocksDBCol = columnFamilyHandleList.get(3);
-        this.urlToUrlIdRocksDBCol = columnFamilyHandleList.get(4);
-        this.urlIdToUrlRocksDBCol = columnFamilyHandleList.get(5);
-        this.wordToWordIdRocksDBCol = columnFamilyHandleList.get(6);
-        this.wordIdToWordRocksDBCol = columnFamilyHandleList.get(7);
-        this.urlIdToKeywordFrequencyRocksDBCol = columnFamilyHandleList.get(8);
-        this.urlIdToTop5Keyword = columnFamilyHandleList.get(9);
-        this.invertedFileForBodyWordIdToPostingList = columnFamilyHandleList.get(10);
-        this.invertedFileForTitleWordIdToPostingList = columnFamilyHandleList.get(11);
-        this.urlIdToLastModifiedDate = columnFamilyHandleList.get(12);
+        Iterator<ColumnFamilyHandle> ColFamilyIt = columnFamilyHandleList.iterator();
+
+        this.defaultRocksDBCol = ColFamilyIt.next();
+        this.urlIdToMetaDataRocksDBCol = ColFamilyIt.next();
+        this.parentUrlIdToChildUrlIdRocksDBCol = ColFamilyIt.next();
+        this.childUrlIdToParentUrlIdRocksDBCol = ColFamilyIt.next();
+        this.urlToUrlIdRocksDBCol = ColFamilyIt.next();
+        this.urlIdToUrlRocksDBCol = ColFamilyIt.next();
+        this.wordToWordIdRocksDBCol = ColFamilyIt.next();
+        this.wordIdToWordRocksDBCol = ColFamilyIt.next();
+        this.urlIdToKeywordFrequencyRocksDBCol = ColFamilyIt.next();
+        this.urlIdToTop5Keyword = ColFamilyIt.next();
+        this.invertedFileForBodyWordIdToPostingList = ColFamilyIt.next();
+        this.invertedFileForTitleWordIdToPostingList = ColFamilyIt.next();
+        this.urlIdToLastModifiedDate = ColFamilyIt.next();
+        this.overallStatistics = ColFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingList);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingList);
@@ -102,6 +104,10 @@ public class RocksDBDao {
 
     public static RocksDBDao getInstance() throws RocksDBException {
         return getInstance(Constants.getDefaultDBPath());
+    }
+
+    public ColumnFamilyHandle getOverallStatistics() {
+        return overallStatistics;
     }
 
     public RocksDB getRocksDB() {
@@ -198,11 +204,11 @@ public class RocksDBDao {
     }
 
     public void initRocksDBWithNextAvailableId(ColumnFamilyHandle colHandle) throws RocksDBException {
-        byte[] nextAvailableIdByte = rocksDB.get(colHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
+        byte[] nextAvailableIdByte = rocksDB.get(colHandle, Constants.getNextAvailableIdLiteral().getBytes());
 
         if (nextAvailableIdByte == null) {
             // if next available id field does not exist, assumes there is no document in it and we start from 0
-            rocksDB.put(colHandle, new WriteOptions().setSync(true), RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), "0".getBytes());
+            rocksDB.put(colHandle, new WriteOptions().setSync(true), Constants.getNextAvailableIdLiteral().getBytes(), "0".getBytes());
         }
     }
 
@@ -238,9 +244,9 @@ public class RocksDBDao {
             //  when running with multiple workers
 
             // get the next available id
-            byte[] nextAvailableIdStringByte = rocksDB.get(idToKeyColHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes());
+            byte[] nextAvailableIdStringByte = rocksDB.get(idToKeyColHandle, Constants.getNextAvailableIdLiteral().getBytes());
             Integer nextAvailableId = Integer.parseInt(new String(nextAvailableIdStringByte));
-            rocksDB.put(idToKeyColHandle, RocksDBColIndex.getNextAvailableIdLiteral().getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
+            rocksDB.put(idToKeyColHandle, Constants.getNextAvailableIdLiteral().getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
 
             // register this url with the new unique id
             rocksDB.put(keyToIdColHandle, key.getBytes(), nextAvailableId.toString().getBytes());
@@ -297,6 +303,21 @@ public class RocksDBDao {
             this.rocksDB.put(this.urlIdToLastModifiedDate, urlId.getBytes(), newLastModified.getBytes());
 
             return false;
+        }
+    }
+
+    public int getTotalNumOfDocuments() throws RocksDBException {
+        byte[] totalNumOfDocumentByte = this.rocksDB.get(this.urlIdToUrlRocksDBCol, Constants.getNextAvailableIdLiteral().getBytes());
+        if (totalNumOfDocumentByte == null) {
+            return 0;
+        } else {
+            String totalNumOfDocumentString = new String(totalNumOfDocumentByte);
+            try {
+                return Integer.parseInt(totalNumOfDocumentString);
+            } catch (NumberFormatException e) {
+                System.err.println("Cannot parse total number of documents");
+                return 0;
+            }
         }
     }
 }

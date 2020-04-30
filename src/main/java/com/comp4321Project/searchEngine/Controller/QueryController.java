@@ -4,7 +4,6 @@ import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.View.Message;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
-import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
 import org.springframework.http.MediaType;
