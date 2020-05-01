@@ -5,6 +5,7 @@ import com.comp4321Project.searchEngine.Util.Util;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Map;
  * 1) compute idf score
  * 2) compute pagerank
  */
+@Service
 public class BatchProcessing {
     private static BatchProcessing instance;
     private static RocksDBDao rocksDBDao;

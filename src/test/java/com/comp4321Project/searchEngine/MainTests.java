@@ -16,7 +16,7 @@ class MainTests {
         try {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = RocksDBDao.getInstance();
-            Spider spider = new Spider(rocksDBDao, 5);
+            Spider spider = new Spider(rocksDBDao);
             spider.crawl(url, true, 30);
             rocksDBDao.updateInvertedFileInRocksDB();
         } catch (RocksDBException | IOException e) {

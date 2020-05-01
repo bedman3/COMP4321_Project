@@ -6,40 +6,52 @@ import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.rocksdb.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Repository
+@Scope("singleton")
 public class RocksDBDao {
+    private String dbPath;
     private static RocksDBDao daoInstance; // singleton to avoid rocksdb file lock
-    private final ColumnFamilyHandle defaultRocksDBCol;
-    private final List<ColumnFamilyHandle> columnFamilyHandleList;
-    private final RocksDB rocksDB;
-    private final ColumnFamilyHandle urlIdToMetaDataRocksDBCol;
-    private final ColumnFamilyHandle parentUrlIdToChildUrlIdRocksDBCol;
-    private final ColumnFamilyHandle childUrlIdToParentUrlIdRocksDBCol;
-    private final ColumnFamilyHandle urlToUrlIdRocksDBCol;
-    private final ColumnFamilyHandle urlIdToUrlRocksDBCol;
-    private final ColumnFamilyHandle wordToWordIdRocksDBCol;
-    private final ColumnFamilyHandle wordIdToWordRocksDBCol;
-    private final ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
-    private final ColumnFamilyHandle urlIdToTop5KeywordRocksDBCol;
-    private final ColumnFamilyHandle invertedFileForBodyWordIdToPostingListRocksDBCol;
-    private final ColumnFamilyHandle invertedFileForTitleWordIdToPostingListRocksDBCol;
-    private final ColumnFamilyHandle urlIdToLastModifiedDateRocksDBCol;
-    private final ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
-    private final ColumnFamilyHandle wordIdToDocumentFrequencyRocksDBCol;
-    private final ColumnFamilyHandle wordIdToInverseDocumentFrequencyRocksDBCol;
-    private final ColumnFamilyHandle urlIdToKeywordTFIDFVectorData;
-    private final InvertedFile invertedFileForBody;
-    private final InvertedFile invertedFileForTitle;
+    private ColumnFamilyHandle defaultRocksDBCol;
+    private List<ColumnFamilyHandle> columnFamilyHandleList;
+    private RocksDB rocksDB;
+    private ColumnFamilyHandle urlIdToMetaDataRocksDBCol;
+    private ColumnFamilyHandle parentUrlIdToChildUrlIdRocksDBCol;
+    private ColumnFamilyHandle childUrlIdToParentUrlIdRocksDBCol;
+    private ColumnFamilyHandle urlToUrlIdRocksDBCol;
+    private ColumnFamilyHandle urlIdToUrlRocksDBCol;
+    private ColumnFamilyHandle wordToWordIdRocksDBCol;
+    private ColumnFamilyHandle wordIdToWordRocksDBCol;
+    private ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
+    private ColumnFamilyHandle urlIdToTop5KeywordRocksDBCol;
+    private ColumnFamilyHandle invertedFileForBodyWordIdToPostingListRocksDBCol;
+    private ColumnFamilyHandle invertedFileForTitleWordIdToPostingListRocksDBCol;
+    private ColumnFamilyHandle urlIdToLastModifiedDateRocksDBCol;
+    private ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
+    private ColumnFamilyHandle wordIdToDocumentFrequencyRocksDBCol;
+    private ColumnFamilyHandle wordIdToInverseDocumentFrequencyRocksDBCol;
+    private ColumnFamilyHandle urlIdToKeywordTFIDFVectorData;
+    private InvertedFile invertedFileForBody;
+    private InvertedFile invertedFileForTitle;
 
-    private RocksDBDao(String relativeDBPath) throws RocksDBException {
-        Util.createDirectoryIfNotExist(relativeDBPath);
+    private RocksDBDao(@Value("${rocksdb.folder}") String relativeDBPath) throws RocksDBException {
+        this.dbPath = relativeDBPath;
+    }
+
+    @PostConstruct
+    private void initialize() throws RocksDBException {
+        Util.createDirectoryIfNotExist(dbPath);
 
         // delete LOCK file if exists
-        Util.deleteRocksDBLockFile(relativeDBPath);
+        Util.deleteRocksDBLockFile(dbPath);
 
         RocksDB.loadLibrary();
 
@@ -70,7 +82,7 @@ public class RocksDBDao {
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
-        this.rocksDB = RocksDB.open(dbOptions, relativeDBPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
+        this.rocksDB = RocksDB.open(dbOptions, dbPath, columnFamilyDescriptorList, this.columnFamilyHandleList);
 
         Iterator<ColumnFamilyHandle> colFamilyIt = columnFamilyHandleList.iterator();
 

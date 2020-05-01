@@ -13,6 +13,12 @@ public class Constants {
     private final static String nextAvailableIdLiteral = "nextAvailableId";
     private final static double ln2 = Math.log(2);
 
+    public static int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    private final static int connectionTimeout = 10;
+
     public static int getMaxReturnSearchResult() {
         return maxReturnSearchResult;
     }

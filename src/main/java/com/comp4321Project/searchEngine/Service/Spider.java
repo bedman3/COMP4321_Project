@@ -16,18 +16,20 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
+@Service
 public class Spider {
     private final static Character spaceSeparator = ' ';
     private final RocksDBDao rocksDBDao;
     private final Integer topKKeywords;
 
-    public Spider(RocksDBDao rocksDBDao, Integer topKKeywords) {
+    public Spider(RocksDBDao rocksDBDao) {
         this.rocksDBDao = rocksDBDao;
-        this.topKKeywords = topKKeywords;
+        this.topKKeywords = Constants.getExtractTopKKeywords();
     }
 
     public static Character getSpaceSeparator() {
@@ -54,7 +56,9 @@ public class Spider {
 
         Connection.Response response;
         try {
-            response = Jsoup.connect(httpUrl).execute();
+            response = Jsoup.connect(httpUrl)
+                    .timeout(1000 * Constants.getConnectionTimeout())
+                    .execute();
         } catch (HttpStatusException e) {
             System.err.println(e.toString());
             return null;
