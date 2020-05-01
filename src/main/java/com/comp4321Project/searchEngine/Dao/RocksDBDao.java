@@ -107,6 +107,11 @@ public class RocksDBDao {
         return daoInstance;
     }
 
+    /**
+     * Singleton design
+     * @return RocksDB instance
+     * @throws RocksDBException
+     */
     public static RocksDBDao getInstance() throws RocksDBException {
         return getInstance(Constants.getDefaultDBPath());
     }
@@ -414,8 +419,11 @@ public class RocksDBDao {
         rocksDB.put(this.urlIdToKeywordTFIDFVectorData, urlIdByte, CustomFSTSerialization.getInstance().asByteArray(vector));
     }
 
-    public HashMap<String, Double> getTfIdfScoreData(byte[] urlIdByte) throws RocksDBException {
-        byte[] tfIdfScoreByte = rocksDB.get(this.urlIdToKeywordTFIDFVectorData, urlIdByte);
+    public HashMap<String, Double> getTfIdfScoreData(String urlId) throws RocksDBException {
+        return getTfIdfScoreDataFromByte(rocksDB.get(this.urlIdToKeywordTFIDFVectorData, urlId.getBytes()));
+    }
+
+    public HashMap<String, Double> getTfIdfScoreDataFromByte(byte[] tfIdfScoreByte) throws RocksDBException {
         if (tfIdfScoreByte == null) {
             return null;
         } else {

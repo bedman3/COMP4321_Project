@@ -114,9 +114,6 @@ public class Spider {
         String[] wordsBodyArray = TextProcessing.cleanRawWords(doc.body().text());
         String[] wordsTitleArray = TextProcessing.cleanRawWords(doc.title());
 
-        // calculate the total number of terms in the document
-        Integer totalNumOfTermsInDoc = wordsBodyArray.length;
-
         Map<String, Integer> keyFreqMap = new HashMap<>();
         Map<String, Double> keyTermFreqMap = new HashMap<>();
 
@@ -135,11 +132,6 @@ public class Spider {
             invertedFileForTitle.add(wordId, parentUrlId, index, true);
         }
 
-        // calculate the term frequency for TD-IDF
-        for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
-            keyTermFreqMap.put(entry.getKey(), entry.getValue() * 1.0 / totalNumOfTermsInDoc);
-        }
-
         // build a max heap to get the top 5 key freq
         PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {
             // compare in descending order
@@ -149,6 +141,14 @@ public class Spider {
         keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new AbstractMap.SimpleEntry<>(key, value)));
 
         Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
+
+        Integer freqOfMostFrequentTermInDoc = Objects.requireNonNull(maxHeap.peek()).getValue();
+
+        // calculate the term frequency for TD-IDF, normalized by the frequency of the most frequent term in document
+        for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
+            keyTermFreqMap.put(entry.getKey(), entry.getValue() * 1.0 / freqOfMostFrequentTermInDoc);
+        }
+
         StringBuilder keyFreqTopKValue = new StringBuilder();
 
         for (int index = 0; index < this.topKKeywords && keyFreqIt.hasNext(); index++) {

@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 class MainTests {
     @Test
-    public void scrapeUrlToRocksDB() {
+    public void crawlUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
             RocksDBDao rocksDBDao = RocksDBDao.getInstance();
@@ -20,6 +20,18 @@ class MainTests {
             spider.crawl(url, true, 30);
             rocksDBDao.updateInvertedFileInRocksDB();
         } catch (RocksDBException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void batchProcess() {
+        try {
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
+            BatchProcessing batchProcessing = BatchProcessing.getInstance(rocksDBDao);
+
+            batchProcessing.runBatchProcess();
+        } catch (RocksDBException e) {
             e.printStackTrace();
         }
     }
@@ -59,17 +71,7 @@ class MainTests {
         }
     }
 
-    @Test
-    public void batchProcess() {
-        try {
-            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
-            BatchProcessing batchProcessing = BatchProcessing.getInstance(rocksDBDao);
 
-            batchProcessing.runBatchProcess();
-        } catch (RocksDBException e) {
-            e.printStackTrace();
-        }
-    }
 
     /*@Test
     public void loadResultFromRocksDB() {
