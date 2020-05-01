@@ -30,3 +30,4 @@ target/
 rocksDBFiles/
 spider_result.txt
 searchEngine.zip
+testResult/
