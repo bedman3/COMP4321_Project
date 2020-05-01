@@ -249,7 +249,7 @@ public class Spider {
 
             crawlQueue.add(url);
             // BFS for scraping website
-            while (crawlQueue.peek() != null && (limit == null || numScrapedSite < limit)) {
+            while (crawlQueue.peek() != null && (limit == null || numScrapedSite <= limit)) {
                 String crawlUrl = crawlQueue.poll();
                 System.err.println("Scraping: " + crawlUrl + ", scraped " + numScrapedSite.toString() + " site(s).");
                 returnSet = this.crawlOneSite(crawlUrl);
