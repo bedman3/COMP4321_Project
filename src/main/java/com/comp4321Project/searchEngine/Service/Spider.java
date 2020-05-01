@@ -158,7 +158,12 @@ public class Spider {
 
         Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
 
-        Integer freqOfMostFrequentTermInDoc = Objects.requireNonNull(maxHeap.peek()).getValue();
+        Integer freqOfMostFrequentTermInDoc;
+        if (maxHeap.size() == 0) {
+            freqOfMostFrequentTermInDoc = 0;
+        } else {
+            freqOfMostFrequentTermInDoc = maxHeap.peek().getValue();
+        }
 
         // calculate the term frequency for TD-IDF, normalized by the frequency of the most frequent term in document
         for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
@@ -244,7 +249,7 @@ public class Spider {
 
             crawlQueue.add(url);
             // BFS for scraping website
-            while (crawlQueue.peek() != null && (limit == null || crawledSite.size() < limit)) {
+            while (crawlQueue.peek() != null && (limit == null || numScrapedSite < limit)) {
                 String crawlUrl = crawlQueue.poll();
                 System.err.println("Scraping: " + crawlUrl + ", scraped " + numScrapedSite.toString() + " site(s).");
                 returnSet = this.crawlOneSite(crawlUrl);
