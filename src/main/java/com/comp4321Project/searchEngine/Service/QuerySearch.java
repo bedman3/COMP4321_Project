@@ -2,6 +2,7 @@ package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
+import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import org.rocksdb.ColumnFamilyHandle;
@@ -20,6 +21,7 @@ public class QuerySearch {
     }
 
     public List<SearchResultsView> search(String query) throws RocksDBException {
+        RocksDB rocksDB = rocksDBDao.getRocksDB();
         String[] processedQuery = TextProcessing.cleanRawWords(query);
 
         List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
@@ -41,9 +43,10 @@ public class QuerySearch {
         InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
         HashSet<byte[]> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdList);
 
-        HashSet<byte[]> urlIdSet = new HashSet<>();
-//        List<byte[]> urlIdListWithAtLeastOneKeywordsInDoc = invertedFileForBody.getAllUrlIdList(wordIdList);
-
+        HashMap<byte[], HashMap<String, Double>> urlIdVector = new HashMap<>();
+        for (byte[] urlIdByte : urlIdSetWithAtLeastOneKeywordsInDoc) {
+            urlIdVector.put(urlIdByte, rocksDBDao.getKeywordTermFrequencyData(urlIdByte));
+        }
 
 
 //        String urlId = rocksDBDao.getUrlIdFromUrl(url);

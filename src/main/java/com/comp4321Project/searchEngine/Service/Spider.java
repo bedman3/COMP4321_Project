@@ -165,9 +165,9 @@ public class Spider {
         }
 
         // serialize the map and store it to rocksdb
-        rocksDB.put(rocksDBDao.getUrlIdToKeywordFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
-        rocksDB.put(rocksDBDao.getUrlIdToKeywordTermFrequencyRocksDBCol(), parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyTermFreqMap));
-        rocksDB.put(rocksDBDao.getUrlIdToTop5KeywordRocksDBCol(), parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
+        rocksDBDao.putKeywordFrequencyData(parentUrlId, keyFreqMap);
+        rocksDBDao.putKeywordTermFrequencyData(parentUrlId, keyTermFreqMap);
+        rocksDBDao.putTop5KeywordData(parentUrlId, keyFreqTopKValue);
 
         String size = response.header("Content-Length");
 

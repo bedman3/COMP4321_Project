@@ -1,5 +1,7 @@
 package com.comp4321Project.searchEngine.Util;
 
+import com.comp4321Project.searchEngine.Model.Constants;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,5 +32,13 @@ public class Util {
         } else {
             System.err.println("RocksDB LOCK file not found, proceed to next stage");
         }
+    }
+
+    public static double computeIdf(double totalNumOfDocuments, double totalNumOfDocWithTerm) {
+        if (totalNumOfDocuments < 1 || totalNumOfDocWithTerm < 1) {
+            return 0;
+        }
+
+        return Math.log(totalNumOfDocuments / totalNumOfDocWithTerm) / Constants.getLn2();
     }
 }

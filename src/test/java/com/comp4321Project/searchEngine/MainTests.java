@@ -1,6 +1,7 @@
 package com.comp4321Project.searchEngine;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Service.BatchProcessing;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,18 @@ class MainTests {
             query = "artificial";
             System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
 
+        } catch (RocksDBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void batchProcess() {
+        try {
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
+            BatchProcessing batchProcessing = BatchProcessing.getInstance(rocksDBDao);
+
+            batchProcessing.runBatchProcess();
         } catch (RocksDBException e) {
             e.printStackTrace();
         }
