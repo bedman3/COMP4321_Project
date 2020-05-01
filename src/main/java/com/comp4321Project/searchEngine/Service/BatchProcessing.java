@@ -2,7 +2,6 @@ package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Util.Util;
-import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
@@ -70,7 +69,7 @@ public class BatchProcessing {
             HashMap<String, Double> tfIdfVector = new HashMap<>();
             // cast vector from byte array to hashmap
             HashMap<String, Double> tfVector = rocksDBDao.getKeywordTermFrequencyDataFromValue(it.value());
-            for (Map.Entry<String, Double> entry: tfVector.entrySet()) {
+            for (Map.Entry<String, Double> entry : tfVector.entrySet()) {
                 // compute tf idf score for each of the word inside the vector
                 String wordId = entry.getKey();
                 byte[] wordIdByte = wordId.getBytes();

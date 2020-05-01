@@ -77,12 +77,18 @@ public class Util {
     }
 
     /**
-     * Compute Cos Sim Score given two lists are sorted and in ArrayList<AbstractMap.SimpleEntry<String, Double>> format
+     * Compute Cos Sim Score given two lists are sorted in ascending mode and
+     * in ArrayList<AbstractMap.SimpleEntry<String, Double>> format
+     *
      * @param list1
      * @param list2
      * @return
      */
     public static Double computeCosSimScore(ArrayList<AbstractMap.SimpleEntry<String, Double>> list1, ArrayList<AbstractMap.SimpleEntry<String, Double>> list2) {
+        if (list1.size() == 0 || list2.size() == 0) {
+            return 0.0;
+        }
+
         ArrayList<AbstractMap.SimpleEntry<String, Double>> longerList, shorterList;
         Double score = 0.0;
         if (list1.size() > list2.size()) {
@@ -92,13 +98,35 @@ public class Util {
             longerList = list2;
             shorterList = list1;
         }
+        int longListLength = longerList.size();
+        int shortListLength = shorterList.size();
+
+        int longListPtr = 0;
+        int shortListPtr = 0;
+
+        while (longListPtr < longListLength && shortListPtr < shortListLength) {
+            // no need to further check after reaching the end of one list
+            int compare = longerList.get(longListPtr).getKey().compareTo(shorterList.get(shortListPtr).getKey());
+            if (compare == 0) {
+                score += longerList.get(longListPtr).getValue() * shorterList.get(shortListPtr).getValue();
+                shortListPtr++;
+                longListPtr++;
+            } else if (compare < 0) {
+                longListPtr++;
+            } else { // compare > 0
+                shortListPtr++;
+            }
+        }
 
         double longListSum = 0;
         double shortListSum = 0;
 
-        int longListPtr = 0;
-        for (int shortListPtr = 0; shortListPtr < shorterList.size(); shortListPtr++) {
+        for (int index = 0; index < longListLength; index++) {
+            longListSum += longerList.get(index).getValue();
+        }
 
+        for (int index = 0; index < shortListLength; index++) {
+            shortListSum += shorterList.get(index).getValue();
         }
 
         return score / (longListSum * shortListSum);

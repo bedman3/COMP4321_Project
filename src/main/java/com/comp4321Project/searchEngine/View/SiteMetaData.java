@@ -18,9 +18,9 @@ public class SiteMetaData {
     private final String url;
     private final String lastModifiedDate;
     private final String sizeOfPage;
-    private Double score;
     private final String keywordFrequencyModelList;
     private final String childLinks;
+    private Double score;
     private String parentLinks;
 
     public SiteMetaData(String pageTitle, String url, String lastModifiedDate, String sizeOfPage, Double score,

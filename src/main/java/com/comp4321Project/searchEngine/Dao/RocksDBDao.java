@@ -34,6 +34,7 @@ public class RocksDBDao {
     private final ColumnFamilyHandle urlIdToKeywordTFIDFVectorData;
     private final InvertedFile invertedFileForBody;
     private final InvertedFile invertedFileForTitle;
+
     private RocksDBDao(String relativeDBPath) throws RocksDBException {
         Util.createDirectoryIfNotExist(relativeDBPath);
 
@@ -109,6 +110,7 @@ public class RocksDBDao {
 
     /**
      * Singleton design
+     *
      * @return RocksDB instance
      * @throws RocksDBException
      */
@@ -365,8 +367,7 @@ public class RocksDBDao {
         } else if (totalNumOfDocuments == 0) {
             // no document available in the database, skip processing and return 0
             return 0.0;
-        }
-        else {
+        } else {
             String totalNumOfDocWithTermString = new String(totalNumOfDocWithTermByte);
             try {
                 int totalNumOfDocWithTerm = Integer.parseInt(totalNumOfDocWithTermString);

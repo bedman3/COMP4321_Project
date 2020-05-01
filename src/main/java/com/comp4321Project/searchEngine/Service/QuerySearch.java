@@ -6,7 +6,6 @@ import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
-import org.apache.tomcat.util.bcel.Const;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -24,8 +23,9 @@ public class QuerySearch {
 
     public List<SearchResultsView> search(String query) throws RocksDBException {
         String[] processedQuery = TextProcessing.cleanRawWords(query);
-        HashMap<byte[], Double> urlIdToScoreMap = new HashMap<>();
-
+        if (processedQuery.length == 0) {
+            return new ArrayList<>();
+        }
         List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
 
         List<byte[]> wordIdByteList = rocksDBDao.getRocksDB().multiGetAsList(
@@ -65,7 +65,7 @@ public class QuerySearch {
         });
 
         for (Map.Entry<byte[], ArrayList<AbstractMap.SimpleEntry<String, Double>>> entry : urlIdVector.entrySet()) {
-            maxHeap.add(new AbstractMap.SimpleEntry<byte[], Double>(entry.getKey(), Util.computeCosSimScore(queryVector , entry.getValue())));
+            maxHeap.add(new AbstractMap.SimpleEntry<byte[], Double>(entry.getKey(), Util.computeCosSimScore(queryVector, entry.getValue())));
         }
 
         int resultLength = Math.min(Constants.getMaxReturnSearchResult(), maxHeap.size());
