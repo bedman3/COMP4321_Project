@@ -79,7 +79,11 @@ public class BatchProcessing {
                 if (idfScore == null) {
                     // cache not exists
                     byte[] idfScoreByte = rocksDB.get(rocksDBDao.getWordIdToInverseDocumentFrequencyRocksDBCol(), wordIdByte);
-                    idfScore = Double.parseDouble(new String(idfScoreByte));
+                    try {
+                        idfScore = Double.parseDouble(new String(idfScoreByte));
+                    } catch (NullPointerException e) {
+                        System.err.println("null pointer, idfScore: " + idfScoreByte + " wordId: " + new String(wordIdByte));
+                    }
                     idfScoreCache.put(wordIdByte, idfScore);
                 }
 
