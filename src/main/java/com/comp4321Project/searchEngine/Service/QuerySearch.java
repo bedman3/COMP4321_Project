@@ -78,7 +78,10 @@ public class QuerySearch {
                 System.err.println("search result return null from max heap");
                 continue;
             }
-            resultsViewArrayList.add(rocksDBDao.getSiteSearchViewWithUrlIdFromByte(record.getKey()).setScore(record.getValue()).toSearchResultView());
+            resultsViewArrayList.add(rocksDBDao.getSiteSearchViewWithUrlIdFromByte(record.getKey())
+                    .setScore(record.getValue())
+                    .updateParentLinks(rocksDBDao, new String(record.getKey()))
+                    .toSearchResultView());
         }
 
         return resultsViewArrayList;
