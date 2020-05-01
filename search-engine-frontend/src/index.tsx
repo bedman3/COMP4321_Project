@@ -34,7 +34,7 @@ function configureStore() {
 
 const store = configureStore();
 const target = document.querySelector('#root');
-document.body.style.overflow = 'hidden';
+// document.body.style.overflow = 'hidden';
 // document.getElementById('root'),
 
 
