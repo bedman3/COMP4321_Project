@@ -194,8 +194,12 @@ public class RocksDBDao {
     }
 
     public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException {
+        return getSiteSearchViewWithUrlIdFromByte(urlId.getBytes());
+    }
+
+    public SiteMetaData getSiteSearchViewWithUrlIdFromByte(byte[] urlIdByte) throws RocksDBException {
         // get meta data
-        byte[] metaDataStringByte = this.rocksDB.get(urlIdToMetaDataRocksDBCol, urlId.getBytes());
+        byte[] metaDataStringByte = this.rocksDB.get(urlIdToMetaDataRocksDBCol, urlIdByte);
         if (metaDataStringByte != null) {
             return SiteMetaData.fromMetaDataString(new String(metaDataStringByte));
         } else {
@@ -419,11 +423,11 @@ public class RocksDBDao {
         rocksDB.put(this.urlIdToKeywordTFIDFVectorData, urlIdByte, CustomFSTSerialization.getInstance().asByteArray(vector));
     }
 
-    public HashMap<String, Double> getTfIdfScoreData(String urlId) throws RocksDBException {
-        return getTfIdfScoreDataFromByte(rocksDB.get(this.urlIdToKeywordTFIDFVectorData, urlId.getBytes()));
+    public HashMap<String, Double> getTfIdfScoreData(byte[] urlIdByte) throws RocksDBException {
+        return getTfIdfScoreDataFromValue(rocksDB.get(this.urlIdToKeywordTFIDFVectorData, urlIdByte));
     }
 
-    public HashMap<String, Double> getTfIdfScoreDataFromByte(byte[] tfIdfScoreByte) throws RocksDBException {
+    public HashMap<String, Double> getTfIdfScoreDataFromValue(byte[] tfIdfScoreByte) throws RocksDBException {
         if (tfIdfScoreByte == null) {
             return null;
         } else {

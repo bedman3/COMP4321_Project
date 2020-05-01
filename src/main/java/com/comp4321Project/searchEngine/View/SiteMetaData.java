@@ -18,7 +18,7 @@ public class SiteMetaData {
     private final String url;
     private final String lastModifiedDate;
     private final String sizeOfPage;
-    private final Double score;
+    private Double score;
     private final String keywordFrequencyModelList;
     private final String childLinks;
     private String parentLinks;
@@ -97,6 +97,11 @@ public class SiteMetaData {
 //
 //        return printString;
 //    }
+
+    public SiteMetaData setScore(Double score) {
+        this.score = score;
+        return this;
+    }
 
     public String getPageTitle() {
         return pageTitle;

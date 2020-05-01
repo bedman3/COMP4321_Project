@@ -5,8 +5,16 @@ import com.comp4321Project.searchEngine.Model.Constants;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
 
 public class Util {
+    private static final Comparator<AbstractMap.SimpleEntry<String, Double>> tfIdfVectorComparator = new Comparator<AbstractMap.SimpleEntry<String, Double>>() {
+        @Override
+        public int compare(AbstractMap.SimpleEntry<String, Double> p1, AbstractMap.SimpleEntry<String, Double> p2) {
+            return p1.getKey().compareTo(p2.getKey());
+        }
+    };
+
     public static void createDirectoryIfNotExist(String path) {
         Path currDir = Paths.get("");
         Path checkDir = Paths.get(currDir.toString(), path);
@@ -41,4 +49,59 @@ public class Util {
 
         return Math.log(totalNumOfDocuments / totalNumOfDocWithTerm) / Constants.getLn2();
     }
+
+    public static ArrayList<AbstractMap.SimpleEntry<String, Double>> transformTfIdfVector(HashMap<String, Double> tfIdfVector) {
+        ArrayList<AbstractMap.SimpleEntry<String, Double>> arrayList = new ArrayList<>();
+        for (Map.Entry<String, Double> entry : tfIdfVector.entrySet()) {
+            arrayList.add(new AbstractMap.SimpleEntry<String, Double>(entry.getKey(), entry.getValue()));
+        }
+
+        arrayList.sort(tfIdfVectorComparator);
+        return arrayList;
+    }
+
+    public static ArrayList<AbstractMap.SimpleEntry<String, Double>> transformQueryIntoVector(List<String> queryWordList) {
+        HashMap<String, Integer> keyFreqMap = new HashMap<>();
+        ArrayList<AbstractMap.SimpleEntry<String, Double>> arrayList = new ArrayList<>();
+        // count word frequency as a bag of word
+        for (String wordId : queryWordList) {
+            keyFreqMap.merge(wordId, 1, Integer::sum);
+        }
+
+        for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
+            arrayList.add(new AbstractMap.SimpleEntry<String, Double>(entry.getKey(), entry.getValue() * 1.0));
+        }
+
+        arrayList.sort(tfIdfVectorComparator);
+        return arrayList;
+    }
+
+    /**
+     * Compute Cos Sim Score given two lists are sorted and in ArrayList<AbstractMap.SimpleEntry<String, Double>> format
+     * @param list1
+     * @param list2
+     * @return
+     */
+    public static Double computeCosSimScore(ArrayList<AbstractMap.SimpleEntry<String, Double>> list1, ArrayList<AbstractMap.SimpleEntry<String, Double>> list2) {
+        ArrayList<AbstractMap.SimpleEntry<String, Double>> longerList, shorterList;
+        Double score = 0.0;
+        if (list1.size() > list2.size()) {
+            longerList = list1;
+            shorterList = list2;
+        } else {
+            longerList = list2;
+            shorterList = list1;
+        }
+
+        double longListSum = 0;
+        double shortListSum = 0;
+
+        int longListPtr = 0;
+        for (int shortListPtr = 0; shortListPtr < shorterList.size(); shortListPtr++) {
+
+        }
+
+        return score / (longListSum * shortListSum);
+    }
+
 }

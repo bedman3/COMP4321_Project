@@ -19,4 +19,28 @@ public class MiscTest {
 
         assert hashSet.size() == 2;
     }
+
+    class Temp {
+        private int size;
+        public Temp() {
+            size = 10;
+        }
+
+        public int size() {
+            System.out.println("size is: " + size);
+            return size;
+        }
+
+        public void decrement() {
+            size--;
+        }
+    }
+
+    @Test
+    public void test1() {
+        Temp temp = new Temp();
+        for (int i = 0; i < temp.size(); i++) {
+            temp.decrement();
+        }
+    }
 }
