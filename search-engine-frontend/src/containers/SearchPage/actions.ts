@@ -5,3 +5,5 @@ export const setSearchBarAction = (data: SearchBarContentType): SearchPageReduxS
     type: SET_SEARCH_BAR,
     payload: data,
 });
+
+export type setSearchBarActionType = typeof setSearchBarAction;

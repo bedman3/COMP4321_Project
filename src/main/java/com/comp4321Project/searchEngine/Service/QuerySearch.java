@@ -41,7 +41,7 @@ public class QuerySearch {
         InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
         HashSet<byte[]> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdList);
 
-//        HashSet<byte[]> urlIdSet = new HashSet<>();
+        HashSet<byte[]> urlIdSet = new HashSet<>();
 //        List<byte[]> urlIdListWithAtLeastOneKeywordsInDoc = invertedFileForBody.getAllUrlIdList(wordIdList);
 
 

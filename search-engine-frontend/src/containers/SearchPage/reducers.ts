@@ -2,7 +2,7 @@ import { SearchPageReduxStateType, SET_SEARCH_BAR } from './constants';
 
 export type SearchBarContentType = string | undefined;
 
-interface SearchPageStoreType {
+export interface SearchPageStoreType {
     searchBarContent: SearchBarContentType,
 }
 

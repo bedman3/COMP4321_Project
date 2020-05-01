@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import SearchPage from './containers/SearchPage';
 
 function App() {
@@ -11,4 +12,4 @@ function App() {
     );
 }
 
-export default App;
+export default withRouter(App);
