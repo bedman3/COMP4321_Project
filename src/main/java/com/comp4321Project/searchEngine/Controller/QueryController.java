@@ -6,6 +6,7 @@ import com.comp4321Project.searchEngine.View.Message;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +15,13 @@ import java.util.List;
 
 @RestController
 public class QueryController {
+    @Autowired
     private final RocksDBDao rocksDBDao;
     private final QuerySearch querySearch;
 
-    public QueryController() throws RocksDBException {
-        this.rocksDBDao = RocksDBDao.getInstance();
-        this.querySearch = new QuerySearch(rocksDBDao);
+    public QueryController(RocksDBDao rocksDBDao, QuerySearch querySearch) {
+        this.rocksDBDao = rocksDBDao;
+        this.querySearch = querySearch;
     }
 
     @ExceptionHandler(Exception.class)
@@ -33,6 +35,10 @@ public class QueryController {
         return querySearch.getAllSiteFromDB();
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<SearchResultsView> search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
+        return querySearch.search(searchRequest.query);
+    }
 
     static class SearchRequest {
         String query;
@@ -44,10 +50,5 @@ public class QueryController {
         public void setQuery(String query) {
             this.query = query;
         }
-    }
-
-    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<SearchResultsView> search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
-        return querySearch.search(searchRequest.query);
     }
 }

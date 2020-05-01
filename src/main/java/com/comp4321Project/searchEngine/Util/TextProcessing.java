@@ -51,7 +51,7 @@ public class TextProcessing {
                 "very", "w", "want", "wanted", "wanting", "wants", "was", "way", "ways", "we", "well", "wells", "went",
                 "were", "what", "when", "where", "whether", "which", "while", "who", "whole", "whose", "why", "will",
                 "with", "within", "without", "work", "worked", "working", "works", "would", "x", "y", "year", "years",
-                "yet", "you", "young", "younger", "youngest", "your", "yours", "z"};
+                "yet", "you", "young", "younger", "youngest", "your", "yours", "z", ""};
         stopWordsSet = new HashSet<String>(Arrays.asList(stopWords));
     }
 

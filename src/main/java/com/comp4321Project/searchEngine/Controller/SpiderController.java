@@ -33,6 +33,17 @@ public class SpiderController {
         return new Message(null, "error", ExceptionUtils.getStackTrace(e));
     }
 
+    @Async
+    @RequestMapping(value = "/crawl", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Message spiderModel(@RequestBody CrawlRequest crawlRequest) throws IOException, RocksDBException {
+        spider.crawl(crawlRequest.url, crawlRequest.recursive, crawlRequest.limit);
+        return new Message(
+                "Crawl request received",
+                null,
+                null
+        );
+    }
+
     static class CrawlRequest {
         String url;
         Boolean recursive;
@@ -67,16 +78,5 @@ public class SpiderController {
         public void setLimit(Integer limit) {
             this.limit = limit;
         }
-    }
-
-    @Async
-    @RequestMapping(value = "/crawl", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Message spiderModel(@RequestBody CrawlRequest crawlRequest) throws IOException, RocksDBException {
-        spider.crawl(crawlRequest.url, crawlRequest.recursive, crawlRequest.limit);
-        return new Message(
-                "Crawl request received",
-                null,
-                null
-        );
     }
 }

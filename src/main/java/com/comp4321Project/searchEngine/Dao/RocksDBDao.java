@@ -18,8 +18,9 @@ import java.util.*;
 @Repository
 @Scope("singleton")
 public class RocksDBDao {
-    private String dbPath;
+    private boolean initialized;
     private static RocksDBDao daoInstance; // singleton to avoid rocksdb file lock
+    private String dbPath;
     private ColumnFamilyHandle defaultRocksDBCol;
     private List<ColumnFamilyHandle> columnFamilyHandleList;
     private RocksDB rocksDB;
@@ -38,12 +39,36 @@ public class RocksDBDao {
     private ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
     private ColumnFamilyHandle wordIdToDocumentFrequencyRocksDBCol;
     private ColumnFamilyHandle wordIdToInverseDocumentFrequencyRocksDBCol;
-    private ColumnFamilyHandle urlIdToKeywordTFIDFVectorData;
+    private ColumnFamilyHandle urlIdToKeywordTFIDFVectorRocksDBCol;
+    private ColumnFamilyHandle fetchedSiteHashSetRocksDBCol;
     private InvertedFile invertedFileForBody;
     private InvertedFile invertedFileForTitle;
 
     private RocksDBDao(@Value("${rocksdb.folder}") String relativeDBPath) throws RocksDBException {
         this.dbPath = relativeDBPath;
+    }
+
+    public static RocksDBDao getInstance(String dbPath) throws RocksDBException {
+        if (daoInstance == null) {
+            daoInstance = new RocksDBDao(dbPath);
+            daoInstance.initialize();
+        }
+
+        return daoInstance;
+    }
+
+    /**
+     * Singleton design
+     *
+     * @return RocksDB instance
+     * @throws RocksDBException
+     */
+    public static RocksDBDao getInstance() throws RocksDBException {
+        return getInstance(Constants.getDefaultDBPath());
+    }
+
+    public ColumnFamilyHandle getFetchedSiteHashSetRocksDBCol() {
+        return fetchedSiteHashSetRocksDBCol;
     }
 
     @PostConstruct
@@ -78,7 +103,8 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("UrlIdToKeywordTermFrequencyData".getBytes()),
                 new ColumnFamilyDescriptor("WordIdToDocumentFrequencyData".getBytes()),
                 new ColumnFamilyDescriptor("WordIdToInverseDocumentFrequencyData".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToKeywordTFIDFVectorData".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToKeywordTFIDFVectorData".getBytes()),
+                new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -102,7 +128,8 @@ public class RocksDBDao {
         this.urlIdToKeywordTermFrequencyRocksDBCol = colFamilyIt.next();
         this.wordIdToDocumentFrequencyRocksDBCol = colFamilyIt.next();
         this.wordIdToInverseDocumentFrequencyRocksDBCol = colFamilyIt.next();
-        this.urlIdToKeywordTFIDFVectorData = colFamilyIt.next();
+        this.urlIdToKeywordTFIDFVectorRocksDBCol = colFamilyIt.next();
+        this.fetchedSiteHashSetRocksDBCol = colFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
@@ -110,32 +137,16 @@ public class RocksDBDao {
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
-    }
 
-    public static RocksDBDao getInstance(String dbPath) throws RocksDBException {
-        if (daoInstance == null) {
-            daoInstance = new RocksDBDao(dbPath);
-        }
-
-        return daoInstance;
-    }
-
-    /**
-     * Singleton design
-     *
-     * @return RocksDB instance
-     * @throws RocksDBException
-     */
-    public static RocksDBDao getInstance() throws RocksDBException {
-        return getInstance(Constants.getDefaultDBPath());
+        this.initialized = true;
     }
 
     public ColumnFamilyHandle getUrlIdToUrlRocksDBCol() {
         return urlIdToUrlRocksDBCol;
     }
 
-    public ColumnFamilyHandle getUrlIdToKeywordTFIDFVectorData() {
-        return urlIdToKeywordTFIDFVectorData;
+    public ColumnFamilyHandle getUrlIdToKeywordTFIDFVectorRocksDBCol() {
+        return urlIdToKeywordTFIDFVectorRocksDBCol;
     }
 
     public ColumnFamilyHandle getWordIdToInverseDocumentFrequencyRocksDBCol() {
@@ -232,7 +243,7 @@ public class RocksDBDao {
                 String value;
                 if (col == this.invertedFileForBodyWordIdToPostingListRocksDBCol || col == this.invertedFileForTitleWordIdToPostingListRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
-                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol || col == urlIdToKeywordTermFrequencyRocksDBCol || col == urlIdToKeywordTFIDFVectorData) {
+                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol || col == urlIdToKeywordTermFrequencyRocksDBCol || col == urlIdToKeywordTFIDFVectorRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else {
                     value = new String(it.value());
@@ -433,11 +444,11 @@ public class RocksDBDao {
     }
 
     public void putTfIdfScoreData(byte[] urlIdByte, HashMap<String, Double> vector) throws RocksDBException {
-        rocksDB.put(this.urlIdToKeywordTFIDFVectorData, urlIdByte, CustomFSTSerialization.getInstance().asByteArray(vector));
+        rocksDB.put(this.urlIdToKeywordTFIDFVectorRocksDBCol, urlIdByte, CustomFSTSerialization.getInstance().asByteArray(vector));
     }
 
     public HashMap<String, Double> getTfIdfScoreData(byte[] urlIdByte) throws RocksDBException {
-        return getTfIdfScoreDataFromValue(rocksDB.get(this.urlIdToKeywordTFIDFVectorData, urlIdByte));
+        return getTfIdfScoreDataFromValue(rocksDB.get(this.urlIdToKeywordTFIDFVectorRocksDBCol, urlIdByte));
     }
 
     public HashMap<String, Double> getTfIdfScoreDataFromValue(byte[] tfIdfScoreByte) throws RocksDBException {

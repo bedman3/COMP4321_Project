@@ -19,6 +19,7 @@ import org.rocksdb.RocksDBException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 @Service
@@ -54,15 +55,27 @@ public class Spider {
         Set<String> linksIdSet = new HashSet<String>();
         Set<String> linksStringSet = new HashSet<String>();
 
-        Connection.Response response;
-        try {
-            response = Jsoup.connect(httpUrl)
-                    .timeout(1000 * Constants.getConnectionTimeout())
-                    .execute();
-        } catch (HttpStatusException e) {
-            System.err.println(e.toString());
-            return null;
+        Connection.Response response = null;
+        int retryCounter = 1;
+        while (response == null) {
+            try {
+                response = Jsoup.connect(httpUrl)
+                        .timeout(1000 * Constants.getConnectionTimeout())
+                        .execute();
+            } catch (HttpStatusException e) {
+                System.err.println(e.toString());
+                return null;
+            } catch (SocketTimeoutException e) {
+                System.err.println(e.toString() + ". Retry now, counter: " + retryCounter);
+            }
+
+            if (retryCounter >= Constants.getMaxConnectionRetry()) {
+                return null;
+            }
+
+            retryCounter++;
         }
+
         // extract last modified from response header
         String lastModified = response.header("Last-Modified");
         if (lastModified == null) {

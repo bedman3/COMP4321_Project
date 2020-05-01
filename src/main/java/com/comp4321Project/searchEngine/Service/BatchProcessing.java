@@ -85,6 +85,7 @@ public class BatchProcessing {
                         idfScore = Double.parseDouble(new String(idfScoreByte));
                     } catch (NullPointerException e) {
                         System.err.println("null pointer, idfScore: " + idfScoreByte + " wordId: " + new String(wordIdByte));
+                        idfScore = 0.0;
                     }
                     idfScoreCache.put(wordIdByte, idfScore);
                 }

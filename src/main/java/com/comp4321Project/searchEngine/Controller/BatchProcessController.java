@@ -5,7 +5,7 @@ import com.comp4321Project.searchEngine.Service.BatchProcessing;
 import com.comp4321Project.searchEngine.View.Message;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,12 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class BatchProcessController {
+
+    @Autowired
     private final BatchProcessing batchProcessing;
     private final RocksDBDao rocksDBDao;
 
-    public BatchProcessController() throws RocksDBException {
-        this.rocksDBDao = RocksDBDao.getInstance();
-        this.batchProcessing = BatchProcessing.getInstance(rocksDBDao);
+    public BatchProcessController(BatchProcessing batchProcessing, RocksDBDao rocksDBDao) {
+        this.batchProcessing = batchProcessing;
+        this.rocksDBDao = rocksDBDao;
     }
 
     @ExceptionHandler(Exception.class)
