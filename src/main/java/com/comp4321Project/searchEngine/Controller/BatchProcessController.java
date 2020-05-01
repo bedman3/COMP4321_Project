@@ -6,10 +6,7 @@ import com.comp4321Project.searchEngine.View.Message;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +28,7 @@ public class BatchProcessController {
         return new Message(null, "error", ExceptionUtils.getStackTrace(e));
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/batch-job", method = RequestMethod.POST)
     public Message batchProcess() throws RocksDBException {
         this.batchProcessing.runBatchProcess();

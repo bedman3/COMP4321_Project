@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector as useReduxSelector } from 'react-redux';
 import {
-    makeStyles, createStyles, Theme, fade,
+    createStyles, fade, makeStyles, Theme,
 } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,11 +9,20 @@ import Toolbar from '@material-ui/core/Toolbar';
 import InputBase from '@material-ui/core/InputBase';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
+import indigo from '@material-ui/core/colors/indigo';
+import { ExpansionPanel } from '@material-ui/core';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { RootState } from '../../rootReducer';
-import { SearchBarContentType } from './reducers';
+import { fetchSearchResult, SearchBarContentType, SearchResultType } from './reducers';
 import theme from '../../theme';
+import { setSearchBarAction } from './actions';
 
 export const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+const pageTitleColor = indigo[900];
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -56,13 +65,75 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: '80vw',
         },
     },
+    heading: {
+        fontSize: theme.typography.pxToRem(15),
+        fontWeight: theme.typography.fontWeightLight,
+    },
 }));
 
 const SearchPage = () => {
     const classes = useStyles(theme);
     const dispatch = useDispatch();
     const searchBarContent = useSelector<SearchBarContentType>((state) => state.searchPageReducer.searchBarContent);
+    const searchResult = useSelector<SearchResultType>((state) => state.searchPageReducer.searchResult);
 
+    const checkKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        if (event.keyCode === 13) {
+            // press enter
+            fetchSearchResult(searchBarContent, dispatch);
+        }
+    };
+
+    const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.map(((value) => (
+        <div>
+            <Link target='_blank' href={`http://${value?.url}`}>
+                <Typography variant='h5'>
+                    {value?.pageTitle}
+                </Typography>
+            </Link>
+            <Typography variant='caption'>{value?.url}</Typography><br />
+            <Typography variant='overline'>Last modified: {value?.lastModifiedDate}, Size: {value?.sizeOfPage}</Typography>
+            <Typography variant='subtitle1'>Top 5 Keywords: {value?.keywordFrequencyModelList}</Typography>
+            <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
+            <ExpansionPanel>
+                <ExpansionPanelSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls='panel1a-content'
+                    id='panel1a-header'
+                >
+                    <Typography className={classes.heading}>Parent Links: </Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                    <ul>
+                        {value?.parentLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                    </ul>
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+            <ExpansionPanel>
+                <ExpansionPanelSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls='panel2a-content'
+                    id='panel2a-header'
+                >
+                    <Typography className={classes.heading}>Child Links:</Typography>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                    <ul>
+                        {value?.childLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                    </ul>
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+            <br />
+        </div>
+    )));
+
+    const createSearchResultToView = (searchResultLocal: SearchResultType) => {
+        if (searchResultLocal === undefined) return undefined;
+        if (searchResultLocal?.length === 0) return <Typography variant='h3'>No record match this search</Typography>;
+        return mapSearchResultToView(searchResultLocal);
+    };
+
+    const searchResultView = useMemo(() => createSearchResultToView(searchResult), [searchResult]);
 
     return (
         <div>
@@ -78,15 +149,19 @@ const SearchPage = () => {
                                 root: classes.inputRoot,
                                 input: classes.inputInput,
                             }}
+                            value={searchBarContent ?? ''}
+                            onKeyDown={checkKeyPress}
+                            // onKeyDown={(event => )}
+                            onChange={((event) => dispatch(setSearchBarAction(event.target.value)))}
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </div>
                 </Toolbar>
             </AppBar>
             <Container maxWidth='lg'>
-                <Typography>
-                    Testing
-                </Typography>
+                <div>
+                    {searchResultView}
+                </div>
             </Container>
         </div>
     );

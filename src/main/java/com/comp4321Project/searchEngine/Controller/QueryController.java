@@ -30,11 +30,13 @@ public class QueryController {
         return new Message(null, "error", ExceptionUtils.getStackTrace(e));
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/get-all-result", method = RequestMethod.GET)
     public List<SearchResultsView> getAllResult() throws RocksDBException {
         return querySearch.getAllSiteFromDB();
     }
 
+    @CrossOrigin
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<SearchResultsView> search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
         return querySearch.search(searchRequest.query);

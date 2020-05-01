@@ -34,6 +34,7 @@ public class SpiderController {
     }
 
     @Async
+    @CrossOrigin
     @RequestMapping(value = "/crawl", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public Message spiderModel(@RequestBody CrawlRequest crawlRequest) throws IOException, RocksDBException {
         spider.crawl(crawlRequest.url, crawlRequest.recursive, crawlRequest.limit);
