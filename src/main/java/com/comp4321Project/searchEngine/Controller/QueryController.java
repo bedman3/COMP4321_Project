@@ -24,6 +24,7 @@ public class QueryController {
 
     @ExceptionHandler(Exception.class)
     public Message error(HttpServletRequest request, Exception e) {
+        e.printStackTrace();
         return new Message(null, "error", ExceptionUtils.getStackTrace(e));
     }
 
@@ -32,13 +33,21 @@ public class QueryController {
         return querySearch.getAllSiteFromDB();
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void search(@RequestParam(value = "query") String query) {
-        try {
-            querySearch.search(query);
-        } catch (RocksDBException e) {
-            System.err.println(e.toString());
 
+    static class SearchRequest {
+        String query;
+
+        public String getQuery() {
+            return query;
         }
+
+        public void setQuery(String query) {
+            this.query = query;
+        }
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<SearchResultsView> search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
+        return querySearch.search(searchRequest.query);
     }
 }
