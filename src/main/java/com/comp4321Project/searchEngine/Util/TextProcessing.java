@@ -79,6 +79,10 @@ public class TextProcessing {
      * @return cleaned string array
      */
     public static String[] cleanRawWords(String rawText) {
+        if (rawText.equals("")) {
+            return new String[]{};
+        }
+
         String[] tokenizedWordArray = rawText
                 .toLowerCase()
                 .replaceAll("\\p{P}", "")

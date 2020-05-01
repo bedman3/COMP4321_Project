@@ -47,4 +47,12 @@ public class UrlProcessing {
 
         return returnUrl;
     }
+
+    public static boolean containsOtherFileType(String link) {
+        if (!link.contains(".") || link.contains(".html")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

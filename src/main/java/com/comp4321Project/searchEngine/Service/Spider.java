@@ -1,6 +1,7 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.UrlProcessing;
@@ -8,6 +9,7 @@ import com.comp4321Project.searchEngine.View.SiteMetaData;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Connection;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,7 +52,13 @@ public class Spider {
         Set<String> linksIdSet = new HashSet<String>();
         Set<String> linksStringSet = new HashSet<String>();
 
-        Connection.Response response = Jsoup.connect(httpUrl).execute();
+        Connection.Response response;
+        try {
+            response = Jsoup.connect(httpUrl).execute();
+        } catch (HttpStatusException e) {
+            System.err.println(e.toString());
+            return null;
+        }
         // extract last modified from response header
         String lastModified = response.header("Last-Modified");
         if (lastModified == null) {
@@ -76,16 +84,19 @@ public class Spider {
             // so the result will become http://www.cse.ust.hk/admin/qa/
 
             try {
-                if (link.startsWith("/")) {
+                if (link.startsWith("/") && !UrlProcessing.containsOtherFileType(link)) {
                     link = UrlProcessing.trimHeaderAndSlashAtTheEnd(baseUrl + link);
                 } else if (link.contains("javascript:")) {
+                    // ignore javascript link
                     continue;
                 } else if (link.startsWith("#")) {
                     // ignore any links start with element link #
                     continue;
                 } else if (link.startsWith("?")) {
+                    // ignore query link
                     continue;
-                } else if (!link.startsWith("/") && !link.contains(".") && !link.contains("://")) {
+                } else if (!link.startsWith("/") && !link.contains(".") &&
+                        !link.contains("://") && !UrlProcessing.containsOtherFileType(link)) {
                     link = url + "/" + link;
                 } else {
                     // if urls not under url, then we ignore the outgoing links
@@ -110,8 +121,14 @@ public class Spider {
         String title = doc.title();
 
         // stem words here using Porter's algorithm
-        String[] wordsBodyArray = TextProcessing.cleanRawWords(doc.body().text());
-        String[] wordsTitleArray = TextProcessing.cleanRawWords(doc.title());
+        String[] wordsBodyArray, wordsTitleArray;
+        Element docBody = doc.body();
+        if (docBody != null) {
+            wordsBodyArray = TextProcessing.cleanRawWords(docBody.text());
+        } else {
+            wordsBodyArray = new String[]{};
+        }
+        wordsTitleArray = TextProcessing.cleanRawWords(doc.title());
 
         Map<String, Integer> keyFreqMap = new HashMap<>();
         Map<String, Double> keyTermFreqMap = new HashMap<>();
@@ -222,6 +239,7 @@ public class Spider {
             Set<String> crawledSite = new HashSet<>();
             Queue<String> crawlQueue = new LinkedList<>();
             Set<String> returnSet;
+            int updateInvertedFileInterval = Constants.getInvertedFileUpdateInterval();
             Integer numScrapedSite = 1;
 
             crawlQueue.add(url);
@@ -241,9 +259,15 @@ public class Spider {
                     }
                 }
 
+                // for each interval, update the invertedfile
+                if (numScrapedSite % updateInvertedFileInterval == 0) {
+                    rocksDBDao.updateInvertedFileInRocksDB();
+                }
+
                 numScrapedSite++;
             }
         }
+        rocksDBDao.updateInvertedFileInRocksDB();
     }
 
     public void crawl(String url, Boolean recursive) throws IOException, RocksDBException {
