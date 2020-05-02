@@ -14,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.springframework.stereotype.Service;
@@ -126,6 +127,8 @@ public class Spider {
                     // do not create self loop
                     continue;
                 }
+
+                link = UrlProcessing.cleanContentAfterFileType(link);
 
                 linksStringSet.add(link);
                 linksIdSet.add(rocksDBDao.getUrlIdFromUrl(link));
@@ -258,9 +261,10 @@ public class Spider {
             this.crawlOneSite(url);
         } else {
             // recursive crawl
-            Set<String> crawledSite = new HashSet<>();
             Queue<String> crawlQueue = new LinkedList<>();
             Set<String> returnSet;
+            RocksDB rocksDB = rocksDBDao.getRocksDB();
+            ColumnFamilyHandle colHandle = rocksDBDao.recreateFetchSiteHashSet();
             int updateInvertedFileInterval = Constants.getInvertedFileUpdateInterval();
             Integer numScrapedSite = 1;
 
@@ -270,12 +274,12 @@ public class Spider {
                 String crawlUrl = crawlQueue.poll();
                 System.err.println("Scraping: " + crawlUrl + ", scraped " + numScrapedSite.toString() + " site(s).");
                 returnSet = this.crawlOneSite(crawlUrl);
-                crawledSite.add(crawlUrl);
+                rocksDB.put(colHandle, crawlUrl.getBytes(), "".getBytes());
 
                 if (returnSet != null) {
                     // if crawlUrl is not ignored, which means site is crawled
                     for (String childUrl : returnSet) {
-                        if (!crawledSite.contains(childUrl)) {
+                        if (rocksDB.get(colHandle, childUrl.getBytes()) == null) {
                             crawlQueue.add(childUrl);
                         }
                     }

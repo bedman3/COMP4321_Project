@@ -18,8 +18,8 @@ import java.util.*;
 @Repository
 @Scope("singleton")
 public class RocksDBDao {
-    private boolean initialized;
     private static RocksDBDao daoInstance; // singleton to avoid rocksdb file lock
+    private boolean initialized;
     private String dbPath;
     private ColumnFamilyHandle defaultRocksDBCol;
     private List<ColumnFamilyHandle> columnFamilyHandleList;
@@ -139,6 +139,12 @@ public class RocksDBDao {
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
 
         this.initialized = true;
+    }
+
+    public ColumnFamilyHandle recreateFetchSiteHashSet() throws RocksDBException {
+        rocksDB.dropColumnFamily(this.fetchedSiteHashSetRocksDBCol);
+        this.fetchedSiteHashSetRocksDBCol = rocksDB.createColumnFamily(new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes()));
+        return this.fetchedSiteHashSetRocksDBCol;
     }
 
     public ColumnFamilyHandle getUrlIdToUrlRocksDBCol() {

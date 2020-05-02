@@ -17,6 +17,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
 import { RootState } from '../../rootReducer';
 import { fetchSearchResult, SearchBarContentType, SearchResultType } from './reducers';
 import theme from '../../theme';
@@ -93,48 +94,75 @@ const SearchPage = () => {
         }
     };
 
-    const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.map(((value) => (
-        <div>
-            <Link target='_blank' href={`http://${value?.url}`}>
-                <Typography variant='h5'>
-                    {value?.pageTitle}
-                </Typography>
-            </Link>
-            <Typography variant='caption'>{value?.url}</Typography><br />
-            <Typography variant='overline'>Last modified: {value?.lastModifiedDate}, Size: {value?.sizeOfPage}</Typography>
-            <Typography variant='subtitle1'>Top 5 Keywords: {value?.keywordFrequencyModelList}</Typography>
-            <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
-            <ExpansionPanel>
-                <ExpansionPanelSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls='panel1a-content'
-                    id='panel1a-header'
+    const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.map(((value) => {
+        const keywordFreqObjectList = value?.keywordFrequencyModelList?.split(';') .filter((str) => str !== '')
+            .map((str) => {
+                const tuple = str.split(' ');
+                return {
+                    keyword: tuple?.[0],
+                    frequency: tuple?.[1],
+                };
+            });
+        const keywordFreqComponent = keywordFreqObjectList?.map((tuple, index) => (
+            <Grid item xs={2}>
+                <Typography>{index + 1}) {tuple?.keyword} {'<'}{tuple?.frequency}{'>'}</Typography>
+            </Grid>
+        ));
+
+        return (
+            <div>
+                <Link target='_blank' href={`http://${value?.url}`}>
+                    <Typography variant='h5'>
+                        {value?.pageTitle}
+                    </Typography>
+                </Link>
+                <Typography variant='caption'>{value?.url}</Typography><br />
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                }}
                 >
-                    <Typography className={classes.heading}>Parent Links: </Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                    <ul>
-                        {value?.parentLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
-                    </ul>
-                </ExpansionPanelDetails>
-            </ExpansionPanel>
-            <ExpansionPanel>
-                <ExpansionPanelSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls='panel2a-content'
-                    id='panel2a-header'
-                >
-                    <Typography className={classes.heading}>Child Links:</Typography>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                    <ul>
-                        {value?.childLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
-                    </ul>
-                </ExpansionPanelDetails>
-            </ExpansionPanel>
-            <br />
-        </div>
-    )));
+                    <Typography variant='overline'>Last modified: {value?.lastModifiedDate}, Size: {value?.sizeOfPage}</Typography>
+                    <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
+                </div>
+                <Grid container spacing={3}>
+                    <Grid item xs={2}>
+                        <Typography variant='subtitle1'>Top 5 Keywords: </Typography>
+                    </Grid>
+                    {keywordFreqComponent}
+                </Grid>
+                <ExpansionPanel>
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls='panel1a-content'
+                        id='panel1a-header'
+                    >
+                        <Typography className={classes.heading}>Parent Links: </Typography>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                        <ul>
+                            {value?.parentLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                        </ul>
+                    </ExpansionPanelDetails>
+                </ExpansionPanel>
+                <ExpansionPanel>
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls='panel2a-content'
+                        id='panel2a-header'
+                    >
+                        <Typography className={classes.heading}>Child Links:</Typography>
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                        <ul>
+                            {value?.childLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                        </ul>
+                    </ExpansionPanelDetails>
+                </ExpansionPanel>
+                <br />
+            </div>
+        );
+    }));
 
     const createSearchResultToView = (searchResultLocal: SearchResultType) => {
         if (searchResultLocal === undefined) return undefined;

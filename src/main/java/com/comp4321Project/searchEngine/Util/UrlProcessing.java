@@ -55,4 +55,10 @@ public class UrlProcessing {
             return true;
         }
     }
+
+    public static String cleanContentAfterFileType(String fullLink) {
+        int index = fullLink.indexOf(".html");
+        if (index == -1) return fullLink;
+        return fullLink.substring(0, index + 5);
+    }
 }

@@ -37,4 +37,23 @@ public class UtilityClassTest {
         Assertions.assertTrue(UrlProcessing.isUrlEqual("www.cse.ust.hk/", "http://www.cse.ust.hk"));
         Assertions.assertTrue(UrlProcessing.isUrlEqual("www.cse.ust.hk", "http://www.cse.ust.hk"));
     }
+
+    @Test
+    public void testUrlContainOtherFileType() {
+        Assertions.assertFalse(UrlProcessing.containsOtherFileType("/"));
+        Assertions.assertFalse(UrlProcessing.containsOtherFileType("/index.html"));
+        Assertions.assertFalse(UrlProcessing.containsOtherFileType(""));
+        Assertions.assertTrue(UrlProcessing.containsOtherFileType("/index.jpg"));
+        Assertions.assertTrue(UrlProcessing.containsOtherFileType("/index.png"));
+    }
+
+    @Test
+    public void testCleanContentAfterFileType() {
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html/reports/"));
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html/content"));
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html/content/content"));
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html/content/content/content"));
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html#haha"));
+        Assertions.assertEquals("www.cse.ust.hk/ct/fyp/getting_started.html", UrlProcessing.cleanContentAfterFileType("www.cse.ust.hk/ct/fyp/getting_started.html?v2"));
+    }
 }
