@@ -5,6 +5,7 @@ import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
+import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 @Service
 public class QuerySearch {
     RocksDBDao rocksDBDao;
@@ -23,10 +25,10 @@ public class QuerySearch {
         this.rocksDBDao = rocksDBDao;
     }
 
-    public List<SearchResultsView> search(String query) throws RocksDBException {
+    public QuerySearchResponseView search(String query) throws RocksDBException {
         String[] processedQuery = TextProcessing.cleanRawWords(query);
         if (processedQuery.length == 0) {
-            return new ArrayList<>();
+            return new QuerySearchResponseView(-1, null);
         }
         List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
 
@@ -52,12 +54,14 @@ public class QuerySearch {
 
         // search inverted file for text body
         InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
-        HashSet<byte[]> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdByteList);
+        HashSet<String> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdByteList);
+
+        int totalNumOfResult = urlIdSetWithAtLeastOneKeywordsInDoc.size();
 
         HashMap<byte[], ArrayList<AbstractMap.SimpleEntry<String, Double>>> urlIdVector = new HashMap<>();
-        for (byte[] urlIdByte : urlIdSetWithAtLeastOneKeywordsInDoc) {
-            HashMap<String, Double> tfIdfVector = rocksDBDao.getTfIdfScoreData(urlIdByte);
-            urlIdVector.put(urlIdByte, Util.transformTfIdfVector(tfIdfVector));
+        for (String urlId : urlIdSetWithAtLeastOneKeywordsInDoc) {
+            HashMap<String, Double> tfIdfVector = rocksDBDao.getTfIdfScoreData(urlId.getBytes());
+            urlIdVector.put(urlId.getBytes(), Util.transformTfIdfVector(tfIdfVector));
         }
 
         // build a max heap to get the top 50 results
@@ -86,7 +90,7 @@ public class QuerySearch {
                     .toSearchResultView());
         }
 
-        return resultsViewArrayList;
+        return new QuerySearchResponseView(totalNumOfResult, resultsViewArrayList);
     }
 
     public List<SearchResultsView> getAllSiteFromDB() throws RocksDBException {

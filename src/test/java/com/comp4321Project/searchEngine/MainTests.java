@@ -58,13 +58,13 @@ class MainTests {
 //            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
 
             query = "visualization";
-            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).getSearchResults().toArray()));
 
             query = "computer science";
-            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).getSearchResults().toArray()));
 
             query = "artificial";
-            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).toArray()));
+            System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).getSearchResults().toArray()));
 
         } catch (RocksDBException e) {
             e.printStackTrace();

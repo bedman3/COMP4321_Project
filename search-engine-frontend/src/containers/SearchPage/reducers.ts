@@ -15,7 +15,7 @@ export interface ISearchResultRecord {
 }
 
 export type SearchBarContentType = string | undefined;
-export type SearchResultType = Array<ISearchResultRecord> | undefined;
+export type SearchResultType = ISearchResultResponse | undefined;
 
 export interface ISearchPageStore {
     searchBarContent: SearchBarContentType,
@@ -49,6 +49,11 @@ export const searchPageReducer = (
         return state;
     }
 };
+
+interface ISearchResultResponse {
+    totalNumOfResult: number,
+    searchResults: Array<ISearchResultRecord>,
+}
 
 export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispatch: Dispatch, callback: () => void) => {
     fetch('http://localhost:8080/search', {

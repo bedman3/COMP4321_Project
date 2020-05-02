@@ -89,7 +89,7 @@ const SearchPage = () => {
         }
     };
 
-    const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.map(((value) => {
+    const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.searchResults?.map(((value) => {
         const keywordFreqComponent = value.keywordFrequencyModelList?.map((tuple, index) => (
             <Grid item xs={2}>
                 <Typography>{index + 1}) {tuple?.[0]} {'<'}{tuple?.[1]}{'>'}</Typography>
@@ -173,7 +173,7 @@ const SearchPage = () => {
 
     const createSearchResultToView = (searchResultLocal: SearchResultType) => {
         if (searchResultLocal === undefined) return undefined;
-        if (searchResultLocal?.length === 0) return <Typography variant='h3'>No record match this search</Typography>;
+        if (searchResultLocal?.searchResults.length === 0) return <Typography variant='h3'>No record match this search</Typography>;
         return mapSearchResultToView(searchResultLocal);
     };
 
@@ -209,7 +209,7 @@ const SearchPage = () => {
             </AppBar>
             <Container maxWidth='lg'>
                 <div>
-                    <Typography variant='overline' hidden={searchResult === undefined || searchResult?.length === 0}>Found {searchResult?.length} results</Typography>
+                    <Typography variant='overline' hidden={searchResult === undefined || searchResult?.searchResults.length === 0}>Show {searchResult?.searchResults.length} results out of {searchResult?.totalNumOfResult} documents</Typography>
                     {searchResultView}
                 </div>
             </Container>

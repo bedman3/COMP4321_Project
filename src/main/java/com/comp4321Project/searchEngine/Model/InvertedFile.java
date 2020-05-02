@@ -35,14 +35,14 @@ public class InvertedFile {
         this.hashMap.put(wordId, postingList);
     }
 
-    public HashSet<byte[]> loadInvertedFileWithWordId(List<byte[]> wordIdList) throws RocksDBException {
+    public HashSet<String> loadInvertedFileWithWordId(List<byte[]> wordIdList) throws RocksDBException {
         RocksDB rocksDB = rocksDBDao.getRocksDB();
-        HashSet<byte[]> hashSet = new HashSet<>();
+        HashSet<String> hashSet = new HashSet<>();
 
-        for (byte[] wordId : wordIdList) {
-            PostingList postingList = PostingList.fromBytesArray(rocksDB.get(this.colHandle, wordId));
+        for (byte[] wordIdByte : wordIdList) {
+            PostingList postingList = PostingList.fromBytesArray(rocksDB.get(this.colHandle, wordIdByte));
             hashSet.addAll(postingList.getAllUrlIdFromPostingList());
-            this.hashMap.put(new String(wordId), postingList);
+            this.hashMap.put(new String(wordIdByte), postingList);
         }
 
         return hashSet;

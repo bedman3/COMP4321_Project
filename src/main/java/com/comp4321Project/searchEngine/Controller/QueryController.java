@@ -3,6 +3,7 @@ package com.comp4321Project.searchEngine.Controller;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.View.Message;
+import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
@@ -38,7 +39,7 @@ public class QueryController {
 
     @CrossOrigin
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<SearchResultsView> search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
+    public QuerySearchResponseView search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
         return querySearch.search(searchRequest.query);
     }
 
