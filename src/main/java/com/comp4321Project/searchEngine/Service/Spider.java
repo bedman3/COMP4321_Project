@@ -255,6 +255,8 @@ public class Spider {
     public void crawl(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {
         if (limit != null && limit <= 0) {
             throw new IllegalArgumentException("limit should be greater than 0");
+        } else if (url == null) {
+            throw new IllegalArgumentException("url missing");
         }
 
         if (!recursive) {

@@ -51,9 +51,9 @@ public class SpiderController {
         Integer limit;
 
         public CrawlRequest() {
-            this.url = "http://www.cse.ust.hk";
+            this.url = null;
             this.recursive = true;
-            this.limit = 30;
+            this.limit = null;
         }
 
         public String getUrl() {
