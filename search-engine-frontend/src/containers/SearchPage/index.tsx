@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector as useReduxSelector } from 'react-redux';
 import {
     createStyles, fade, makeStyles, Theme,
@@ -15,6 +15,8 @@ import { ExpansionPanel } from '@material-ui/core';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Button from '@material-ui/core/Button';
 import { RootState } from '../../rootReducer';
 import { fetchSearchResult, SearchBarContentType, SearchResultType } from './reducers';
 import theme from '../../theme';
@@ -62,7 +64,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
-            width: '80vw',
+            width: '60vw',
         },
     },
     heading: {
@@ -76,11 +78,18 @@ const SearchPage = () => {
     const dispatch = useDispatch();
     const searchBarContent = useSelector<SearchBarContentType>((state) => state.searchPageReducer.searchBarContent);
     const searchResult = useSelector<SearchResultType>((state) => state.searchPageReducer.searchResult);
+    const [isFetching, setIsFetching] = useState(false);
+
+    useEffect(() => {
+        if (isFetching) {
+            fetchSearchResult(searchBarContent, dispatch, () => setIsFetching(false));
+        }
+    }, [isFetching]);
 
     const checkKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         if (event.keyCode === 13) {
             // press enter
-            fetchSearchResult(searchBarContent, dispatch);
+            setIsFetching(true);
         }
     };
 
@@ -138,7 +147,7 @@ const SearchPage = () => {
     return (
         <div>
             <AppBar position='static'>
-                <Toolbar>
+                <Toolbar style={{ display: 'inline-flex', justifyContent: 'space-between' }}>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
@@ -156,7 +165,13 @@ const SearchPage = () => {
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </div>
+                    <div>
+                        <Typography variant='h5'>
+                            COMP4321 Search Engine
+                        </Typography>
+                    </div>
                 </Toolbar>
+                <LinearProgress variant='query' color='secondary' hidden={!isFetching} />
             </AppBar>
             <Container maxWidth='lg'>
                 <div>

@@ -137,7 +137,7 @@ export const searchPageReducer = (
     }
 };
 
-export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispatch: Dispatch) => {
+export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispatch: Dispatch, callback: () => void) => {
     fetch('http://localhost:8080/search', {
         ...commonHeader,
         method: 'POST',
@@ -150,6 +150,7 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
                 // do sth
                 response.json().then((responseJson: SearchResultType) => {
                     dispatch(setSearchResultAction(responseJson));
+                    callback();
                 });
             }
         }).catch((fetchAPIError) => {
