@@ -52,5 +52,12 @@ public class QueryController {
         public void setQuery(String query) {
             this.query = query;
         }
+
+        @Override
+        public String toString() {
+            return "SearchRequest{" +
+                    "query='" + query + '\'' +
+                    '}';
+        }
     }
 }

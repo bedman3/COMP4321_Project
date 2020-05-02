@@ -1,5 +1,6 @@
 package com.comp4321Project.searchEngine.View;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class SearchResultsView {
@@ -8,7 +9,7 @@ public class SearchResultsView {
     public String lastModifiedDate;
     public String sizeOfPage;
     public Double score;
-    public String keywordFrequencyModelList;
+    public String[][] keywordFrequencyModelList;
     public String[] childLinks;
     public String[] parentLinks;
 
@@ -25,9 +26,17 @@ public class SearchResultsView {
         this.lastModifiedDate = lastModifiedDate;
         this.sizeOfPage = sizeOfPage;
         this.score = score;
-        this.keywordFrequencyModelList = keywordFrequencyModelList;
         this.childLinks = childLinks;
         this.parentLinks = parentLinks;
+
+        this.keywordFrequencyModelList = Arrays.stream(keywordFrequencyModelList
+                .split(";"))
+                .filter(str -> !str.equals(""))
+                .map(pairStr -> {
+                    String[] pair = pairStr.split(" ");
+                    return new String[]{pair[0], pair[1]};
+                })
+                .toArray(size -> new String[size][2]);
     }
 
     @Override
@@ -38,7 +47,7 @@ public class SearchResultsView {
                 ", lastModifiedDate='" + lastModifiedDate + '\'' +
                 ", sizeOfPage='" + sizeOfPage + '\'' +
                 ", score=" + score +
-                ", keywordFrequencyModelList='" + keywordFrequencyModelList + '\'' +
+                ", keywordFrequencyModelList='" + Arrays.deepToString(keywordFrequencyModelList) + '\'' +
                 ", childLinks=" + Arrays.toString(childLinks) +
                 ", parentLinks=" + Arrays.toString(parentLinks) +
                 '}';

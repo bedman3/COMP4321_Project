@@ -10,4 +10,13 @@ public class Message {
         this.message = message;
         this.error = error;
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "status='" + status + '\'' +
+                ", message='" + message + '\'' +
+                ", error='" + error + '\'' +
+                '}';
+    }
 }

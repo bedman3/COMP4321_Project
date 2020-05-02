@@ -10,13 +10,11 @@ import InputBase from '@material-ui/core/InputBase';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import indigo from '@material-ui/core/colors/indigo';
 import { ExpansionPanel } from '@material-ui/core';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import { RootState } from '../../rootReducer';
 import { fetchSearchResult, SearchBarContentType, SearchResultType } from './reducers';
@@ -24,9 +22,6 @@ import theme from '../../theme';
 import { setSearchBarAction } from './actions';
 
 export const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
-
-const pageTitleColor = indigo[900];
-
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         flexGrow: 1,
@@ -95,17 +90,9 @@ const SearchPage = () => {
     };
 
     const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.map(((value) => {
-        const keywordFreqObjectList = value?.keywordFrequencyModelList?.split(';') .filter((str) => str !== '')
-            .map((str) => {
-                const tuple = str.split(' ');
-                return {
-                    keyword: tuple?.[0],
-                    frequency: tuple?.[1],
-                };
-            });
-        const keywordFreqComponent = keywordFreqObjectList?.map((tuple, index) => (
+        const keywordFreqComponent = value.keywordFrequencyModelList?.map((tuple, index) => (
             <Grid item xs={2}>
-                <Typography>{index + 1}) {tuple?.keyword} {'<'}{tuple?.frequency}{'>'}</Typography>
+                <Typography>{index + 1}) {tuple?.[0]} {'<'}{tuple?.[1]}{'>'}</Typography>
             </Grid>
         ));
 
@@ -122,7 +109,9 @@ const SearchPage = () => {
                     justifyContent: 'space-between',
                 }}
                 >
-                    <Typography variant='overline'>Last modified: {value?.lastModifiedDate}, Size: {value?.sizeOfPage}</Typography>
+                    <Typography variant='overline'>Last modified: {value?.lastModifiedDate},
+                        Size: {value?.sizeOfPage}
+                    </Typography>
                     <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
                 </div>
                 <Grid container spacing={3}>
@@ -141,7 +130,16 @@ const SearchPage = () => {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                         <ul>
-                            {value?.parentLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                            {value?.parentLinks?.map((link) => (
+                                <li>
+                                    <Typography
+                                        variant='subtitle1'
+                                        display='inline'
+                                    >
+                                        {link}
+                                    </Typography>
+                                </li>
+                            ))}
                         </ul>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -155,7 +153,16 @@ const SearchPage = () => {
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
                         <ul>
-                            {value?.childLinks?.map((link) => <li><Typography variant='subtitle1' display='inline'>{link}</Typography></li>)}
+                            {value?.childLinks?.map((link) => (
+                                <li>
+                                    <Typography
+                                        variant='subtitle1'
+                                        display='inline'
+                                    >
+                                        {link}
+                                    </Typography>
+                                </li>
+                            ))}
                         </ul>
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -188,7 +195,6 @@ const SearchPage = () => {
                             }}
                             value={searchBarContent ?? ''}
                             onKeyDown={checkKeyPress}
-                            // onKeyDown={(event => )}
                             onChange={((event) => dispatch(setSearchBarAction(event.target.value)))}
                             inputProps={{ 'aria-label': 'search' }}
                         />
@@ -203,6 +209,7 @@ const SearchPage = () => {
             </AppBar>
             <Container maxWidth='lg'>
                 <div>
+                    <Typography variant='overline' hidden={searchResult === undefined || searchResult?.length === 0}>Found {searchResult?.length} results</Typography>
                     {searchResultView}
                 </div>
             </Container>

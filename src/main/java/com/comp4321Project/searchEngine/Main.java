@@ -10,11 +10,6 @@ public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-//	public static void main(String[] args) {
-//		SpringApplication.run(Main.class, args);
-//	}
-
-    // my playground function for doing some RAD
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }

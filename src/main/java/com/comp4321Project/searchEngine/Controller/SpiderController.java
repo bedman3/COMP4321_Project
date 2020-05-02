@@ -79,5 +79,14 @@ public class SpiderController {
         public void setLimit(Integer limit) {
             this.limit = limit;
         }
+
+        @Override
+        public String toString() {
+            return "CrawlRequest{" +
+                    "url='" + url + '\'' +
+                    ", recursive=" + recursive +
+                    ", limit=" + limit +
+                    '}';
+        }
     }
 }
