@@ -250,20 +250,6 @@ public class RocksDBDao {
         return columnFamilyHandleList;
     }
 
-    public SiteMetaData getSiteSearchViewWithUrlId(String urlId) throws RocksDBException {
-        return getSiteSearchViewWithUrlIdFromByte(urlId.getBytes());
-    }
-
-    public SiteMetaData getSiteSearchViewWithUrlIdFromByte(byte[] urlIdByte) throws RocksDBException {
-        // get meta data
-        byte[] metaDataStringByte = this.rocksDB.get(urlIdToMetaDataRocksDBCol, urlIdByte);
-        if (metaDataStringByte != null) {
-            return SiteMetaData.fromMetaDataString(new String(metaDataStringByte));
-        } else {
-            return null;
-        }
-    }
-
     public void printAllDataFromRocksDBToTextFile() throws RocksDBException, IOException {
         printAllDataFromRocksDBToTextFile("rocksDBData.txt");
     }
@@ -547,5 +533,29 @@ public class RocksDBDao {
         byte[] pageRankScoreByte = rocksDB.get(this.urlIdToPageRankScoreRocksDBCol, urlIdByte);
         if (pageRankScoreByte == null) return 0.0;
         return ByteBuffer.wrap(pageRankScoreByte).getDouble();
+    }
+
+    public void putParentUrlIdToChildUrlIdList(String urlId, HashSet<String> childLinkList) throws RocksDBException {
+        rocksDB.put(this.parentUrlIdToChildUrlIdRocksDBCol, urlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(childLinkList));
+    }
+
+    public void putChildUrlIdToParentUrlIdList(String urlId, HashSet<String> parentList) throws RocksDBException {
+        rocksDB.put(this.childUrlIdToParentUrlIdRocksDBCol, urlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(parentList));
+    }
+
+    public HashSet<String> getChildUrlIdToParentUrlIdList(String urlId) throws RocksDBException {
+        byte[] list = rocksDB.get(this.childUrlIdToParentUrlIdRocksDBCol, urlId.getBytes());
+        if (list == null) return null;
+        else return (HashSet<String>) CustomFSTSerialization.getInstance().asObject(list);
+    }
+
+    public void putSiteMetaData(String urlId, SiteMetaData siteMetaData) throws RocksDBException {
+        rocksDB.put(this.urlIdToMetaDataRocksDBCol, urlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(siteMetaData));
+    }
+
+    public SiteMetaData getSiteMetaData(String urlId) throws RocksDBException {
+        byte[] siteMetaDataByte = rocksDB.get(this.urlIdToMetaDataRocksDBCol, urlId.getBytes());
+        if (siteMetaDataByte == null) return null;
+        else return (SiteMetaData) CustomFSTSerialization.getInstance().asObject(siteMetaDataByte);
     }
 }

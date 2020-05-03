@@ -119,7 +119,7 @@ public class QuerySearch {
                     System.err.println("search result return null from max heap");
                     continue;
                 }
-                resultsViewArrayList.add(rocksDBDao.getSiteSearchViewWithUrlId(record.getKey())
+                resultsViewArrayList.add(rocksDBDao.getSiteMetaData(record.getKey())
                         .setScore(record.getValue())
                         .updateParentLinks(rocksDBDao, record.getKey())
                         .toSearchResultView());
@@ -140,7 +140,7 @@ public class QuerySearch {
 
         for (it.seekToFirst(); it.isValid(); it.next()) {
             String urlId = new String(it.key());
-            returnList.add(rocksDBDao.getSiteSearchViewWithUrlId(urlId).updateParentLinks(rocksDBDao, urlId).toSearchResultView());
+            returnList.add(rocksDBDao.getSiteMetaData(urlId).updateParentLinks(rocksDBDao, urlId).toSearchResultView());
         }
 
         return returnList;

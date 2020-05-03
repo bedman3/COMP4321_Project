@@ -6,8 +6,6 @@ import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
-import com.google.common.base.Joiner;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
@@ -215,31 +213,25 @@ public class Spider {
 
         // the spider will overwrite the key-value pair in rocksdb because parent -> child paths are
         // meant to be overwrote if there is update
-        rocksDB.put(rocksDBDao.getParentUrlIdToChildUrlIdRocksDBCol(), parentUrlId.getBytes(), StringUtils.join(linksIdSet, spaceSeparator).getBytes());
+
+        HashSet<String> childLinkList = new HashSet<>(linksIdSet);
+        rocksDBDao.putParentUrlIdToChildUrlIdList(parentUrlId, childLinkList);
 
         for (String linkId : linksIdSet) {
-            byte[] childUrlIdToParentUrlIdValueByte = rocksDB.get(rocksDBDao.getChildUrlIdToParentUrlIdRocksDBCol(), linkId.getBytes());
+            HashSet<String> childUrlIdToParentUrlIdList = rocksDBDao.getChildUrlIdToParentUrlIdList(linkId);
 
-            if (childUrlIdToParentUrlIdValueByte == null) {
-                rocksDB.put(rocksDBDao.getChildUrlIdToParentUrlIdRocksDBCol(), linkId.getBytes(), parentUrlId.getBytes());
-            } else {
-                String childUrlIdToParentUrlIdValue = new String(childUrlIdToParentUrlIdValueByte);
-                if (childUrlIdToParentUrlIdValue.contains(parentUrlId)) {
-                    // do nothing
-                } else {
-                    // append in the end
-                    childUrlIdToParentUrlIdValue += String.format("%c%s", spaceSeparator, parentUrlId);
-                    rocksDB.put(rocksDBDao.getChildUrlIdToParentUrlIdRocksDBCol(), linkId.getBytes(), childUrlIdToParentUrlIdValue.getBytes());
-                }
-            }
+            if (childUrlIdToParentUrlIdList == null) {
+                childUrlIdToParentUrlIdList = new HashSet<>();
+                childUrlIdToParentUrlIdList.add(parentUrlId);
+            } else if (!childUrlIdToParentUrlIdList.contains(parentUrlId)) {
+                // append in the end
+                childUrlIdToParentUrlIdList.add(parentUrlId);
+            } else continue;
+            rocksDBDao.putChildUrlIdToParentUrlIdList(linkId, childUrlIdToParentUrlIdList);
         }
 
-        // compute parent links list string
-        String childLinksListString = Joiner.on('\n').join(linksStringSet);
-
-        // use a separator that will rarely appear in the title
-        String metaValue = new SiteMetaData(title, url, lastModified, size, -1.0, keyFreqTopKValue.toString(), childLinksListString).toMetaDataString();
-        rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
+        // put meta data into rocksdb
+        rocksDBDao.putSiteMetaData(parentUrlId, new SiteMetaData(title, url, lastModified, size, -1.0, keyFreqTopKValue.toString(), linksStringSet));
 
         return linksStringSet;
     }
