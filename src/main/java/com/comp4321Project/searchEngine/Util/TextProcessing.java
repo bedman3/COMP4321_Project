@@ -1,8 +1,10 @@
 package com.comp4321Project.searchEngine.Util;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.*;
 
 public class TextProcessing {
     private static final String[] stopWords;
@@ -79,10 +81,6 @@ public class TextProcessing {
      * @return cleaned string array
      */
     public static String[] cleanRawWords(String rawText) {
-        if (rawText.equals("")) {
-            return new String[]{};
-        }
-
         String[] tokenizedWordArray = rawText
                 .toLowerCase()
                 .replaceAll("\\p{P}", "")
@@ -94,25 +92,47 @@ public class TextProcessing {
                 .filter(TextProcessing::isNotStopWord)
                 .map(porterObject::stripAffixes) // porter's algorithm
                 .toArray(String[]::new);
-        return tokenizedWordArray;
+        return tokenizedWordArray.length == 0 ? null : tokenizedWordArray;
     }
 
-//    /**
-//     * clean the query by calling cleanRawWords() and separate phrases specified by double quotes
-//     * @param query
-//     * @return
-//     */
-//    public static String[] cleanRawQuery(String query) {
-//        // if no double quotes, no phrases, don't have to check phrases separation
-//        if (!query.contains("\"")) return cleanRawWords(query);
-//
-//
-//    }
+    /**
+     * clean the query by calling cleanRawWords() and separate phrases specified by double quotes
+     * @param rawQuery
+     * @return
+     */
+    public static Pair<String[][], String[]> cleanRawQuery(String rawQuery) {
+        if (!rawQuery.contains("\"")) return new ImmutablePair<>(null, cleanRawWords(rawQuery));
 
-    public static String[][] getPhrasesFromQuery(String rawQuery) {
-        if (!rawQuery.contains("\"")) return null;
+        List<String> phrasesList = new LinkedList<>();
+        StringBuilder stringBuilder = new StringBuilder();
+        int startPtr = -1, endPtr = 0, markPtr = 0, rawQueryLength = rawQuery.length();
+        while (endPtr < rawQueryLength) {
+            if (rawQuery.charAt(endPtr) == '\"') {
+                if (startPtr == -1) {
+                    // mark the beginning of the quote
+                    startPtr = endPtr;
+                } else {
+                    // there is a quote pair, extract the sentence in the quote
+                    phrasesList.add(rawQuery.substring(startPtr, endPtr));
+                    if (startPtr != markPtr) {
+                        stringBuilder.append(rawQuery, markPtr, startPtr);
+                    }
+                    markPtr = endPtr + 1;
+                    startPtr = -1;
+                }
+            }
+            endPtr++;
+        }
 
-        int firstPtr, secondPtr;
-        return null;
+        if (markPtr < endPtr) {
+            stringBuilder.append(rawQuery, markPtr, endPtr);
+        }
+
+        String[][] returnPhrase = phrasesList.stream()
+                .map(TextProcessing::cleanRawWords)
+                .filter(Objects::nonNull)
+                .toArray(String[][]::new);
+
+        return new ImmutablePair<>(returnPhrase.length == 0 ? null : returnPhrase, cleanRawWords(stringBuilder.toString()));
     }
 }

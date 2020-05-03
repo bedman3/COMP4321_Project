@@ -5,6 +5,7 @@ import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -31,18 +32,35 @@ public class RocksDBDao {
     private ColumnFamilyHandle urlIdToUrlRocksDBCol;
     private ColumnFamilyHandle wordToWordIdRocksDBCol;
     private ColumnFamilyHandle wordIdToWordRocksDBCol;
-    private ColumnFamilyHandle urlIdToKeywordFrequencyRocksDBCol;
+    private ColumnFamilyHandle urlIdToKeywordFrequencyForBodyRocksDBCol;
     private ColumnFamilyHandle urlIdToTop5KeywordRocksDBCol;
     private ColumnFamilyHandle invertedFileForBodyWordIdToPostingListRocksDBCol;
     private ColumnFamilyHandle invertedFileForTitleWordIdToPostingListRocksDBCol;
     private ColumnFamilyHandle urlIdToLastModifiedDateRocksDBCol;
-    private ColumnFamilyHandle urlIdToKeywordTermFrequencyRocksDBCol;
+    private ColumnFamilyHandle urlIdToKeywordTermFrequencyForBodyRocksDBCol;
     private ColumnFamilyHandle wordIdToDocumentFrequencyRocksDBCol;
     private ColumnFamilyHandle wordIdToInverseDocumentFrequencyRocksDBCol;
     private ColumnFamilyHandle urlIdToKeywordTFIDFVectorRocksDBCol;
     private ColumnFamilyHandle fetchedSiteHashSetRocksDBCol;
     private InvertedFile invertedFileForBody;
     private InvertedFile invertedFileForTitle;
+    private ColumnFamilyHandle urlIdToKeywordFrequencyForTitleRocksDBCol;
+
+    public ColumnFamilyHandle getUrlIdToKeywordFrequencyForTitleRocksDBCol() {
+        return urlIdToKeywordFrequencyForTitleRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getUrlIdToKeywordVectorForTitleRocksDBCol() {
+        return urlIdToKeywordVectorForTitleRocksDBCol;
+    }
+
+    private ColumnFamilyHandle urlIdToKeywordVectorForTitleRocksDBCol;
+
+    public ColumnFamilyHandle getUrlIdToPageRankScoreRocksDBCol() {
+        return urlIdToPageRankScoreRocksDBCol;
+    }
+
+    private ColumnFamilyHandle urlIdToPageRankScoreRocksDBCol;
 
     private RocksDBDao(@Value("${rocksdb.folder}") String relativeDBPath) throws RocksDBException {
         this.dbPath = relativeDBPath;
@@ -95,7 +113,7 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("UrlIdToUrlData".getBytes()),
                 new ColumnFamilyDescriptor("WordToWordIdData".getBytes()),
                 new ColumnFamilyDescriptor("WordIdToWordData".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyForBodyData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToTop5Keyword".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForBodyWordIdToPostingList".getBytes()),
                 new ColumnFamilyDescriptor("InvertedFileForTitleWordIdToPostingList".getBytes()),
@@ -104,7 +122,10 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("WordIdToDocumentFrequencyData".getBytes()),
                 new ColumnFamilyDescriptor("WordIdToInverseDocumentFrequencyData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToKeywordTFIDFVectorData".getBytes()),
-                new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes())
+                new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToPageRankScoreData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyForTitleData".getBytes()),
+                new ColumnFamilyDescriptor("UrlIdToKeywordVectorForTitleData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -120,16 +141,19 @@ public class RocksDBDao {
         this.urlIdToUrlRocksDBCol = colFamilyIt.next();
         this.wordToWordIdRocksDBCol = colFamilyIt.next();
         this.wordIdToWordRocksDBCol = colFamilyIt.next();
-        this.urlIdToKeywordFrequencyRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordFrequencyForBodyRocksDBCol = colFamilyIt.next();
         this.urlIdToTop5KeywordRocksDBCol = colFamilyIt.next();
         this.invertedFileForBodyWordIdToPostingListRocksDBCol = colFamilyIt.next();
         this.invertedFileForTitleWordIdToPostingListRocksDBCol = colFamilyIt.next();
         this.urlIdToLastModifiedDateRocksDBCol = colFamilyIt.next();
-        this.urlIdToKeywordTermFrequencyRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordTermFrequencyForBodyRocksDBCol = colFamilyIt.next();
         this.wordIdToDocumentFrequencyRocksDBCol = colFamilyIt.next();
         this.wordIdToInverseDocumentFrequencyRocksDBCol = colFamilyIt.next();
         this.urlIdToKeywordTFIDFVectorRocksDBCol = colFamilyIt.next();
         this.fetchedSiteHashSetRocksDBCol = colFamilyIt.next();
+        this.urlIdToPageRankScoreRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordFrequencyForTitleRocksDBCol = colFamilyIt.next();
+        this.urlIdToKeywordVectorForTitleRocksDBCol = colFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
@@ -167,8 +191,8 @@ public class RocksDBDao {
         return wordIdToDocumentFrequencyRocksDBCol;
     }
 
-    public ColumnFamilyHandle getUrlIdToKeywordTermFrequencyRocksDBCol() {
-        return urlIdToKeywordTermFrequencyRocksDBCol;
+    public ColumnFamilyHandle getUrlIdToKeywordTermFrequencyForBodyRocksDBCol() {
+        return urlIdToKeywordTermFrequencyForBodyRocksDBCol;
     }
 
     public RocksDB getRocksDB() {
@@ -204,8 +228,8 @@ public class RocksDBDao {
         return wordIdToWordRocksDBCol;
     }
 
-    public ColumnFamilyHandle getUrlIdToKeywordFrequencyRocksDBCol() {
-        return urlIdToKeywordFrequencyRocksDBCol;
+    public ColumnFamilyHandle getUrlIdToKeywordFrequencyForBodyRocksDBCol() {
+        return urlIdToKeywordFrequencyForBodyRocksDBCol;
     }
 
     public ColumnFamilyHandle getUrlIdToTop5KeywordRocksDBCol() {
@@ -249,7 +273,7 @@ public class RocksDBDao {
                 String value;
                 if (col == this.invertedFileForBodyWordIdToPostingListRocksDBCol || col == this.invertedFileForTitleWordIdToPostingListRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
-                } else if (col == this.urlIdToKeywordFrequencyRocksDBCol || col == urlIdToKeywordTermFrequencyRocksDBCol || col == urlIdToKeywordTFIDFVectorRocksDBCol) {
+                } else if (col == this.urlIdToKeywordFrequencyForBodyRocksDBCol || col == urlIdToKeywordTermFrequencyForBodyRocksDBCol || col == urlIdToKeywordTFIDFVectorRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else {
                     value = new String(it.value());
@@ -416,56 +440,81 @@ public class RocksDBDao {
         this.invertedFileForTitle.flushToRocksDB();
     }
 
-    public void putKeywordFrequencyData(String parentUrlId, Map<String, Integer> keyFreqMap) throws RocksDBException {
-        rocksDB.put(this.urlIdToKeywordFrequencyRocksDBCol, parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
+    public void putKeywordFrequencyDataForBody(String parentUrlId, Map<String, Integer> keyFreqMap) throws RocksDBException {
+        rocksDB.put(this.urlIdToKeywordFrequencyForBodyRocksDBCol, parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
     }
 
-    public HashMap<String, Integer> getKeywordFrequencyData(byte[] urlIdByte) throws RocksDBException {
-        return getKeywordFrequencyDataFromValue(rocksDB.get(this.urlIdToKeywordFrequencyRocksDBCol, urlIdByte));
+    public HashMap<String, Integer> getKeywordFrequencyDataForBody(byte[] urlIdByte) throws RocksDBException {
+        return getKeywordFrequencyDataForBodyFromValue(rocksDB.get(this.urlIdToKeywordFrequencyForBodyRocksDBCol, urlIdByte));
     }
 
 
-    public HashMap<String, Integer> getKeywordFrequencyDataFromValue(byte[] keywordFrequencyData) throws RocksDBException {
-        if (keywordFrequencyData == null) {
-            return null;
-        } else {
-            return (HashMap<String, Integer>) CustomFSTSerialization.getInstance().asObject(keywordFrequencyData);
-        }
+    public HashMap<String, Integer> getKeywordFrequencyDataForBodyFromValue(byte[] keywordFrequencyData) throws RocksDBException {
+        if (keywordFrequencyData == null) return null;
+        else return (HashMap<String, Integer>) CustomFSTSerialization.getInstance().asObject(keywordFrequencyData);
     }
 
-    public void putKeywordTermFrequencyData(String parentUrlId, Map<String, Double> keyTermFreqMap) throws RocksDBException {
-        rocksDB.put(this.urlIdToKeywordTermFrequencyRocksDBCol, parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyTermFreqMap));
+    public void putKeywordTermFrequencyDataForBody(String parentUrlId, Map<String, Double> keyTermFreqMap) throws RocksDBException {
+        rocksDB.put(this.urlIdToKeywordTermFrequencyForBodyRocksDBCol, parentUrlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyTermFreqMap));
     }
 
-    public HashMap<String, Double> getKeywordTermFrequencyData(byte[] urlIdByte) throws RocksDBException {
-        return getKeywordTermFrequencyDataFromValue(rocksDB.get(this.urlIdToKeywordTermFrequencyRocksDBCol, urlIdByte));
+    public HashMap<String, Double> getKeywordTermFrequencyDataForBody(byte[] urlIdByte) throws RocksDBException {
+        return getKeywordTermFrequencyDataForBodyFromValue(rocksDB.get(this.urlIdToKeywordTermFrequencyForBodyRocksDBCol, urlIdByte));
     }
 
-    public HashMap<String, Double> getKeywordTermFrequencyDataFromValue(byte[] keywordTermFrequencyData) throws RocksDBException {
-        if (keywordTermFrequencyData == null) {
-            return null;
-        } else {
-            return (HashMap<String, Double>) CustomFSTSerialization.getInstance().asObject(keywordTermFrequencyData);
-        }
+    public HashMap<String, Double> getKeywordTermFrequencyDataForBodyFromValue(byte[] keywordTermFrequencyData) throws RocksDBException {
+        if (keywordTermFrequencyData == null) return null;
+        else return (HashMap<String, Double>) CustomFSTSerialization.getInstance().asObject(keywordTermFrequencyData);
     }
 
-    public void putTfIdfScoreData(byte[] urlIdByte, HashMap<String, Double> vector) throws RocksDBException {
+    public void putTfIdfScoreData(byte[] urlIdByte, ArrayList<ImmutablePair<String, Double>> vector) throws RocksDBException {
         rocksDB.put(this.urlIdToKeywordTFIDFVectorRocksDBCol, urlIdByte, CustomFSTSerialization.getInstance().asByteArray(vector));
     }
 
-    public HashMap<String, Double> getTfIdfScoreData(byte[] urlIdByte) throws RocksDBException {
+    /**
+     * The tfidf vector is sorted by wordId string in asc order
+     * @param urlIdByte
+     * @return
+     * @throws RocksDBException
+     */
+    public ArrayList<ImmutablePair<String, Double>> getTfIdfScoreData(byte[] urlIdByte) throws RocksDBException {
         return getTfIdfScoreDataFromValue(rocksDB.get(this.urlIdToKeywordTFIDFVectorRocksDBCol, urlIdByte));
     }
 
-    public HashMap<String, Double> getTfIdfScoreDataFromValue(byte[] tfIdfScoreByte) throws RocksDBException {
-        if (tfIdfScoreByte == null) {
-            return null;
-        } else {
-            return (HashMap<String, Double>) CustomFSTSerialization.getInstance().asObject(tfIdfScoreByte);
-        }
+    public ArrayList<ImmutablePair<String, Double>> getTfIdfScoreDataFromValue(byte[] tfIdfScoreByte) throws RocksDBException {
+        if (tfIdfScoreByte == null) return null;
+        else return (ArrayList<ImmutablePair<String, Double>>) CustomFSTSerialization.getInstance().asObject(tfIdfScoreByte);
     }
 
-    public void putTop5KeywordData(String parentUrlId, StringBuilder keyFreqTopKValue) throws RocksDBException {
-        rocksDB.put(this.urlIdToTop5KeywordRocksDBCol, parentUrlId.getBytes(), keyFreqTopKValue.toString().getBytes());
+    public void putTop5KeywordData(String urlId, StringBuilder keyFreqTopKValue) throws RocksDBException {
+        rocksDB.put(this.urlIdToTop5KeywordRocksDBCol, urlId.getBytes(), keyFreqTopKValue.toString().getBytes());
+    }
+
+    public void putKeywordFrequencyDataForTitle(String urlId, Map<String, Integer> keyFreqForTitleMap) throws RocksDBException {
+        rocksDB.put(this.urlIdToKeywordFrequencyForTitleRocksDBCol, urlId.getBytes(), CustomFSTSerialization.getInstance().asByteArray(keyFreqForTitleMap));
+    }
+
+    public HashMap<String, Integer> getKeywordFrequencyDataForTitle(String urlId) throws RocksDBException {
+        return getKeywordFrequencyDataForTitleFromByte(urlId.getBytes());
+    }
+
+    public HashMap<String, Integer> getKeywordFrequencyDataForTitleFromByte(byte[] urlIdByte) throws RocksDBException {
+        byte[] keywordFrequencyDataForTitleByte = rocksDB.get(this.urlIdToKeywordFrequencyForTitleRocksDBCol, urlIdByte);
+        if (keywordFrequencyDataForTitleByte == null) return null;
+        else return (HashMap<String, Integer>) CustomFSTSerialization.getInstance().asObject(keywordFrequencyDataForTitleByte);
+    }
+
+    public void putKeywordVectorForTitle(byte[] urlId, ArrayList<ImmutablePair<String, Double>> keyFreqMap) throws RocksDBException {
+        rocksDB.put(this.urlIdToKeywordVectorForTitleRocksDBCol, urlId, CustomFSTSerialization.getInstance().asByteArray(keyFreqMap));
+    }
+
+    public ArrayList<ImmutablePair<String, Double>> getKeywordFrequencyVectorForTitle(String urlId) throws RocksDBException {
+        return getKeywordFrequencyVectorForTitleFromByte(urlId.getBytes());
+    }
+
+    public ArrayList<ImmutablePair<String, Double>> getKeywordFrequencyVectorForTitleFromByte(byte[] urlIdByte) throws RocksDBException {
+        byte[] keywordFrequencyVectorForTitle = rocksDB.get(this.urlIdToKeywordVectorForTitleRocksDBCol, urlIdByte);
+        if (keywordFrequencyVectorForTitle == null) return null;
+        else return (ArrayList<ImmutablePair<String, Double>>) CustomFSTSerialization.getInstance().asObject(keywordFrequencyVectorForTitle);
     }
 }

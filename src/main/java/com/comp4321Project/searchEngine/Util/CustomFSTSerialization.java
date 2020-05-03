@@ -2,6 +2,7 @@ package com.comp4321Project.searchEngine.Util;
 
 import com.comp4321Project.searchEngine.Model.PostingList;
 import com.comp4321Project.searchEngine.Model.PostingNode;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.nustaq.serialization.FSTConfiguration;
 
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ public class CustomFSTSerialization {
                 HashSet.class,
                 PostingList.class,
                 PostingNode.class,
-                ArrayList.class
+                ArrayList.class,
+                ImmutablePair.class
         );
     }
 

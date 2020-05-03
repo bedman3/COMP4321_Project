@@ -151,23 +151,12 @@ public class Spider {
         }
         wordsTitleArray = TextProcessing.cleanRawWords(doc.title());
 
-        Map<String, Integer> keyFreqMap = new HashMap<>();
-        Map<String, Double> keyTermFreqMap = new HashMap<>();
+        Map<String, Integer> keyFreqForBodyMap = new HashMap<>();
+        Map<String, Integer> keyFreqForTitleMap = new HashMap<>();
+        Map<String, Double> keyTermFreqForBodyMap = new HashMap<>();
 
-        for (int index = 0; index < wordsBodyArray.length; index++) {
-            String word = wordsBodyArray[index];
-            String wordId = rocksDBDao.getWordIdFromWord(word);
-
-            // increment frequency by 1
-            keyFreqMap.merge(wordId, 1, Integer::sum);
-            invertedFileForBody.add(wordId, parentUrlId, index, true);
-        }
-
-        for (int index = 0; index < wordsTitleArray.length; index++) {
-            String word = wordsTitleArray[index];
-            String wordId = rocksDBDao.getWordIdFromWord(word);
-            invertedFileForTitle.add(wordId, parentUrlId, index, true);
-        }
+        scanWordsArrayAndUpdateInvertedFile(parentUrlId, wordsBodyArray, invertedFileForBody, keyFreqForBodyMap);
+        scanWordsArrayAndUpdateInvertedFile(parentUrlId, wordsTitleArray, invertedFileForTitle, keyFreqForTitleMap);
 
         // build a max heap to get the top 5 key freq
         PriorityQueue<Map.Entry<String, Integer>> maxHeap = new PriorityQueue<>((p1, p2) -> {
@@ -175,7 +164,7 @@ public class Spider {
             return p1.getValue().compareTo(p2.getValue()) * -1;
         });
 
-        keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new ImmutablePair<>(key, value)));
+        keyFreqForBodyMap.forEach((String key, Integer value) -> maxHeap.add(new ImmutablePair<>(key, value)));
 
         Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
 
@@ -187,8 +176,8 @@ public class Spider {
         }
 
         // calculate the term frequency for TD-IDF, normalized by the frequency of the most frequent term in document
-        for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
-            keyTermFreqMap.put(entry.getKey(), entry.getValue() * 1.0 / freqOfMostFrequentTermInDoc);
+        for (Map.Entry<String, Integer> entry : keyFreqForBodyMap.entrySet()) {
+            keyTermFreqForBodyMap.put(entry.getKey(), entry.getValue() * 1.0 / freqOfMostFrequentTermInDoc);
         }
 
         StringBuilder keyFreqTopKValue = new StringBuilder();
@@ -207,8 +196,9 @@ public class Spider {
         }
 
         // serialize the map and store it to rocksdb
-        rocksDBDao.putKeywordFrequencyData(parentUrlId, keyFreqMap);
-        rocksDBDao.putKeywordTermFrequencyData(parentUrlId, keyTermFreqMap);
+        rocksDBDao.putKeywordFrequencyDataForBody(parentUrlId, keyFreqForBodyMap);
+        rocksDBDao.putKeywordTermFrequencyDataForBody(parentUrlId, keyTermFreqForBodyMap);
+        rocksDBDao.putKeywordFrequencyDataForTitle(parentUrlId, keyFreqForTitleMap);
         rocksDBDao.putTop5KeywordData(parentUrlId, keyFreqTopKValue);
 
         String size = response.header("Content-Length");
@@ -251,6 +241,19 @@ public class Spider {
         rocksDB.put(rocksDBDao.getUrlIdToMetaDataRocksDBCol(), parentUrlId.getBytes(), metaValue.getBytes());
 
         return linksStringSet;
+    }
+
+    private void scanWordsArrayAndUpdateInvertedFile(String urlId, String[] wordsArray, InvertedFile invertedFile, Map<String, Integer> keyFreqMap) throws RocksDBException {
+        if (wordsArray == null) return;
+
+        for (int index = 0; index < wordsArray.length; index++) {
+            String word = wordsArray[index];
+            String wordId = rocksDBDao.getWordIdFromWord(word);
+
+            // increment frequency by 1
+            keyFreqMap.merge(wordId, 1, Integer::sum);
+            invertedFile.add(wordId, urlId, index, true);
+        }
     }
 
     public void crawl(String url, Boolean recursive, Integer limit) throws IOException, RocksDBException {

@@ -10,6 +10,12 @@ public class Constants {
     private final static int maxConnectionRetry = 3;
     private final static int connectionTimeout = 10;
 
+    public static double getTitleMultiplier() {
+        return titleMultiplier;
+    }
+
+    private final static double titleMultiplier = 0.1;
+
     public static int getInvertedFileUpdateInterval() {
         return invertedFileUpdateInterval;
     }

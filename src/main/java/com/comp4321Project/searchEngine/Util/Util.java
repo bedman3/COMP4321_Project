@@ -10,6 +10,10 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Util {
+    public static Comparator<Pair<String, Double>> getTfIdfVectorComparator() {
+        return tfIdfVectorComparator;
+    }
+
     private static final Comparator<Pair<String, Double>> tfIdfVectorComparator = new Comparator<Pair<String, Double>>() {
         @Override
         public int compare(Pair<String, Double> p1, Pair<String, Double> p2) {
@@ -52,23 +56,22 @@ public class Util {
         return Math.log(totalNumOfDocuments / totalNumOfDocWithTerm) / Constants.getLn2();
     }
 
-    public static ArrayList<Pair<String, Double>> transformTfIdfVector(HashMap<String, Double> tfIdfVector) {
-        ArrayList<Pair<String, Double>> arrayList = new ArrayList<>();
-        for (Map.Entry<String, Double> entry : tfIdfVector.entrySet()) {
-            arrayList.add(new ImmutablePair<>(entry.getKey(), entry.getValue()));
-        }
+    public static ArrayList<ImmutablePair<String, Double>> transformQueryToVector(List<String> queryWordList) {
+        if (queryWordList == null) return null;
 
-        arrayList.sort(tfIdfVectorComparator);
-        return arrayList;
-    }
-
-    public static ArrayList<Pair<String, Double>> transformQueryIntoVector(List<String> queryWordList) {
         HashMap<String, Integer> keyFreqMap = new HashMap<>();
-        ArrayList<Pair<String, Double>> arrayList = new ArrayList<>();
         // count word frequency as a bag of word
         for (String wordId : queryWordList) {
             keyFreqMap.merge(wordId, 1, Integer::sum);
         }
+
+        return transformKeywordFrequencyMapToVector(keyFreqMap);
+    }
+
+    public static ArrayList<ImmutablePair<String, Double>> transformKeywordFrequencyMapToVector(HashMap<String, Integer> keyFreqMap) {
+        if (keyFreqMap == null) return null;
+
+        ArrayList<ImmutablePair<String, Double>> arrayList = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
             arrayList.add(new ImmutablePair<>(entry.getKey(), entry.getValue() * 1.0));
@@ -86,12 +89,12 @@ public class Util {
      * @param list2
      * @return
      */
-    public static Double computeCosSimScore(ArrayList<Pair<String, Double>> list1, ArrayList<Pair<String, Double>> list2) {
+    public static Double computeCosSimScore(ArrayList<ImmutablePair<String, Double>> list1, ArrayList<ImmutablePair<String, Double>> list2) {
         if (list1.size() == 0 || list2.size() == 0) {
             return 0.0;
         }
 
-        ArrayList<Pair<String, Double>> longerList, shorterList;
+        ArrayList<ImmutablePair<String, Double>> longerList, shorterList;
         Double score = 0.0;
         if (list1.size() > list2.size()) {
             longerList = list1;

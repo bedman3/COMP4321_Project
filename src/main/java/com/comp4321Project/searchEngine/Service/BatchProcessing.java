@@ -1,12 +1,15 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.Util;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,20 +66,20 @@ public class BatchProcessing {
         System.err.println("start computing tfidf vector");
 
         RocksDB rocksDB = rocksDBDao.getRocksDB();
-        RocksIterator it = rocksDB.newIterator(rocksDBDao.getUrlIdToKeywordTermFrequencyRocksDBCol());
-        HashMap<byte[], Double> idfScoreCache = new HashMap<>();
+        RocksIterator it = rocksDB.newIterator(rocksDBDao.getUrlIdToKeywordTermFrequencyForBodyRocksDBCol());
+        HashMap<String, Double> idfScoreCache = new HashMap<>();
 
         for (it.seekToFirst(); it.isValid(); it.next()) {
             // for each doc vector
-            HashMap<String, Double> tfIdfVector = new HashMap<>();
+            ArrayList<ImmutablePair<String, Double>> tfIdfVector = new ArrayList<>();
             // cast vector from byte array to hashmap
-            HashMap<String, Double> tfVector = rocksDBDao.getKeywordTermFrequencyDataFromValue(it.value());
+            HashMap<String, Double> tfVector = rocksDBDao.getKeywordTermFrequencyDataForBodyFromValue(it.value());
             for (Map.Entry<String, Double> entry : tfVector.entrySet()) {
                 // compute tf idf score for each of the word inside the vector
                 String wordId = entry.getKey();
                 byte[] wordIdByte = wordId.getBytes();
                 Double tfScore = entry.getValue();
-                Double idfScore = idfScoreCache.get(wordIdByte);
+                Double idfScore = idfScoreCache.get(wordId);
 
                 if (idfScore == null) {
                     // cache not exists
@@ -87,13 +90,14 @@ public class BatchProcessing {
                         System.err.println("null pointer, idfScore: " + idfScoreByte + " wordId: " + new String(wordIdByte));
                         idfScore = 0.0;
                     }
-                    idfScoreCache.put(wordIdByte, idfScore);
+                    idfScoreCache.put(wordId, idfScore);
                 }
 
                 // compute tf idf score by multiplying them
-                tfIdfVector.put(wordId, tfScore * idfScore);
+                tfIdfVector.add(new ImmutablePair<>(wordId, tfScore * idfScore));
             }
 
+            tfIdfVector.sort(Util.getTfIdfVectorComparator());
             rocksDBDao.putTfIdfScoreData(it.key(), tfIdfVector);
         }
         System.err.println("finished computing tfidf vector");
@@ -102,7 +106,23 @@ public class BatchProcessing {
     public void runBatchProcess() throws RocksDBException {
         computeIdfScoreForWord();
         computeTfIdfScoreForEachDocumentVector();
+        computeTitleVectorForEachDocument();
         computePageRank();
+    }
+
+    private void computeTitleVectorForEachDocument() throws RocksDBException {
+        System.err.println("start computing title vector");
+
+        RocksDB rocksDB = rocksDBDao.getRocksDB();
+        RocksIterator it = rocksDB.newIterator(rocksDBDao.getUrlIdToKeywordFrequencyForTitleRocksDBCol());
+
+        for (it.seekToFirst(); it.isValid(); it.next()) {
+            HashMap<String, Integer> keyFreqForTitleMap = rocksDBDao.getKeywordFrequencyDataForTitleFromByte(it.key());
+            ArrayList<ImmutablePair<String, Double>> keywordFrequencyVector = Util.transformKeywordFrequencyMapToVector(keyFreqForTitleMap);
+            rocksDBDao.putKeywordVectorForTitle(it.key(), keywordFrequencyVector);
+        }
+
+        System.err.println("finished computing title vector");
     }
 
 }

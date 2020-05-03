@@ -28,76 +28,107 @@ public class QuerySearch {
     }
 
     public QuerySearchResponseView search(String query) throws RocksDBException {
-        String[][] phrasesQuery = TextProcessing.getPhrasesFromQuery(query);
-        String[] processedQuery = TextProcessing.cleanRawWords(query);
-        if (processedQuery.length == 0) {
+        Pair<String[][], String[]> processedQueryPair = TextProcessing.cleanRawQuery(query);
+
+        String[][] phrasesQuery = processedQueryPair.getLeft();
+        String[] processedQuery = processedQueryPair.getRight();
+        if (processedQuery == null && phrasesQuery == null) {
             // skip processing when there is no query words left
             return new QuerySearchResponseView(-1, null);
         }
 
+        if (phrasesQuery != null) {
+            // if there is phrase in a query
 
+            return null;
+        } else {
+            List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
 
-        List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
+            List<byte[]> wordIdByteList = rocksDBDao.getRocksDB().multiGetAsList(
+                    colHandlesList,
+                    Arrays.stream(processedQuery)
+                            .map(String::getBytes)
+                            .collect(Collectors.toList())
+            );
 
-        List<byte[]> wordIdByteList = rocksDBDao.getRocksDB().multiGetAsList(
-                colHandlesList,
-                Arrays.stream(processedQuery)
-                        .map(String::getBytes)
-                        .collect(Collectors.toList())
-        );
+            // filter words that are not indexed, as we are not going to find anything from the database
+            // and map the byte to string
+            List<String> wordIdList = wordIdByteList
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .map(String::new)
+                    .sorted()
+                    .collect(Collectors.toList());
 
-        // filter words that are not indexed, as we are not going to find anything from the database
-        wordIdByteList = wordIdByteList
-                .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            ArrayList<ImmutablePair<String, Double>> queryVector = Util.transformQueryToVector(wordIdList);
 
-        List<String> wordIdList = wordIdByteList.stream()
-                .map(String::new)
-                .sorted()
-                .collect(Collectors.toList());
+            // search inverted file for text body and for title
+            InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
+            InvertedFile invertedFileForTitle = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForTitleWordIdToPostingListRocksDBCol());
+            HashSet<String> urlIdSetWithAtLeastOneKeywordInBody = invertedFileForBody.loadInvertedFileWithWordId(wordIdByteList);
+            HashSet<String> urlIdSetWithAtLeastOneKeywordInTitle = invertedFileForTitle.loadInvertedFileWithWordId(wordIdByteList);
 
-        ArrayList<Pair<String, Double>> queryVector = Util.transformQueryIntoVector(wordIdList);
+            // make a union set for title and body
+//            HashSet<String> urlIdSetWithAtLeastOneKeywordInTheWholeDocument = new HashSet<>(urlIdSetWithAtLeastOneKeywordInBody);
+//            urlIdSetWithAtLeastOneKeywordInTheWholeDocument.addAll(urlIdSetWithAtLeastOneKeywordInTitle);
 
-        // search inverted file for text body
-        InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
-        HashSet<String> urlIdSetWithAtLeastOneKeywordsInDoc = invertedFileForBody.loadInvertedFileWithWordId(wordIdByteList);
+            // calculate total num of results from body
+            int totalNumOfResult = urlIdSetWithAtLeastOneKeywordInBody.size() + urlIdSetWithAtLeastOneKeywordInTitle.size();
 
-        int totalNumOfResult = urlIdSetWithAtLeastOneKeywordsInDoc.size();
+            // calculate the composite score before ranking
+            HashMap<String, Double> compositeScore = new HashMap<>();
 
-        HashMap<byte[], ArrayList<Pair<String, Double>>> urlIdVector = new HashMap<>();
-        for (String urlId : urlIdSetWithAtLeastOneKeywordsInDoc) {
-            HashMap<String, Double> tfIdfVector = rocksDBDao.getTfIdfScoreData(urlId.getBytes());
-            urlIdVector.put(urlId.getBytes(), Util.transformTfIdfVector(tfIdfVector));
-        }
-
-        // build a max heap to get the top 50 results
-        PriorityQueue<Pair<byte[], Double>> maxHeap = new PriorityQueue<>((p1, p2) -> {
-            // compare in descending order
-            return p1.getValue().compareTo(p2.getValue()) * -1;
-        });
-
-        for (Map.Entry<byte[], ArrayList<Pair<String, Double>>> entry : urlIdVector.entrySet()) {
-            maxHeap.add(new ImmutablePair<>(entry.getKey(), Util.computeCosSimScore(queryVector, entry.getValue())));
-        }
-
-        int resultLength = Math.min(Constants.getMaxReturnSearchResult(), maxHeap.size());
-
-        List<SearchResultsView> resultsViewArrayList = new ArrayList<SearchResultsView>(resultLength);
-
-        for (int index = 0; index < resultLength; index++) {
-            Pair<byte[], Double> record = maxHeap.poll();
-            if (record == null) {
-                System.err.println("search result return null from max heap");
-                continue;
+//            HashMap<String, ArrayList<ImmutablePair<String, Double>>> urlIdVector = new HashMap<>();
+            for (String urlId : urlIdSetWithAtLeastOneKeywordInBody) {
+                ArrayList<ImmutablePair<String, Double>> vector = rocksDBDao.getTfIdfScoreData(urlId.getBytes());
+                Double score = Util.computeCosSimScore(queryVector, vector);
+                compositeScore.put(urlId, score);
             }
-            resultsViewArrayList.add(rocksDBDao.getSiteSearchViewWithUrlIdFromByte(record.getKey())
-                    .setScore(record.getValue())
-                    .updateParentLinks(rocksDBDao, new String(record.getKey()))
-                    .toSearchResultView());
+
+            // account for the score got from title
+            for (String urlId : urlIdSetWithAtLeastOneKeywordInTitle) {
+                ArrayList<ImmutablePair<String, Double>> vector = rocksDBDao.getKeywordFrequencyVectorForTitle(urlId);
+                Double score = Util.computeCosSimScore(queryVector, vector) * Constants.getTitleMultiplier();
+                compositeScore.merge(urlId, score, Double::sum);
+            }
+
+
+            // build a max heap to get the top 50 results
+            PriorityQueue<ImmutablePair<String, Double>> maxHeap = new PriorityQueue<>((p1, p2) -> {
+                // compare in descending order
+                return p1.getValue().compareTo(p2.getValue()) * -1;
+            });
+
+            // feed score map to max heap to find the top 50 scores
+            compositeScore.forEach((urlId, totalScore) -> maxHeap.add(new ImmutablePair<>(urlId, totalScore)));
+
+            int resultLength = Math.min(Constants.getMaxReturnSearchResult(), maxHeap.size());
+
+            List<SearchResultsView> resultsViewArrayList = new ArrayList<SearchResultsView>(resultLength);
+
+            for (int index = 0; index < resultLength; index++) {
+                ImmutablePair<String, Double> record = maxHeap.poll();
+                if (record == null) {
+                    System.err.println("search result return null from max heap");
+                    continue;
+                }
+                resultsViewArrayList.add(rocksDBDao.getSiteSearchViewWithUrlId(record.getKey())
+                        .setScore(record.getValue())
+                        .updateParentLinks(rocksDBDao, record.getKey())
+                        .toSearchResultView());
+            }
+
+            return new QuerySearchResponseView(totalNumOfResult, resultsViewArrayList);
         }
 
-        return new QuerySearchResponseView(totalNumOfResult, resultsViewArrayList);
+
+
+
+
+
+
+
+
     }
 
     public List<SearchResultsView> getAllSiteFromDB() throws RocksDBException {
