@@ -10,16 +10,16 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Util {
-    public static Comparator<Pair<String, Double>> getTfIdfVectorComparator() {
-        return tfIdfVectorComparator;
-    }
-
     private static final Comparator<Pair<String, Double>> tfIdfVectorComparator = new Comparator<Pair<String, Double>>() {
         @Override
         public int compare(Pair<String, Double> p1, Pair<String, Double> p2) {
             return p1.getLeft().compareTo(p2.getLeft());
         }
     };
+
+    public static Comparator<Pair<String, Double>> getTfIdfVectorComparator() {
+        return tfIdfVectorComparator;
+    }
 
     public static void createDirectoryIfNotExist(String path) {
         Path currDir = Paths.get("");

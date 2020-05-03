@@ -40,8 +40,8 @@ class MainTests {
     public void printRocksDB() {
         try {
             RocksDBDao rocksDBDao = RocksDBDao.getInstance();
-            rocksDBDao.printAllDataInRocksDB();
-        } catch (RocksDBException e) {
+            rocksDBDao.printAllDataFromRocksDBToTextFile();
+        } catch (RocksDBException | IOException e) {
             e.printStackTrace();
         }
     }

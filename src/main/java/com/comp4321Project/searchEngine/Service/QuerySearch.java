@@ -122,13 +122,6 @@ public class QuerySearch {
         }
 
 
-
-
-
-
-
-
-
     }
 
     public List<SearchResultsView> getAllSiteFromDB() throws RocksDBException {

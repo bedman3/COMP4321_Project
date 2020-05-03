@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Service;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
-import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Util.Util;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDB;

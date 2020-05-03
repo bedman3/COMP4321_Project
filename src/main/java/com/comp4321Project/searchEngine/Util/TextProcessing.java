@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Util;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -97,6 +96,7 @@ public class TextProcessing {
 
     /**
      * clean the query by calling cleanRawWords() and separate phrases specified by double quotes
+     *
      * @param rawQuery
      * @return
      */
