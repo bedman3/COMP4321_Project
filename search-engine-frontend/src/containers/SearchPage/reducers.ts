@@ -52,6 +52,7 @@ export const searchPageReducer = (
 
 interface ISearchResultResponse {
     totalNumOfResult: number,
+    totalTimeUsed: number,
     searchResults: Array<ISearchResultRecord>,
 }
 

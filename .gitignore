@@ -27,6 +27,7 @@ target/
 .idea
 
 # exclude rocksdb files
+rocksDB*
 rocksDBFiles/
 spider_result.txt
 searchEngine.zip

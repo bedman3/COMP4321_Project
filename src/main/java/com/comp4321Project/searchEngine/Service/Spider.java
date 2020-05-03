@@ -71,6 +71,7 @@ public class Spider {
                 System.err.println(e.toString() + ". Retry now, counter: " + retryCounter);
             }
 
+            // max retry, if counter exceeds the limit, we skip crawling this site
             if (retryCounter >= Constants.getMaxConnectionRetry()) {
                 return null;
             }
@@ -284,6 +285,8 @@ public class Spider {
 
                 if (returnSet != null) {
                     // if crawlUrl is not ignored, which means site is crawled
+                    numScrapedSite++;
+
                     for (String childUrl : returnSet) {
                         if (rocksDB.get(colHandle, childUrl.getBytes()) == null) {
                             crawlQueue.add(childUrl);
@@ -291,12 +294,11 @@ public class Spider {
                     }
                 }
 
-                // for each interval, update the invertedfile
+                // for each interval, update the inverted file
                 if (numScrapedSite % updateInvertedFileInterval == 0) {
                     rocksDBDao.updateInvertedFileInRocksDB();
                 }
 
-                numScrapedSite++;
             }
         }
         rocksDBDao.updateInvertedFileInRocksDB();

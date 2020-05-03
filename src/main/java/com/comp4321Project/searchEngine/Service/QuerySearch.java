@@ -28,13 +28,15 @@ public class QuerySearch {
     }
 
     public QuerySearchResponseView search(String query) throws RocksDBException {
+        long startMillis = System.currentTimeMillis();
+
         Pair<String[][], String[]> processedQueryPair = TextProcessing.cleanRawQuery(query);
 
         String[][] phrasesQuery = processedQueryPair.getLeft();
         String[] processedQuery = processedQueryPair.getRight();
         if (processedQuery == null && phrasesQuery == null) {
             // skip processing when there is no query words left
-            return new QuerySearchResponseView(-1, null);
+            return new QuerySearchResponseView(-1, -1, null);
         }
 
         if (phrasesQuery != null) {
@@ -92,6 +94,11 @@ public class QuerySearch {
                 compositeScore.merge(urlId, score, Double::sum);
             }
 
+            // account for the page rank score
+            for (Map.Entry<String, Double> entry : compositeScore.entrySet()) {
+                Double pageRankScore = rocksDBDao.getPageRankScore(entry.getKey());
+                entry.setValue(entry.getValue() + pageRankScore);
+            }
 
             // build a max heap to get the top 50 results
             PriorityQueue<ImmutablePair<String, Double>> maxHeap = new PriorityQueue<>((p1, p2) -> {
@@ -118,7 +125,7 @@ public class QuerySearch {
                         .toSearchResultView());
             }
 
-            return new QuerySearchResponseView(totalNumOfResult, resultsViewArrayList);
+            return new QuerySearchResponseView(totalNumOfResult, (System.currentTimeMillis() - startMillis) * 1.0 / 1000, resultsViewArrayList);
         }
 
 

@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -536,5 +537,15 @@ public class RocksDBDao {
         if (keywordFrequencyVectorForTitle == null) return null;
         else
             return (ArrayList<ImmutablePair<String, Double>>) CustomFSTSerialization.getInstance().asObject(keywordFrequencyVectorForTitle);
+    }
+
+    public Double getPageRankScore(String urlId) throws RocksDBException {
+        return getPageRankScoreFromByte(urlId.getBytes());
+    }
+
+    public Double getPageRankScoreFromByte(byte[] urlIdByte) throws RocksDBException {
+        byte[] pageRankScoreByte = rocksDB.get(this.urlIdToPageRankScoreRocksDBCol, urlIdByte);
+        if (pageRankScoreByte == null) return 0.0;
+        return ByteBuffer.wrap(pageRankScoreByte).getDouble();
     }
 }

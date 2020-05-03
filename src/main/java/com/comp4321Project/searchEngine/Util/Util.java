@@ -90,6 +90,7 @@ public class Util {
      * @return
      */
     public static Double computeCosSimScore(ArrayList<ImmutablePair<String, Double>> list1, ArrayList<ImmutablePair<String, Double>> list2) {
+        if (list1 == null || list2 == null) return 0.0;
         if (list1.size() == 0 || list2.size() == 0) {
             return 0.0;
         }

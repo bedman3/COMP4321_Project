@@ -103,7 +103,9 @@ const SearchPage = () => {
                         {value?.pageTitle}
                     </Typography>
                 </Link>
-                <Typography variant='caption'>{value?.url}</Typography><br />
+                <Link target='_blank' href={`http://${value?.url}`}>
+                    <Typography variant='caption'>{value?.url}</Typography>
+                </Link>
                 <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -209,7 +211,9 @@ const SearchPage = () => {
             </AppBar>
             <Container maxWidth='lg'>
                 <div>
-                    <Typography variant='overline' hidden={searchResult === undefined || searchResult?.searchResults.length === 0}>Show {searchResult?.searchResults.length} results out of {searchResult?.totalNumOfResult} documents</Typography>
+                    <Grid hidden={searchResult === undefined || searchResult?.searchResults.length === 0}>
+                        <Typography variant='overline'>Show {searchResult?.searchResults.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
+                    </Grid>
                     {searchResultView}
                 </div>
             </Container>
