@@ -4,7 +4,6 @@ import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PostingList implements Serializable {
     private List<PostingNode> postingList;
@@ -18,11 +17,8 @@ public class PostingList implements Serializable {
     }
 
     public static PostingList fromBytesArray(byte[] byteArray) {
-        if (byteArray == null) {
-            return new PostingList();
-        } else {
-            return (PostingList) CustomFSTSerialization.getInstance().asObject(byteArray);
-        }
+        if (byteArray == null) return new PostingList();
+        else return (PostingList) CustomFSTSerialization.getInstance().asObject(byteArray);
     }
 
     public byte[] toBytesArray() {
@@ -60,8 +56,39 @@ public class PostingList implements Serializable {
 
     // merge the new posting list into our existing posting list sorted by url id
     public void merge(PostingList newPostingList) {
-        this.postingList.addAll(newPostingList.postingList);
-        this.postingList = this.postingList.stream().distinct().collect(Collectors.toList());
+        this.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
+        newPostingList.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
+
+        int thisListLength = this.postingList.size(), newListLength = newPostingList.postingList.size(), thisPtr = 0, newPtr = 0;
+
+        while (thisPtr < thisListLength || newPtr < newListLength) {
+            if (newPtr >= newListLength) {
+                // finish iterating the new list, nothing more to merge into this list
+                break;
+            } else if (thisPtr >= thisListLength) {
+                // reached the end of this ptr, keep adding node from new list
+                this.postingList.add(newPostingList.postingList.get(newPtr));
+                newPtr++;
+                continue;
+            }
+
+            PostingNode thisNode = this.postingList.get(thisPtr), newNode = newPostingList.postingList.get(newPtr);
+
+            int compare = thisNode.getUrlIdInteger().compareTo(newNode.getUrlIdInteger());
+            if (compare == 0) {
+                thisNode.merge(newNode);
+                newPtr++;
+                thisPtr++;
+            } else if (compare > 0) {
+                // new node not exist in this list, add new node to this list
+                this.postingList.add(newNode);
+                newPtr++;
+            } else { // compare < 0, thisNode int value < nextNode int value
+                thisPtr++;
+            }
+
+        }
+
         this.postingList.sort(Comparator.comparing(PostingNode::getUrlIdInteger));
     }
 

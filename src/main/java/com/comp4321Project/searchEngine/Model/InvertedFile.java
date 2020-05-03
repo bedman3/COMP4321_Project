@@ -48,6 +48,10 @@ public class InvertedFile {
         return hashSet;
     }
 
+    public PostingList getPostingListWithWordId(String wordId) throws RocksDBException {
+        return PostingList.fromBytesArray(rocksDBDao.getRocksDB().get(colHandle, wordId.getBytes()));
+    }
+
     /**
      * this function will do:
      * 1) scan the posting list required to update

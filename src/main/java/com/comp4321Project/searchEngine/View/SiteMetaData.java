@@ -6,10 +6,7 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SiteMetaData implements Serializable {
@@ -33,6 +30,20 @@ public class SiteMetaData implements Serializable {
         this.keywordFrequencyModelList = keywordFrequencyModelList;
         this.childLinks = childLinks.toArray(new String[0]);
         this.parentLinks = null;
+    }
+
+    @Override
+    public String toString() {
+        return "SiteMetaData{" +
+                "pageTitle='" + pageTitle + '\'' +
+                ", url='" + url + '\'' +
+                ", lastModifiedDate='" + lastModifiedDate + '\'' +
+                ", sizeOfPage='" + sizeOfPage + '\'' +
+                ", keywordFrequencyModelList='" + keywordFrequencyModelList + '\'' +
+                ", childLinks=" + Arrays.toString(childLinks) +
+                ", score=" + score +
+                ", parentLinks=" + Arrays.toString(parentLinks) +
+                '}';
     }
 
     public SiteMetaData updateParentLinks(RocksDBDao rocksDBDao, String urlId) throws RocksDBException {

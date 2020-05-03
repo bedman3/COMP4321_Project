@@ -4,17 +4,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class PostingNode implements Serializable, Comparable<PostingNode> {
     private final String wordId;
     private final String urlId;
     private final Integer urlIdInteger;
-    private final ArrayList<Integer> locationList;
+    private ArrayList<Integer> locationList;
 
     public PostingNode(String wordId, String urlId, Integer urlIdInteger, ArrayList<Integer> locationList) {
         this.urlId = urlId;
         this.wordId = wordId;
-        this.urlIdInteger = Integer.parseInt(urlId);
+        this.urlIdInteger = urlIdInteger;
         this.locationList = locationList;
     }
 
@@ -50,6 +51,15 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
 
     public void sort() {
         Collections.sort(this.locationList);
+    }
+
+    public void merge(PostingNode node) {
+        this.locationList.addAll(node.locationList);
+        this.locationList = this.locationList
+                .stream()
+                .distinct()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

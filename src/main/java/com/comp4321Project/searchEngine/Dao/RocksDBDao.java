@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -260,7 +261,7 @@ public class RocksDBDao {
         if (writeFile.exists()) writeFile.delete();
         if (!writeFile.createNewFile()) return;
 
-        PrintWriter writer = new PrintWriter(writeFile);
+        PrintWriter writer = new PrintWriter(new FileWriter(writeFile));
 
         // print all storage
         for (ColumnFamilyHandle col : this.getColumnFamilyHandleList()) {
@@ -276,7 +277,10 @@ public class RocksDBDao {
                         col == this.urlIdToKeywordVectorForTitleRocksDBCol ||
                         col == this.urlIdToKeywordFrequencyForTitleRocksDBCol ||
                         col == this.invertedFileForBodyWordIdToPostingListRocksDBCol ||
-                        col == this.invertedFileForTitleWordIdToPostingListRocksDBCol) {
+                        col == this.invertedFileForTitleWordIdToPostingListRocksDBCol ||
+                        col == this.childUrlIdToParentUrlIdRocksDBCol ||
+                        col == this.parentUrlIdToChildUrlIdRocksDBCol ||
+                        col == this.urlIdToMetaDataRocksDBCol) {
                     value = CustomFSTSerialization.getInstance().asObject(it.value()).toString();
                 } else {
                     value = new String(it.value());
@@ -286,10 +290,6 @@ public class RocksDBDao {
 
             writer.println();
         }
-    }
-
-    public void closeRocksDB() throws RocksDBException {
-        this.rocksDB.closeE();
     }
 
     public void initRocksDBWithNextAvailableId(ColumnFamilyHandle colHandle) throws RocksDBException {
