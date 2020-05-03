@@ -96,4 +96,23 @@ public class TextProcessing {
                 .toArray(String[]::new);
         return tokenizedWordArray;
     }
+
+//    /**
+//     * clean the query by calling cleanRawWords() and separate phrases specified by double quotes
+//     * @param query
+//     * @return
+//     */
+//    public static String[] cleanRawQuery(String query) {
+//        // if no double quotes, no phrases, don't have to check phrases separation
+//        if (!query.contains("\"")) return cleanRawWords(query);
+//
+//
+//    }
+
+    public static String[][] getPhrasesFromQuery(String rawQuery) {
+        if (!rawQuery.contains("\"")) return null;
+
+        int firstPtr, secondPtr;
+        return null;
+    }
 }

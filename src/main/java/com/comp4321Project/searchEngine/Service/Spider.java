@@ -8,6 +8,7 @@ import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import com.google.common.base.Joiner;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -174,7 +175,7 @@ public class Spider {
             return p1.getValue().compareTo(p2.getValue()) * -1;
         });
 
-        keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new AbstractMap.SimpleEntry<>(key, value)));
+        keyFreqMap.forEach((String key, Integer value) -> maxHeap.add(new ImmutablePair<>(key, value)));
 
         Iterator<Map.Entry<String, Integer>> keyFreqIt = maxHeap.iterator();
 

@@ -1,6 +1,8 @@
 package com.comp4321Project.searchEngine.Util;
 
 import com.comp4321Project.searchEngine.Model.Constants;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -8,10 +10,10 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Util {
-    private static final Comparator<AbstractMap.SimpleEntry<String, Double>> tfIdfVectorComparator = new Comparator<AbstractMap.SimpleEntry<String, Double>>() {
+    private static final Comparator<Pair<String, Double>> tfIdfVectorComparator = new Comparator<Pair<String, Double>>() {
         @Override
-        public int compare(AbstractMap.SimpleEntry<String, Double> p1, AbstractMap.SimpleEntry<String, Double> p2) {
-            return p1.getKey().compareTo(p2.getKey());
+        public int compare(Pair<String, Double> p1, Pair<String, Double> p2) {
+            return p1.getLeft().compareTo(p2.getLeft());
         }
     };
 
@@ -50,26 +52,26 @@ public class Util {
         return Math.log(totalNumOfDocuments / totalNumOfDocWithTerm) / Constants.getLn2();
     }
 
-    public static ArrayList<AbstractMap.SimpleEntry<String, Double>> transformTfIdfVector(HashMap<String, Double> tfIdfVector) {
-        ArrayList<AbstractMap.SimpleEntry<String, Double>> arrayList = new ArrayList<>();
+    public static ArrayList<Pair<String, Double>> transformTfIdfVector(HashMap<String, Double> tfIdfVector) {
+        ArrayList<Pair<String, Double>> arrayList = new ArrayList<>();
         for (Map.Entry<String, Double> entry : tfIdfVector.entrySet()) {
-            arrayList.add(new AbstractMap.SimpleEntry<String, Double>(entry.getKey(), entry.getValue()));
+            arrayList.add(new ImmutablePair<>(entry.getKey(), entry.getValue()));
         }
 
         arrayList.sort(tfIdfVectorComparator);
         return arrayList;
     }
 
-    public static ArrayList<AbstractMap.SimpleEntry<String, Double>> transformQueryIntoVector(List<String> queryWordList) {
+    public static ArrayList<Pair<String, Double>> transformQueryIntoVector(List<String> queryWordList) {
         HashMap<String, Integer> keyFreqMap = new HashMap<>();
-        ArrayList<AbstractMap.SimpleEntry<String, Double>> arrayList = new ArrayList<>();
+        ArrayList<Pair<String, Double>> arrayList = new ArrayList<>();
         // count word frequency as a bag of word
         for (String wordId : queryWordList) {
             keyFreqMap.merge(wordId, 1, Integer::sum);
         }
 
         for (Map.Entry<String, Integer> entry : keyFreqMap.entrySet()) {
-            arrayList.add(new AbstractMap.SimpleEntry<String, Double>(entry.getKey(), entry.getValue() * 1.0));
+            arrayList.add(new ImmutablePair<>(entry.getKey(), entry.getValue() * 1.0));
         }
 
         arrayList.sort(tfIdfVectorComparator);
@@ -84,12 +86,12 @@ public class Util {
      * @param list2
      * @return
      */
-    public static Double computeCosSimScore(ArrayList<AbstractMap.SimpleEntry<String, Double>> list1, ArrayList<AbstractMap.SimpleEntry<String, Double>> list2) {
+    public static Double computeCosSimScore(ArrayList<Pair<String, Double>> list1, ArrayList<Pair<String, Double>> list2) {
         if (list1.size() == 0 || list2.size() == 0) {
             return 0.0;
         }
 
-        ArrayList<AbstractMap.SimpleEntry<String, Double>> longerList, shorterList;
+        ArrayList<Pair<String, Double>> longerList, shorterList;
         Double score = 0.0;
         if (list1.size() > list2.size()) {
             longerList = list1;

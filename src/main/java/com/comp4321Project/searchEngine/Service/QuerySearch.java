@@ -7,6 +7,8 @@ import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -26,10 +28,15 @@ public class QuerySearch {
     }
 
     public QuerySearchResponseView search(String query) throws RocksDBException {
+        String[][] phrasesQuery = TextProcessing.getPhrasesFromQuery(query);
         String[] processedQuery = TextProcessing.cleanRawWords(query);
         if (processedQuery.length == 0) {
+            // skip processing when there is no query words left
             return new QuerySearchResponseView(-1, null);
         }
+
+
+
         List<ColumnFamilyHandle> colHandlesList = Collections.nCopies(processedQuery.length, this.rocksDBDao.getWordToWordIdRocksDBCol());
 
         List<byte[]> wordIdByteList = rocksDBDao.getRocksDB().multiGetAsList(
@@ -50,7 +57,7 @@ public class QuerySearch {
                 .sorted()
                 .collect(Collectors.toList());
 
-        ArrayList<AbstractMap.SimpleEntry<String, Double>> queryVector = Util.transformQueryIntoVector(wordIdList);
+        ArrayList<Pair<String, Double>> queryVector = Util.transformQueryIntoVector(wordIdList);
 
         // search inverted file for text body
         InvertedFile invertedFileForBody = new InvertedFile(rocksDBDao, rocksDBDao.getInvertedFileForBodyWordIdToPostingListRocksDBCol());
@@ -58,20 +65,20 @@ public class QuerySearch {
 
         int totalNumOfResult = urlIdSetWithAtLeastOneKeywordsInDoc.size();
 
-        HashMap<byte[], ArrayList<AbstractMap.SimpleEntry<String, Double>>> urlIdVector = new HashMap<>();
+        HashMap<byte[], ArrayList<Pair<String, Double>>> urlIdVector = new HashMap<>();
         for (String urlId : urlIdSetWithAtLeastOneKeywordsInDoc) {
             HashMap<String, Double> tfIdfVector = rocksDBDao.getTfIdfScoreData(urlId.getBytes());
             urlIdVector.put(urlId.getBytes(), Util.transformTfIdfVector(tfIdfVector));
         }
 
         // build a max heap to get the top 50 results
-        PriorityQueue<AbstractMap.SimpleEntry<byte[], Double>> maxHeap = new PriorityQueue<>((p1, p2) -> {
+        PriorityQueue<Pair<byte[], Double>> maxHeap = new PriorityQueue<>((p1, p2) -> {
             // compare in descending order
             return p1.getValue().compareTo(p2.getValue()) * -1;
         });
 
-        for (Map.Entry<byte[], ArrayList<AbstractMap.SimpleEntry<String, Double>>> entry : urlIdVector.entrySet()) {
-            maxHeap.add(new AbstractMap.SimpleEntry<byte[], Double>(entry.getKey(), Util.computeCosSimScore(queryVector, entry.getValue())));
+        for (Map.Entry<byte[], ArrayList<Pair<String, Double>>> entry : urlIdVector.entrySet()) {
+            maxHeap.add(new ImmutablePair<>(entry.getKey(), Util.computeCosSimScore(queryVector, entry.getValue())));
         }
 
         int resultLength = Math.min(Constants.getMaxReturnSearchResult(), maxHeap.size());
@@ -79,7 +86,7 @@ public class QuerySearch {
         List<SearchResultsView> resultsViewArrayList = new ArrayList<SearchResultsView>(resultLength);
 
         for (int index = 0; index < resultLength; index++) {
-            AbstractMap.SimpleEntry<byte[], Double> record = maxHeap.poll();
+            Pair<byte[], Double> record = maxHeap.poll();
             if (record == null) {
                 System.err.println("search result return null from max heap");
                 continue;

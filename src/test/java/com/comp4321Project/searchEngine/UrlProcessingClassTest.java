@@ -4,7 +4,7 @@ import com.comp4321Project.searchEngine.Util.UrlProcessing;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class UtilityClassTest {
+public class UrlProcessingClassTest {
     @Test
     public void testGetBaseUrl() {
 
