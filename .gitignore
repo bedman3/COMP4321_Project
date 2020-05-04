@@ -29,6 +29,5 @@ target/
 # exclude rocksdb files
 rocksDB*
 rocksDBFiles/
-spider_result.txt
-searchEngine.zip
 testResult/
+logFolders/

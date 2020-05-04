@@ -5,8 +5,11 @@ import com.comp4321Project.searchEngine.Service.BatchProcessing;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.Service.Spider;
 import org.junit.jupiter.api.Test;
+import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
+import org.rocksdb.RocksIterator;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -31,7 +34,7 @@ class MainTests {
             BatchProcessing batchProcessing = BatchProcessing.getInstance(rocksDBDao);
 
             batchProcessing.runBatchProcess();
-        } catch (RocksDBException e) {
+        } catch (RocksDBException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -67,6 +70,18 @@ class MainTests {
             System.out.println("Query: [" + query + "], Result: \n" + Arrays.toString(querySearch.search(query).getSearchResults().toArray()));
 
         } catch (RocksDBException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void computePageRank() {
+        try {
+            RocksDBDao rocksDBDao = RocksDBDao.getInstance();
+            BatchProcessing batchProcessing = BatchProcessing.getInstance(rocksDBDao);
+            batchProcessing.computePageRank();
+
+        } catch (RocksDBException | IOException e) {
             e.printStackTrace();
         }
     }

@@ -109,7 +109,7 @@ public class QuerySearch {
 
             // account for the page rank score
             for (Map.Entry<String, Double> entry : compositeScore.entrySet()) {
-                Double pageRankScore = rocksDBDao.getPageRankScore(entry.getKey());
+                Double pageRankScore = rocksDBDao.getPageRankScore(entry.getKey()) * Constants.getPageRankMultiplier();
                 entry.setValue(entry.getValue() + pageRankScore);
             }
 

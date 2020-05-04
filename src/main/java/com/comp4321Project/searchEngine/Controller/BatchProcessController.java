@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 public class BatchProcessController {
@@ -30,7 +31,7 @@ public class BatchProcessController {
 
     @CrossOrigin
     @RequestMapping(value = "/batch-job", method = RequestMethod.POST)
-    public Message batchProcess() throws RocksDBException {
+    public Message batchProcess() throws RocksDBException, IOException {
         this.batchProcessing.runBatchProcess();
         return new Message(
                 "Batch Process Complete",
