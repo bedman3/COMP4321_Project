@@ -30,6 +30,7 @@ const SearchPage = () => {
             </Grid>
             <SearchResultView
                 searchResult={searchResult}
+                enableGetSimilarPage
             />
         </div>
     );

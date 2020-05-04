@@ -204,8 +204,8 @@ const App = () => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant='h5'>
-                        COMP4321 Search Engine
+                    <Typography variant='h6'>
+                        COMP4321 Project
                     </Typography>
                     <div className={classes.search} style={searchBarVisibilityStyle}>
                         <div className={classes.searchIcon}>
@@ -271,7 +271,7 @@ const App = () => {
                 })}
             >
                 <div className={classes.drawerHeader} />
-                <Container maxWidth='md'>
+                <Container maxWidth='lg'>
                     <Switch>
                         <Route path='/' exact component={SearchPage} />
                         <Route path='/StemmedKeywords' exact component={StemmedKeywordPage} />

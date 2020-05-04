@@ -7,23 +7,37 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import React, { useMemo } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { SearchResultType } from '../../containers/SearchPage/reducers';
+import Button from '@material-ui/core/Button';
+import { useDispatch } from 'react-redux';
+import { ISearchResultRecord, SearchResultType } from '../../containers/SearchPage/reducers';
 import theme from '../../theme';
+import { setIsFetchingFlagAction, setSearchBarAction } from '../../containers/SearchPage/actions';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     heading: {
         fontSize: theme.typography.pxToRem(15),
         fontWeight: theme.typography.fontWeightLight,
     },
+    root: {
+        flexGrow: 1,
+    },
 }));
 
 interface SearchResultViewProps {
     searchResult: SearchResultType
+    enableGetSimilarPage?: boolean
 }
 
 const SearchResultView = (props: SearchResultViewProps) => {
     const classes = useStyles(theme);
-    const { searchResult } = props;
+    const dispatch = useDispatch();
+    const { searchResult, enableGetSimilarPage } = props;
+
+    const handleGetSimilarPage = (record: ISearchResultRecord) => {
+        const newQuery = record?.keywordFrequencyModelList.map((pair) => pair[0]).join(' ');
+        dispatch(setSearchBarAction(newQuery));
+        dispatch(setIsFetchingFlagAction(true));
+    };
 
     const mapSearchResultToView = (searchResultLocal: SearchResultType) => searchResultLocal?.searchResults?.map(((value) => {
         const keywordFreqComponent = value.keywordFrequencyModelList?.map((tuple, index) => (
@@ -64,24 +78,37 @@ const SearchResultView = (props: SearchResultViewProps) => {
 
         return (
             <div>
-                <Link target='_blank' href={`http://${value?.url}`}>
-                    <Typography variant='h5'>
-                        {value?.pageTitle}
-                    </Typography>
-                </Link>
-                <Link target='_blank' href={`http://${value?.url}`}>
-                    <Typography variant='caption'>{value?.url}</Typography>
-                </Link>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                }}
-                >
-                    <Typography variant='overline'>Last modified: {value?.lastModifiedDate},
-                        Size: {value?.sizeOfPage}
-                    </Typography>
-                    <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
-                </div>
+                <Grid container spacing={2}>
+                    <Grid item xs={8}>
+                        <Link target='_blank' href={`http://${value?.url}`}>
+                            <Typography variant='h5'>
+                                {value?.pageTitle}
+                            </Typography>
+                        </Link>
+                        <Link target='_blank' href={`http://${value?.url}`}>
+                            <Typography variant='caption'>{value?.url}</Typography>
+                        </Link>
+                    </Grid>
+                    <div className={classes.root} />
+                    <Grid item>
+                        <Button variant='contained' color='primary' onClick={() => handleGetSimilarPage(value)}>
+                            Get Similar Pages
+                        </Button>
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2}>
+                    <Grid item>
+                        <Typography variant='overline'>Last modified: {value?.lastModifiedDate},
+                            Size: {value?.sizeOfPage}
+                        </Typography>
+                    </Grid>
+                    <div className={classes.root} />
+                    <Grid item>
+                        <Typography variant='subtitle2'>Search score: {value?.score}</Typography>
+                    </Grid>
+                </Grid>
+
+                {/* </div> */}
                 <Grid container spacing={3}>
                     <Grid item xs={2}>
                         <Typography variant='subtitle1'>Top 5 Keywords: </Typography>
