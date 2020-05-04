@@ -9,4 +9,7 @@ RUN /root/miniconda3/bin/python -m venv venv
 RUN ./venv/bin/pip install scipy numpy
 WORKDIR /backend
 RUN mvn package
+RUN rm -rf src/
+RUN rm -f *.pdf
+
 ENTRYPOINT ["java","-jar","/backend/target/searchEngine-0.0.1-SNAPSHOT.jar"]
