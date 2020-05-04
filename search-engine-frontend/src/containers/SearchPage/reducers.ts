@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import {
-    SearchPageReduxStateType, SET_SEARCH_BAR, SET_SEARCH_RESULT, SET_STEMMED_KEYWORDS_LIST,
+    SearchPageReduxStateType, SET_IS_FETCHING_FLAG, SET_SEARCH_BAR, SET_SEARCH_RESULT, SET_STEMMED_KEYWORDS_LIST,
 } from './constants';
 import { commonHeader } from '../../api';
 import { setSearchResultAction, setStemmedKeywordsListAction } from './actions';
@@ -24,12 +24,14 @@ export interface ISearchPageStore {
     searchBarContent: SearchBarContentType,
     searchResult: SearchResultType,
     stemmedKeywordsList: StemmedKeywordListType,
+    isFetching: boolean,
 }
 
 const searchPageInitialStore: ISearchPageStore = {
     searchBarContent: undefined,
     searchResult: undefined,
     stemmedKeywordsList: undefined,
+    isFetching: false,
     // searchResult: tempSearchResult,
 };
 
@@ -54,6 +56,11 @@ export const searchPageReducer = (
         return {
             ...state,
             stemmedKeywordsList: payload as StemmedKeywordListType,
+        };
+    case SET_IS_FETCHING_FLAG:
+        return {
+            ...state,
+            isFetching: payload as boolean,
         };
     default:
         return state;
@@ -82,7 +89,7 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
             if (response.status === 200) {
                 response.json().then((responseJson: ISearchResultResponse) => {
                     dispatch(setSearchResultAction(responseJson));
-                    callback();
+                    callback?.();
                 });
             }
         }).catch((fetchAPIError) => {
@@ -97,6 +104,9 @@ export const fetchStemmedKeyword = (dispatch: Dispatch) => {
     }).then((response) => {
         if (response.status === 200) {
             response.json().then((responseJson: IStemmedKeywordResponse) => {
+                if (responseJson?.stemmedKeywordList?.[0] === '') {
+                    responseJson?.stemmedKeywordList.shift();
+                }
                 dispatch(setStemmedKeywordsListAction(responseJson?.stemmedKeywordList));
             });
         }

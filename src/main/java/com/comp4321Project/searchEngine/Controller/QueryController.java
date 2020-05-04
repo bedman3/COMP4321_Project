@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -48,6 +49,19 @@ public class QueryController {
     @RequestMapping(value = "/stemmed-keywords", method = RequestMethod.GET)
     public StemmedKeywordsView stemmedKeywords() throws RocksDBException {
         return querySearch.getAllStemmedKeywords();
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/suggestions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<String> suggestions(@RequestBody SearchRequest searchRequest) {
+        System.err.println(searchRequest.query);
+
+        ArrayList<String> arrayList = new ArrayList<>(10);
+        for (Integer i = 0; i < 10; i++) {
+            arrayList.add(searchRequest.query + i.toString());
+        }
+
+        return arrayList;
     }
 
     static class SearchRequest {

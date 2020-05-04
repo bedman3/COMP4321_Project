@@ -7,9 +7,11 @@ import {
 import thunk from 'redux-thunk';
 import { createBrowserHistory, History } from 'history';
 import { ConnectedRouter, routerMiddleware } from 'connected-react-router';
+import { ThemeProvider } from '@material-ui/core';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import createRootReducer from './rootReducer';
+import theme from './theme';
 
 
 const history: History = createBrowserHistory();
@@ -41,7 +43,12 @@ const target = document.querySelector('#root');
 const Index = () => (
     <Provider store={store}>
         <ConnectedRouter history={history}>
-            <App />
+            <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap' />
+            <link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons' />
+            <ThemeProvider theme={theme}>
+
+                <App />
+            </ThemeProvider>
         </ConnectedRouter>
     </Provider>
 );
