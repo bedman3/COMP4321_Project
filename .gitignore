@@ -31,3 +31,4 @@ rocksDB*
 rocksDBFiles/
 testResult/
 logFolders/
+pagerank_*
