@@ -1,7 +1,7 @@
 package com.comp4321Project.searchEngine;
 
+import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,47 +36,55 @@ public class TextProcessingClassTest {
         String rawQuery = "Computer, VISION !!!!!! machiNe     testing LeArNinG";
         String expectedQuery = "comput vision machin test learn";
 
-        Pair<String[][], String[]> result = TextProcessing.cleanRawQuery(rawQuery);
+        ProcessedQuery result = TextProcessing.cleanRawQuery(rawQuery);
 
-        Assertions.assertArrayEquals(expectedQuery.split(" "), result.getRight());
-        Assertions.assertNull(result.getLeft());
+        Assertions.assertArrayEquals(expectedQuery.split(" "), result.getQuery());
+        Assertions.assertNull(result.getPhrases());
     }
 
     @Test
     public void testPhrasesQuery() {
         String rawQuery = "\"Computer, VISION\" !!!!!!blanket \"machiNe     testing LeArNinG\" wallet";
         String[][] expectedPhrases = new String[][]{new String[]{"comput", "vision"}, new String[]{"machin", "test", "learn"}};
-        String expectedQuery = "blanket wallet";
+        String expectedQuery = "comput vision blanket machin test learn wallet";
 
-        Pair<String[][], String[]> result = TextProcessing.cleanRawQuery(rawQuery);
+        ProcessedQuery result = TextProcessing.cleanRawQuery(rawQuery);
 
-        Assertions.assertArrayEquals(result.getRight(), expectedQuery.split(" "));
-        Assertions.assertTrue(Arrays.deepEquals(result.getLeft(), expectedPhrases));
+        Assertions.assertArrayEquals(result.getQuery(), expectedQuery.split(" "));
+        Assertions.assertTrue(Arrays.deepEquals(result.getPhrases(), expectedPhrases));
 
         rawQuery = "testing \"Computer, VISION\" !!!!!!blanket \"machiNe     testing LeArNinG\" wallet";
         expectedPhrases = new String[][]{new String[]{"comput", "vision"}, new String[]{"machin", "test", "learn"}};
-        expectedQuery = "test blanket wallet";
+        expectedQuery = "test comput vision blanket machin test learn wallet";
 
         result = TextProcessing.cleanRawQuery(rawQuery);
 
-        Assertions.assertArrayEquals(result.getRight(), expectedQuery.split(" "));
-        Assertions.assertTrue(Arrays.deepEquals(result.getLeft(), expectedPhrases));
+        Assertions.assertArrayEquals(result.getQuery(), expectedQuery.split(" "));
+        Assertions.assertTrue(Arrays.deepEquals(result.getPhrases(), expectedPhrases));
 
-        rawQuery = "testing \"Computer, VISION\" !!!!!!blanket \"machiNe   !!!!  testing LeArNinG\" \"wallet";
+        rawQuery = "testing     \"Computer, VISION\" !!!!!!blanket \"machiNe   !!!!  tesTing LeArNinG\" \"wallet";
         expectedPhrases = new String[][]{new String[]{"comput", "vision"}, new String[]{"machin", "test", "learn"}};
-        expectedQuery = "test blanket wallet";
+        expectedQuery = "test comput vision blanket machin test learn wallet";
 
-        result = TextProcessing.cleanRawQuery(rawQuery);
+        ProcessedQuery result1 = TextProcessing.cleanRawQuery(rawQuery);
 
-        Assertions.assertArrayEquals(result.getRight(), expectedQuery.split(" "));
-        Assertions.assertTrue(Arrays.deepEquals(result.getLeft(), expectedPhrases));
+        Assertions.assertArrayEquals(result1.getQuery(), expectedQuery.split(" "));
+        Assertions.assertTrue(Arrays.deepEquals(result1.getPhrases(), expectedPhrases));
+        Assertions.assertEquals(result, result1);
+
+        rawQuery = "testing     \"VISION Computer, \" !!!!!!blanket \"machiNe   !!!!  tesTing LeArNinG\" \"wallet";
+        expectedPhrases = new String[][]{new String[]{"vision", "comput"}, new String[]{"machin", "test", "learn"}};
+        expectedQuery = "test comput vision blanket machin test learn wallet";
+
+        ProcessedQuery result2 = TextProcessing.cleanRawQuery(rawQuery);
+        Assertions.assertNotEquals(result, result2);
 
         rawQuery = "testing \",\" !!!!!!blanket \"   !!!!  \" \"wallet";
         expectedQuery = "test blanket wallet";
 
         result = TextProcessing.cleanRawQuery(rawQuery);
 
-        Assertions.assertArrayEquals(result.getRight(), expectedQuery.split(" "));
-        Assertions.assertNull(result.getLeft());
+        Assertions.assertArrayEquals(result.getQuery(), expectedQuery.split(" "));
+        Assertions.assertNull(result.getPhrases());
     }
 }

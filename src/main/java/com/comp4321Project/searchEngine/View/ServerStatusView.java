@@ -1,10 +1,10 @@
-package com.comp4321Project.searchEngine.Model;
+package com.comp4321Project.searchEngine.View;
 
-public class ServerStatusModel {
+public class ServerStatusView {
 
     private final String status;
 
-    public ServerStatusModel(String status) {
+    public ServerStatusView(String status) {
         this.status = status;
     }
 
@@ -14,7 +14,7 @@ public class ServerStatusModel {
 
     @Override
     public String toString() {
-        return "ServerStatusModel{" +
+        return "ServerStatusView{" +
                 "status='" + status + '\'' +
                 '}';
     }

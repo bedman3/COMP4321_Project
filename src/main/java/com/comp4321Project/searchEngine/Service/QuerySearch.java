@@ -3,12 +3,12 @@ package com.comp4321Project.searchEngine.Service;
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
+import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -30,10 +30,10 @@ public class QuerySearch {
     public QuerySearchResponseView search(String query) throws RocksDBException {
         long startMillis = System.currentTimeMillis();
 
-        Pair<String[][], String[]> processedQueryPair = TextProcessing.cleanRawQuery(query);
+        ProcessedQuery processedQueryPair = TextProcessing.cleanRawQuery(query);
 
-        String[][] phrasesQuery = processedQueryPair.getLeft();
-        String[] processedQuery = processedQueryPair.getRight();
+        String[][] phrasesQuery = processedQueryPair.getPhrases();
+        String[] processedQuery = processedQueryPair.getQuery();
         if (processedQuery == null && phrasesQuery == null) {
             // skip processing when there is no query words left
             return new QuerySearchResponseView(-1, -1, null);

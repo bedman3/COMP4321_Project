@@ -1,7 +1,6 @@
 package com.comp4321Project.searchEngine.Util;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 
 import java.util.*;
 
@@ -100,12 +99,11 @@ public class TextProcessing {
      * @param rawQuery
      * @return
      */
-    public static Pair<String[][], String[]> cleanRawQuery(String rawQuery) {
-        if (!rawQuery.contains("\"")) return new ImmutablePair<>(null, cleanRawWords(rawQuery));
+    public static ProcessedQuery cleanRawQuery(String rawQuery) {
+        if (!rawQuery.contains("\"")) return new ProcessedQuery(null, cleanRawWords(rawQuery));
 
         List<String> phrasesList = new LinkedList<>();
-        StringBuilder stringBuilder = new StringBuilder();
-        int startPtr = -1, endPtr = 0, markPtr = 0, rawQueryLength = rawQuery.length();
+        int startPtr = -1, endPtr = 0, rawQueryLength = rawQuery.length();
         while (endPtr < rawQueryLength) {
             if (rawQuery.charAt(endPtr) == '\"') {
                 if (startPtr == -1) {
@@ -114,18 +112,10 @@ public class TextProcessing {
                 } else {
                     // there is a quote pair, extract the sentence in the quote
                     phrasesList.add(rawQuery.substring(startPtr, endPtr));
-                    if (startPtr != markPtr) {
-                        stringBuilder.append(rawQuery, markPtr, startPtr);
-                    }
-                    markPtr = endPtr + 1;
                     startPtr = -1;
                 }
             }
             endPtr++;
-        }
-
-        if (markPtr < endPtr) {
-            stringBuilder.append(rawQuery, markPtr, endPtr);
         }
 
         String[][] returnPhrase = phrasesList.stream()
@@ -133,6 +123,6 @@ public class TextProcessing {
                 .filter(Objects::nonNull)
                 .toArray(String[][]::new);
 
-        return new ImmutablePair<>(returnPhrase.length == 0 ? null : returnPhrase, cleanRawWords(stringBuilder.toString()));
+        return new ProcessedQuery(returnPhrase.length == 0 ? null : returnPhrase, cleanRawWords(rawQuery));
     }
 }
