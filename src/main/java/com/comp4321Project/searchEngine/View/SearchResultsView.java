@@ -1,8 +1,9 @@
 package com.comp4321Project.searchEngine.View;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class SearchResultsView {
+public class SearchResultsView implements Serializable {
     public String pageTitle;
     public String url;
     public String lastModifiedDate;

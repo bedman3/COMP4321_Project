@@ -138,4 +138,8 @@ public class Util {
         return score / (longListSum * shortListSum);
     }
 
+    public static double getTotalTimeUsedInSecond(long startTime) {
+        return (System.currentTimeMillis() - startTime) * 1.0 / 1000;
+    }
+
 }

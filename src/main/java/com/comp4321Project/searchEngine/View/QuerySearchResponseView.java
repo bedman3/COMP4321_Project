@@ -1,11 +1,16 @@
 package com.comp4321Project.searchEngine.View;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class QuerySearchResponseView {
+public class QuerySearchResponseView implements Serializable {
     int totalNumOfResult;
     double totalTimeUsed;
     List<SearchResultsView> searchResults;
+
+    public void setTotalTimeUsed(double totalTimeUsed) {
+        this.totalTimeUsed = totalTimeUsed;
+    }
 
     public QuerySearchResponseView(int totalNumOfResult, double totalTimeUsed, List<SearchResultsView> searchResults) {
         this.totalNumOfResult = totalNumOfResult;

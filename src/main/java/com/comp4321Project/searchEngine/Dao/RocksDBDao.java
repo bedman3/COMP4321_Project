@@ -2,8 +2,10 @@ package com.comp4321Project.searchEngine.Dao;
 
 import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
+import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.Util;
+import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.*;
@@ -47,11 +49,15 @@ public class RocksDBDao {
     private ColumnFamilyHandle wordIdToInverseDocumentFrequencyRocksDBCol;
     private ColumnFamilyHandle urlIdToKeywordTFIDFVectorRocksDBCol;
     private ColumnFamilyHandle fetchedSiteHashSetRocksDBCol;
-    private InvertedFile invertedFileForBody;
-    private InvertedFile invertedFileForTitle;
     private ColumnFamilyHandle urlIdToKeywordFrequencyForTitleRocksDBCol;
     private ColumnFamilyHandle urlIdToKeywordVectorForTitleRocksDBCol;
     private ColumnFamilyHandle urlIdToPageRankScoreRocksDBCol;
+    private ColumnFamilyHandle queryHashToQueryCacheRocksDBCol;
+    private ColumnFamilyHandle queryHistoryRocksDBCol;
+
+
+    private InvertedFile invertedFileForBody;
+    private InvertedFile invertedFileForTitle;
 
     private RocksDBDao(@Value("${rocksdb.folder}") String relativeDBPath) throws RocksDBException {
         this.dbPath = relativeDBPath;
@@ -74,6 +80,14 @@ public class RocksDBDao {
      */
     public static RocksDBDao getInstance() throws RocksDBException {
         return getInstance(Constants.getDefaultDBPath());
+    }
+
+    public ColumnFamilyHandle getQueryHashToQueryCacheRocksDBCol() {
+        return queryHashToQueryCacheRocksDBCol;
+    }
+
+    public ColumnFamilyHandle getQueryHistoryRocksDBCol() {
+        return queryHistoryRocksDBCol;
     }
 
     public ColumnFamilyHandle getUrlIdToKeywordFrequencyForTitleRocksDBCol() {
@@ -128,7 +142,9 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToPageRankScoreData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyForTitleData".getBytes()),
-                new ColumnFamilyDescriptor("UrlIdToKeywordVectorForTitleData".getBytes())
+                new ColumnFamilyDescriptor("UrlIdToKeywordVectorForTitleData".getBytes()),
+                new ColumnFamilyDescriptor("QueryHashToQueryCacheData".getBytes()),
+                new ColumnFamilyDescriptor("QueryHistoryData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -157,6 +173,8 @@ public class RocksDBDao {
         this.urlIdToPageRankScoreRocksDBCol = colFamilyIt.next();
         this.urlIdToKeywordFrequencyForTitleRocksDBCol = colFamilyIt.next();
         this.urlIdToKeywordVectorForTitleRocksDBCol = colFamilyIt.next();
+        this.queryHashToQueryCacheRocksDBCol = colFamilyIt.next();
+        this.queryHistoryRocksDBCol = colFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
@@ -164,14 +182,20 @@ public class RocksDBDao {
         // init rocksdb for id data
         this.initRocksDBWithNextAvailableId(urlIdToUrlRocksDBCol);
         this.initRocksDBWithNextAvailableId(wordIdToWordRocksDBCol);
+        this.initRocksDBWithNextAvailableId(queryHistoryRocksDBCol);
 
         this.initialized = true;
     }
 
-    public ColumnFamilyHandle recreateFetchSiteHashSet() throws RocksDBException {
+    public ColumnFamilyHandle resetFetchSiteHashSet() throws RocksDBException {
         rocksDB.dropColumnFamily(this.fetchedSiteHashSetRocksDBCol);
         this.fetchedSiteHashSetRocksDBCol = rocksDB.createColumnFamily(new ColumnFamilyDescriptor("FetchedSiteHashSetData".getBytes()));
         return this.fetchedSiteHashSetRocksDBCol;
+    }
+
+    public void resetQueryResponseCache() throws RocksDBException {
+        rocksDB.dropColumnFamily(this.queryHashToQueryCacheRocksDBCol);
+        this.queryHashToQueryCacheRocksDBCol = rocksDB.createColumnFamily(new ColumnFamilyDescriptor("QueryHashToQueryCacheData".getBytes()));
     }
 
     public ColumnFamilyHandle getUrlIdToUrlRocksDBCol() {
@@ -557,5 +581,15 @@ public class RocksDBDao {
         byte[] siteMetaDataByte = rocksDB.get(this.urlIdToMetaDataRocksDBCol, urlId.getBytes());
         if (siteMetaDataByte == null) return null;
         else return (SiteMetaData) CustomFSTSerialization.getInstance().asObject(siteMetaDataByte);
+    }
+
+    public void putQueryCache(ProcessedQuery processedQuery, QuerySearchResponseView querySearchResponseView) throws RocksDBException {
+        rocksDB.put(this.queryHashToQueryCacheRocksDBCol, Integer.toString(processedQuery.hashCode()).getBytes(), CustomFSTSerialization.getInstance().asByteArray(querySearchResponseView));
+    }
+
+    public QuerySearchResponseView getQueryCache(ProcessedQuery processedQuery) throws RocksDBException {
+        byte[] queryCacheByte = rocksDB.get(this.queryHashToQueryCacheRocksDBCol, Integer.toString(processedQuery.hashCode()).getBytes());
+        if (queryCacheByte == null) return null;
+        else return (QuerySearchResponseView) CustomFSTSerialization.getInstance().asObject(queryCacheByte);
     }
 }

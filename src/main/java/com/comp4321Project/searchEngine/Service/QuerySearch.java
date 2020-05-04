@@ -32,6 +32,15 @@ public class QuerySearch {
 
         ProcessedQuery processedQueryPair = TextProcessing.cleanRawQuery(query);
 
+        // check if there is any cache available, if so return the cache
+        QuerySearchResponseView querySearchResponseView = rocksDBDao.getQueryCache(processedQueryPair);
+        if (querySearchResponseView != null) {
+            // found cache and return
+            querySearchResponseView.setTotalTimeUsed(Util.getTotalTimeUsedInSecond(startMillis));
+            return querySearchResponseView;
+        }
+
+        // cache does not exists, query the results from rocksdb
         String[][] phrasesQuery = processedQueryPair.getPhrases();
         String[] processedQuery = processedQueryPair.getQuery();
         if (processedQuery == null && phrasesQuery == null) {
@@ -61,6 +70,8 @@ public class QuerySearch {
                     .map(String::new)
                     .sorted()
                     .collect(Collectors.toList());
+
+            if (wordIdList.size() == 0) return new QuerySearchResponseView(-1, -1, null);
 
             ArrayList<ImmutablePair<String, Double>> queryVector = Util.transformQueryToVector(wordIdList);
 
@@ -125,10 +136,16 @@ public class QuerySearch {
                         .toSearchResultView());
             }
 
-            return new QuerySearchResponseView(totalNumOfResult, (System.currentTimeMillis() - startMillis) * 1.0 / 1000, resultsViewArrayList);
+            // save the cache in the database
+            querySearchResponseView = new QuerySearchResponseView(
+                    totalNumOfResult,
+                    Util.getTotalTimeUsedInSecond(startMillis),
+                    resultsViewArrayList
+                    );
+            rocksDBDao.putQueryCache(processedQueryPair, querySearchResponseView);
+
+            return querySearchResponseView;
         }
-
-
     }
 
     public List<SearchResultsView> getAllSiteFromDB() throws RocksDBException {

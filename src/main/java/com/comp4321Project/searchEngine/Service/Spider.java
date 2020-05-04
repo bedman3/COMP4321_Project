@@ -263,7 +263,7 @@ public class Spider {
             Queue<String> crawlQueue = new LinkedList<>();
             Set<String> returnSet;
             RocksDB rocksDB = rocksDBDao.getRocksDB();
-            ColumnFamilyHandle colHandle = rocksDBDao.recreateFetchSiteHashSet();
+            ColumnFamilyHandle colHandle = rocksDBDao.resetFetchSiteHashSet();
             int updateInvertedFileInterval = Constants.getInvertedFileUpdateInterval();
             Integer numScrapedSite = 1;
 

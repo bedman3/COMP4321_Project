@@ -107,6 +107,11 @@ public class BatchProcessing {
         computeTfIdfScoreForEachDocumentVector();
         computeTitleVectorForEachDocument();
         computePageRank();
+        resetQueryResponseCache();
+    }
+
+    private void resetQueryResponseCache() throws RocksDBException {
+        rocksDBDao.resetQueryResponseCache();
     }
 
     private void computeTitleVectorForEachDocument() throws RocksDBException {

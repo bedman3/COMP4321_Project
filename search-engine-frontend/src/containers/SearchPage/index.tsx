@@ -96,6 +96,36 @@ const SearchPage = () => {
             </Grid>
         ));
 
+        const childLinkComponent = value?.childLinks?.length > 0 ? (
+            <ul>
+                {value?.childLinks?.map((link) => (
+                    <li>
+                        <Typography
+                            variant='subtitle1'
+                            display='inline'
+                        >
+                            {link}
+                        </Typography>
+                    </li>
+                ))}
+            </ul>
+        ) : (<Typography variant='h5'>No child links for this record</Typography>);
+
+        const parentLinkComponent = value?.parentLinks?.length > 0 ? (
+            <ul>
+                {value?.parentLinks?.map((link) => (
+                    <li>
+                        <Typography
+                            variant='subtitle1'
+                            display='inline'
+                        >
+                            {link}
+                        </Typography>
+                    </li>
+                ))}
+            </ul>
+        ) : (<Typography variant='h5'>No parent links for this record</Typography>);
+
         return (
             <div>
                 <Link target='_blank' href={`http://${value?.url}`}>
@@ -131,18 +161,7 @@ const SearchPage = () => {
                         <Typography className={classes.heading}>Parent Links: </Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
-                        <ul>
-                            {value?.parentLinks?.map((link) => (
-                                <li>
-                                    <Typography
-                                        variant='subtitle1'
-                                        display='inline'
-                                    >
-                                        {link}
-                                    </Typography>
-                                </li>
-                            ))}
-                        </ul>
+                        {parentLinkComponent}
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
                 <ExpansionPanel>
@@ -154,18 +173,7 @@ const SearchPage = () => {
                         <Typography className={classes.heading}>Child Links:</Typography>
                     </ExpansionPanelSummary>
                     <ExpansionPanelDetails>
-                        <ul>
-                            {value?.childLinks?.map((link) => (
-                                <li>
-                                    <Typography
-                                        variant='subtitle1'
-                                        display='inline'
-                                    >
-                                        {link}
-                                    </Typography>
-                                </li>
-                            ))}
-                        </ul>
+                        {childLinkComponent}
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
                 <br />
@@ -175,7 +183,7 @@ const SearchPage = () => {
 
     const createSearchResultToView = (searchResultLocal: SearchResultType) => {
         if (searchResultLocal === undefined) return undefined;
-        if (searchResultLocal?.searchResults.length === 0) return <Typography variant='h3'>No record match this search</Typography>;
+        if (searchResultLocal?.searchResults?.length === 0 || !searchResultLocal?.searchResults) return <Typography variant='h3'>No record match this search</Typography>;
         return mapSearchResultToView(searchResultLocal);
     };
 
@@ -211,8 +219,8 @@ const SearchPage = () => {
             </AppBar>
             <Container maxWidth='lg'>
                 <div>
-                    <Grid hidden={searchResult === undefined || searchResult?.searchResults.length === 0}>
-                        <Typography variant='overline'>Show {searchResult?.searchResults.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
+                    <Grid hidden={searchResult === undefined || !searchResult?.searchResults || searchResult?.searchResults?.length === 0}>
+                        <Typography variant='overline'>Show {searchResult?.searchResults?.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
                     </Grid>
                     {searchResultView}
                 </div>
