@@ -124,10 +124,6 @@ public class BatchProcessing {
         }
 
         {
-            File file = new File("pagerank_results.json");
-            Scanner scanner = new Scanner(file);
-
-
             PageRankResult pageRankResult = gson.fromJson(new String(Files.readAllBytes(Paths.get("pagerank_results.json"))), PageRankResult.class);
             List<Double> pageRankScoreList = pageRankResult.result;
             RocksDB rocksDB = rocksDBDao.getRocksDB();
@@ -139,46 +135,6 @@ public class BatchProcessing {
 
         System.err.println("finished computing page rank");
     }
-
-//    public void computePageRank() throws RocksDBException {
-//        System.err.println("start computing page rank");
-//        Integer totalNumOfDocument = rocksDBDao.getTotalNumOfDocuments();
-//
-//
-//        INDArray weightMatrix = Nd4j.zeros(totalNumOfDocument, totalNumOfDocument);
-//        INDArray docVector = Nd4j.ones(1, totalNumOfDocument);
-//        INDArray dampingVector = docVector.mul(1 - Constants.getDampingFactor());
-//
-//        // prepare sparse matrix
-//        {
-//            RocksIterator it = rocksDBDao.getRocksDB().newIterator(rocksDBDao.getParentUrlIdToChildUrlIdRocksDBCol());
-//            for (it.seekToFirst(); it.isValid(); it.next()) {
-//                Integer parentId = Integer.parseInt(new String(it.key()));
-//                ArrayList<Integer> childIdsList = ((HashSet<String>) CustomFSTSerialization.getInstance().asObject(it.value()))
-//                        .stream()
-//                        .map(Integer::parseInt)
-//                        .collect(Collectors.toCollection(ArrayList::new));
-//
-//                Integer totalChild = childIdsList.size();
-//                if (totalChild == 0) continue;
-//                Double assignValue = 1.0 / totalChild;
-//
-//                childIdsList.forEach(index -> weightMatrix.putScalar(new int[]{parentId, index}, assignValue));
-//            }
-//        }
-//
-//        System.err.println(weightMatrix.toString());
-//
-//        // compute page rank score
-//        for (int iteration = 0; iteration < Constants.getPageRankIteration(); iteration++) {
-//            System.err.println(iteration);
-//            docVector = docVector.mul(Constants.getDampingFactor()).mul(weightMatrix).add(dampingVector);
-//        }
-//
-//        System.err.println(docVector.toString());
-//
-//        System.err.println("finished computing page rank");
-//    }
 
     public void computeIdfScoreForWord() throws RocksDBException {
         System.err.println("start computing idf score for word");
