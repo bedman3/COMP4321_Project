@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import Autocomplete, { RenderInputParams } from '@material-ui/lab/Autocomplete';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
+import InputBase from '@material-ui/core/InputBase';
 
 
 const LISTBOX_PADDING = 8; // px
@@ -84,25 +85,48 @@ const ListboxComponent = React.forwardRef<HTMLDivElement>((props, ref) => {
 });
 
 interface SearchBarForLongOptionListProps {
-    optionList: string[],
+    optionList: string[] | undefined,
     labelText: string,
+    classes?: Partial<any>,
+    appBar?: boolean,
+    getValueCallback?: (str: string) => void;
 }
 
 const SearchBarForLongOptionList = (props: SearchBarForLongOptionListProps) => {
-    const { optionList, labelText } = props;
+    const {
+        optionList, labelText, classes, appBar, getValueCallback,
+    } = props;
+
+    const [text, setText] = useState<string | null>(null);
+
+    const Input = (params: RenderInputParams) => {
+        if (!appBar) return <TextField {...params} variant='outlined' label={labelText} />;
+        return <TextField {...params} placeholder={labelText} style={{ width: '50em' }} value={text} />;
+    };
 
     return (
         <div>
             <Autocomplete
+                disabled={optionList === undefined}
                 id='virtualize-demo'
                 style={{ width: '12xs' }}
                 disableListWrap
                 ListboxComponent={ListboxComponent as React.ComponentType<React.HTMLAttributes<HTMLElement>>}
-                // renderGroup={renderGroup}
-                options={optionList}
-                // groupBy={(option) => option?.[0].toUpperCase()}
-                renderInput={(params) => <TextField {...params} variant='outlined' label={labelText} />}
+                options={optionList ?? []}
+                // renderInput={(params) => <TextField {...params} variant='outlined' label={labelText} />}
+                filterSelectedOptions
+                renderInput={Input}
                 renderOption={(option) => <Typography noWrap>{option}</Typography>}
+                classes={classes}
+                value={text}
+                // @ts-ignore
+                onChange={((event, value) => {
+                    if (getValueCallback !== undefined) {
+                        getValueCallback?.(value);
+                        setText('');
+                        if (text === '') setText(null);
+                    }
+                })}
             />
         </div>
     );

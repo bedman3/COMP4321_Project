@@ -16,6 +16,7 @@ const StemmedKeywordPage = () => {
             <SearchBarForLongOptionList
                 optionList={stemmedKeywordList as string[]}
                 labelText='Stemmed Keywords'
+                appBar={false}
             />
             <Typography>Here is a list of stemmed keywords available</Typography>
             <ul>

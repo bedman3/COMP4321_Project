@@ -31,6 +31,7 @@ import theme from './theme';
 import SearchPage, { useSelector } from './containers/SearchPage';
 import { fetchStemmedKeyword, SearchBarContentType } from './containers/SearchPage/reducers';
 import TestingPage from './containers/TestingPage';
+import SearchBarForLongOptionList from './components/SearchBarForLongOptionList';
 
 const drawerWidth = 240;
 
@@ -156,7 +157,9 @@ const App = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const searchBarContent = useSelector<SearchBarContentType>((state) => state.searchPageReducer.searchBarContent);
     const isFetching = useSelector((state) => state.searchPageReducer.isFetching);
+    const stemmedKeywordList = useSelector((state) => state.searchPageReducer.stemmedKeywordsList);
     const searchBarVisibilityStyle = useMemo(() => (location.pathname !== '/' ? { display: 'none' } : {}), [location.pathname]);
+
 
     useEffect(() => {
         fetchStemmedKeyword(dispatch);
@@ -175,6 +178,10 @@ const App = () => {
             // press enter
             dispatch(setIsFetchingFlagAction(true));
         }
+    };
+
+    const handleStemmedKeywordSelection = (value: string) => {
+        if (value !== undefined && value !== null) dispatch(setSearchBarAction(`${searchBarContent ?? ''} ${value}`));
     };
 
     return (
@@ -216,6 +223,14 @@ const App = () => {
                         />
                     </div>
                     <div className={classes.grow} />
+                    <div className={classes.search} style={searchBarVisibilityStyle}>
+                        <SearchBarForLongOptionList
+                            optionList={stemmedKeywordList}
+                            labelText='Search Stemmed Keywords'
+                            appBar
+                            getValueCallback={handleStemmedKeywordSelection}
+                        />
+                    </div>
                 </Toolbar>
                 <LinearProgress variant='query' color='secondary' hidden={!isFetching} />
             </AppBar>
