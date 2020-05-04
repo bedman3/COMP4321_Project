@@ -1,5 +1,7 @@
-import { SearchBarContentType, SearchResultType } from './reducers';
-import { SearchPageReduxStateType, SET_SEARCH_BAR, SET_SEARCH_RESULT } from './constants';
+import { SearchBarContentType, SearchResultType, StemmedKeywordListType } from './reducers';
+import {
+    SearchPageReduxStateType, SET_SEARCH_BAR, SET_SEARCH_RESULT, SET_STEMMED_KEYWORDS_LIST,
+} from './constants';
 
 export const setSearchBarAction = (data: SearchBarContentType): SearchPageReduxStateType => ({
     type: SET_SEARCH_BAR,
@@ -8,6 +10,11 @@ export const setSearchBarAction = (data: SearchBarContentType): SearchPageReduxS
 
 export const setSearchResultAction = (data: SearchResultType): SearchPageReduxStateType => ({
     type: SET_SEARCH_RESULT,
+    payload: data,
+});
+
+export const setStemmedKeywordsListAction = (data: StemmedKeywordListType) : SearchPageReduxStateType => ({
+    type: SET_STEMMED_KEYWORDS_LIST,
     payload: data,
 });
 

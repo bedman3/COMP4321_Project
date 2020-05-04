@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -103,15 +104,47 @@ public class BatchProcessing {
     }
 
     public void runBatchProcess() throws RocksDBException {
+        resetQueryResponseCache();
+        resetMiscellaneousCache();
         computeIdfScoreForWord();
         computeTfIdfScoreForEachDocumentVector();
         computeTitleVectorForEachDocument();
         computePageRank();
-        resetQueryResponseCache();
+        computeMiscellaneousCache();
+    }
+
+    public ArrayList<String> computeStemmedKeywordsList() throws RocksDBException {
+        System.err.println("start computing stemmed keywords cache");
+        RocksIterator it = rocksDBDao.getRocksDB().newIterator(rocksDBDao.getWordToWordIdRocksDBCol());
+
+        LinkedList<String> linkedList = new LinkedList<>();
+
+        for (it.seekToFirst(); it.isValid(); it.next()) {
+            linkedList.addLast(new String(it.key()));
+        }
+        ArrayList<String> arrayList = new ArrayList<>(linkedList);
+        rocksDBDao.putStemmedKeywordCache(arrayList);
+
+        System.err.println("finished computing stemmed keywords cache");
+        return arrayList;
+    }
+
+    private void computeMiscellaneousCache() throws RocksDBException {
+        System.err.println("start computing miscellaneous cache");
+        computeStemmedKeywordsList();
+        System.err.println("finished computing miscellaneous cache");
+    }
+
+    private void resetMiscellaneousCache() throws RocksDBException {
+        System.err.println("start resetting miscellaneous cache");
+        rocksDBDao.resetMiscellaneousCache();
+        System.err.println("finished resetting miscellaneous cache");
     }
 
     private void resetQueryResponseCache() throws RocksDBException {
+        System.err.println("start resetting query response cache");
         rocksDBDao.resetQueryResponseCache();
+        System.err.println("finished resetting query response cache");
     }
 
     private void computeTitleVectorForEachDocument() throws RocksDBException {

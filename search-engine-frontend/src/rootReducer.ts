@@ -1,7 +1,7 @@
 import { combineReducers, Reducer } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { History } from 'history';
-import { searchPageReducer, ISearchPageStore } from './containers/SearchPage/reducers';
+import { ISearchPageStore, searchPageReducer } from './containers/SearchPage/reducers';
 
 export interface rootReducerState {
     router: Reducer,

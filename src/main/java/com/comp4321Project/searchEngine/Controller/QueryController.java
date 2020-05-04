@@ -5,6 +5,7 @@ import com.comp4321Project.searchEngine.Service.QuerySearch;
 import com.comp4321Project.searchEngine.View.Message;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
+import com.comp4321Project.searchEngine.View.StemmedKeywordsView;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,12 @@ public class QueryController {
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public QuerySearchResponseView search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
         return querySearch.search(searchRequest.query);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/stemmed-keywords", method = RequestMethod.GET)
+    public StemmedKeywordsView stemmedKeywords() throws RocksDBException {
+        return querySearch.getAllStemmedKeywords();
     }
 
     static class SearchRequest {

@@ -8,6 +8,7 @@ import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
+import com.comp4321Project.searchEngine.View.StemmedKeywordsView;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
@@ -141,7 +142,7 @@ public class QuerySearch {
                     totalNumOfResult,
                     Util.getTotalTimeUsedInSecond(startMillis),
                     resultsViewArrayList
-                    );
+            );
             rocksDBDao.putQueryCache(processedQueryPair, querySearchResponseView);
 
             return querySearchResponseView;
@@ -161,5 +162,9 @@ public class QuerySearch {
         }
 
         return returnList;
+    }
+
+    public StemmedKeywordsView getAllStemmedKeywords() throws RocksDBException {
+        return new StemmedKeywordsView(rocksDBDao.getStemmedKeywordCache());
     }
 }

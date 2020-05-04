@@ -3,6 +3,7 @@ package com.comp4321Project.searchEngine.Dao;
 import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Model.ProcessedQuery;
+import com.comp4321Project.searchEngine.Service.BatchProcessing;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.Util;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
@@ -58,6 +59,7 @@ public class RocksDBDao {
 
     private InvertedFile invertedFileForBody;
     private InvertedFile invertedFileForTitle;
+    private ColumnFamilyHandle miscellaneousCacheRocksDBCol;
 
     private RocksDBDao(@Value("${rocksdb.folder}") String relativeDBPath) throws RocksDBException {
         this.dbPath = relativeDBPath;
@@ -80,6 +82,10 @@ public class RocksDBDao {
      */
     public static RocksDBDao getInstance() throws RocksDBException {
         return getInstance(Constants.getDefaultDBPath());
+    }
+
+    public ColumnFamilyHandle getMiscellaneousCacheRocksDBCol() {
+        return miscellaneousCacheRocksDBCol;
     }
 
     public ColumnFamilyHandle getQueryHashToQueryCacheRocksDBCol() {
@@ -144,7 +150,8 @@ public class RocksDBDao {
                 new ColumnFamilyDescriptor("UrlIdToKeywordFrequencyForTitleData".getBytes()),
                 new ColumnFamilyDescriptor("UrlIdToKeywordVectorForTitleData".getBytes()),
                 new ColumnFamilyDescriptor("QueryHashToQueryCacheData".getBytes()),
-                new ColumnFamilyDescriptor("QueryHistoryData".getBytes())
+                new ColumnFamilyDescriptor("QueryHistoryData".getBytes()),
+                new ColumnFamilyDescriptor("MiscellaneousCacheData".getBytes())
         );
         this.columnFamilyHandleList = new ArrayList<>();
 
@@ -175,6 +182,7 @@ public class RocksDBDao {
         this.urlIdToKeywordVectorForTitleRocksDBCol = colFamilyIt.next();
         this.queryHashToQueryCacheRocksDBCol = colFamilyIt.next();
         this.queryHistoryRocksDBCol = colFamilyIt.next();
+        this.miscellaneousCacheRocksDBCol = colFamilyIt.next();
 
         this.invertedFileForBody = new InvertedFile(this, this.invertedFileForBodyWordIdToPostingListRocksDBCol);
         this.invertedFileForTitle = new InvertedFile(this, this.invertedFileForTitleWordIdToPostingListRocksDBCol);
@@ -196,6 +204,11 @@ public class RocksDBDao {
     public void resetQueryResponseCache() throws RocksDBException {
         rocksDB.dropColumnFamily(this.queryHashToQueryCacheRocksDBCol);
         this.queryHashToQueryCacheRocksDBCol = rocksDB.createColumnFamily(new ColumnFamilyDescriptor("QueryHashToQueryCacheData".getBytes()));
+    }
+
+    public void resetMiscellaneousCache() throws RocksDBException {
+        rocksDB.dropColumnFamily(this.miscellaneousCacheRocksDBCol);
+        this.miscellaneousCacheRocksDBCol = rocksDB.createColumnFamily(new ColumnFamilyDescriptor("MiscellaneousCacheData".getBytes()));
     }
 
     public ColumnFamilyHandle getUrlIdToUrlRocksDBCol() {
@@ -592,4 +605,17 @@ public class RocksDBDao {
         if (queryCacheByte == null) return null;
         else return (QuerySearchResponseView) CustomFSTSerialization.getInstance().asObject(queryCacheByte);
     }
+
+    public void putStemmedKeywordCache(ArrayList<String> stemmedKeywordsList) throws RocksDBException {
+        rocksDB.put(this.miscellaneousCacheRocksDBCol, "stemmedKeywords".getBytes(), CustomFSTSerialization.getInstance().asByteArray(stemmedKeywordsList));
+    }
+
+    public ArrayList<String> getStemmedKeywordCache() throws RocksDBException {
+        byte[] cache = rocksDB.get(this.miscellaneousCacheRocksDBCol, "stemmedKeywords".getBytes());
+        // if no cache is found, compute one and store it into cache
+        if (cache == null) return BatchProcessing.getInstance(this).computeStemmedKeywordsList();
+        return (ArrayList<String>) CustomFSTSerialization.getInstance().asObject(cache);
+    }
+
+
 }

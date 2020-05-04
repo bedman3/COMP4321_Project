@@ -1,7 +1,9 @@
 import { Dispatch } from 'redux';
-import { SearchPageReduxStateType, SET_SEARCH_BAR, SET_SEARCH_RESULT } from './constants';
+import {
+    SearchPageReduxStateType, SET_SEARCH_BAR, SET_SEARCH_RESULT, SET_STEMMED_KEYWORDS_LIST,
+} from './constants';
 import { commonHeader } from '../../api';
-import { setSearchResultAction } from './actions';
+import { setSearchResultAction, setStemmedKeywordsListAction } from './actions';
 
 export interface ISearchResultRecord {
     pageTitle: string,
@@ -16,15 +18,18 @@ export interface ISearchResultRecord {
 
 export type SearchBarContentType = string | undefined;
 export type SearchResultType = ISearchResultResponse | undefined;
+export type StemmedKeywordListType = string[] | undefined;
 
 export interface ISearchPageStore {
     searchBarContent: SearchBarContentType,
     searchResult: SearchResultType,
+    stemmedKeywordsList: StemmedKeywordListType,
 }
 
 const searchPageInitialStore: ISearchPageStore = {
     searchBarContent: undefined,
     searchResult: undefined,
+    stemmedKeywordsList: undefined,
     // searchResult: tempSearchResult,
 };
 
@@ -45,6 +50,11 @@ export const searchPageReducer = (
             ...state,
             searchResult: payload as SearchResultType,
         };
+    case SET_STEMMED_KEYWORDS_LIST:
+        return {
+            ...state,
+            stemmedKeywordsList: payload as StemmedKeywordListType,
+        };
     default:
         return state;
     }
@@ -54,6 +64,10 @@ interface ISearchResultResponse {
     totalNumOfResult: number,
     totalTimeUsed: number,
     searchResults: Array<ISearchResultRecord>,
+}
+
+interface IStemmedKeywordResponse {
+    stemmedKeywordList: StemmedKeywordListType,
 }
 
 export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispatch: Dispatch, callback: () => void) => {
@@ -66,7 +80,7 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
     })
         .then((response) => {
             if (response.status === 200) {
-                response.json().then((responseJson: SearchResultType) => {
+                response.json().then((responseJson: ISearchResultResponse) => {
                     dispatch(setSearchResultAction(responseJson));
                     callback();
                 });
@@ -74,4 +88,17 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
         }).catch((fetchAPIError) => {
             console.log({ fetchAPIError });
         });
+};
+
+export const fetchStemmedKeyword = (dispatch: Dispatch) => {
+    fetch('http://localhost:8080/stemmed-keywords', {
+        ...commonHeader,
+        method: 'GET',
+    }).then((response) => {
+        if (response.status === 200) {
+            response.json().then((responseJson: IStemmedKeywordResponse) => {
+                dispatch(setStemmedKeywordsListAction(responseJson?.stemmedKeywordList));
+            });
+        }
+    });
 };

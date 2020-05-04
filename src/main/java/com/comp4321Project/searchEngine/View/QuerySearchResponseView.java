@@ -8,10 +8,6 @@ public class QuerySearchResponseView implements Serializable {
     double totalTimeUsed;
     List<SearchResultsView> searchResults;
 
-    public void setTotalTimeUsed(double totalTimeUsed) {
-        this.totalTimeUsed = totalTimeUsed;
-    }
-
     public QuerySearchResponseView(int totalNumOfResult, double totalTimeUsed, List<SearchResultsView> searchResults) {
         this.totalNumOfResult = totalNumOfResult;
         this.totalTimeUsed = totalTimeUsed;
@@ -20,6 +16,10 @@ public class QuerySearchResponseView implements Serializable {
 
     public double getTotalTimeUsed() {
         return totalTimeUsed;
+    }
+
+    public void setTotalTimeUsed(double totalTimeUsed) {
+        this.totalTimeUsed = totalTimeUsed;
     }
 
     @Override

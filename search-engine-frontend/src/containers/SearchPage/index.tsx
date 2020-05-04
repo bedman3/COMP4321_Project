@@ -16,15 +16,84 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Grid from '@material-ui/core/Grid';
-import { RootState } from '../../rootReducer';
-import { fetchSearchResult, SearchBarContentType, SearchResultType } from './reducers';
-import theme from '../../theme';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import clsx from 'clsx';
+import Drawer from '@material-ui/core/Drawer';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import Divider from '@material-ui/core/Divider';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
 import { setSearchBarAction } from './actions';
+
+import theme from '../../theme';
+import {
+    fetchSearchResult, fetchStemmedKeyword, SearchBarContentType, SearchResultType,
+} from './reducers';
+import { RootState } from '../../rootReducer';
+
+const drawerWidth = 240;
 
 export const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
 const useStyles = makeStyles((theme: Theme) => createStyles({
+    appBar: {
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+        }),
+    },
+    appBarShift: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: drawerWidth,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    },
     root: {
+        display: 'flex',
+    },
+    hide: {
+        display: 'none',
+    },
+    content: {
         flexGrow: 1,
+        padding: theme.spacing(3),
+        transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+        }),
+        marginLeft: -drawerWidth,
+    },
+    contentShift: {
+        transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: 0,
+    },
+    drawer: {
+        width: drawerWidth,
+        flexShrink: 0,
+    },
+    drawerPaper: {
+        width: drawerWidth,
+    },
+    drawerHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        padding: theme.spacing(0, 1),
+        // necessary for content to be below app bar
+        ...theme.mixins.toolbar,
+        justifyContent: 'flex-end',
+    },
+    menuButton: {
+        marginRight: theme.spacing(2),
     },
     search: {
         position: 'relative',
@@ -60,7 +129,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
-            width: '60vw',
+            width: '50ch',
         },
     },
     heading: {
@@ -75,6 +144,10 @@ const SearchPage = () => {
     const searchBarContent = useSelector<SearchBarContentType>((state) => state.searchPageReducer.searchBarContent);
     const searchResult = useSelector<SearchResultType>((state) => state.searchPageReducer.searchResult);
     const [isFetching, setIsFetching] = useState(false);
+
+    useEffect(() => {
+        fetchStemmedKeyword(dispatch);
+    }, []);
 
     useEffect(() => {
         if (isFetching) {
@@ -189,10 +262,39 @@ const SearchPage = () => {
 
     const searchResultView = useMemo(() => createSearchResultToView(searchResult), [searchResult]);
 
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const handleDrawerOpen = () => {
+        setDrawerOpen(true);
+    };
+
+    const handleDrawerClose = () => {
+        setDrawerOpen(false);
+    };
+
+
     return (
         <div>
-            <AppBar position='static'>
-                <Toolbar style={{ display: 'inline-flex', justifyContent: 'space-between' }}>
+            <AppBar
+                position='fixed'
+                className={clsx(classes.appBar, {
+                    [classes.appBarShift]: drawerOpen,
+                })}
+            >
+                <Toolbar>
+                    {/* <Toolbar style={{ display: 'inline-flex', justifyContent: 'space-between' }}> */}
+                    <IconButton
+                        color='inherit'
+                        aria-label='open drawer'
+                        onClick={handleDrawerOpen}
+                        edge='start'
+                        className={clsx(classes.menuButton, drawerOpen && classes.hide)}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography variant='h5'>
+                        COMP4321 Search Engine
+                    </Typography>
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
                             <SearchIcon />
@@ -209,22 +311,58 @@ const SearchPage = () => {
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </div>
-                    <div>
-                        <Typography variant='h5'>
-                            COMP4321 Search Engine
-                        </Typography>
-                    </div>
                 </Toolbar>
                 <LinearProgress variant='query' color='secondary' hidden={!isFetching} />
             </AppBar>
-            <Container maxWidth='lg'>
-                <div>
-                    <Grid hidden={searchResult === undefined || !searchResult?.searchResults || searchResult?.searchResults?.length === 0}>
-                        <Typography variant='overline'>Show {searchResult?.searchResults?.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
-                    </Grid>
-                    {searchResultView}
+            <Drawer
+                className={classes.drawer}
+                variant='persistent'
+                anchor='left'
+                open={drawerOpen}
+                classes={{
+                    paper: classes.drawerPaper,
+                }}
+            >
+                <div className={classes.drawerHeader}>
+                    <IconButton onClick={handleDrawerClose}>
+                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    </IconButton>
                 </div>
-            </Container>
+                <Divider />
+                <List>
+                    {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+                        <ListItem button key={text}>
+                            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                            <ListItemText primary={text} />
+                        </ListItem>
+                    ))}
+                </List>
+                <Divider />
+                <List>
+                    {['All mail', 'Trash', 'Spam'].map((text, index) => (
+                        <ListItem button key={text}>
+                            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
+                            <ListItemText primary={text} />
+                        </ListItem>
+                    ))}
+                </List>
+            </Drawer>
+            <main
+                className={clsx(classes.content, {
+                    [classes.contentShift]: drawerOpen,
+                })}
+            >
+                <div className={classes.drawerHeader} />
+                <Container maxWidth='lg'>
+                    <div>
+                        <Grid hidden={searchResult === undefined || !searchResult?.searchResults || searchResult?.searchResults?.length === 0}>
+                            <Typography variant='overline'>Show {searchResult?.searchResults?.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
+                        </Grid>
+                        {searchResultView}
+                    </div>
+                </Container>
+            </main>
+
         </div>
     );
 };
