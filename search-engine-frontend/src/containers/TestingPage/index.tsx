@@ -1,13 +1,8 @@
 import { TypedUseSelectorHook, useDispatch, useSelector as useReduxSelector } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 import TextField from '@material-ui/core/TextField';
-import Autocomplete, { RenderGroupParams } from '@material-ui/lab/Autocomplete';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { CircularProgress } from '@material-ui/core';
-import { ListChildComponentProps, VariableSizeList } from 'react-window';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import Typography from '@material-ui/core/Typography';
-import { useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { commonHeader } from '../../api';
 import { RootState } from '../../rootReducer';
 

@@ -18,10 +18,10 @@ const StemmedKeywordPage = () => {
                 labelText='Stemmed Keywords'
                 appBar={false}
             />
-            <Typography>Here is a list of stemmed keywords available</Typography>
-            <ul>
-                {stemmedKeywordList?.map((keyword) => <li>{keyword}</li>)}
-            </ul>
+            {/* <Typography>Here is a list of stemmed keywords available</Typography> */}
+            {/* <ul> */}
+            {/*    {stemmedKeywordList?.map((keyword) => <li>{keyword}</li>)} */}
+            {/* </ul> */}
         </div>
     );
 };

@@ -25,6 +25,7 @@ import {
 import { useDispatch } from 'react-redux';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import Container from '@material-ui/core/Container';
+import HistoryIcon from '@material-ui/icons/History';
 import { setIsFetchingFlagAction, setSearchBarAction } from './containers/SearchPage/actions';
 import StemmedKeywordPage from './containers/StemmedKeywordPage';
 import theme from './theme';
@@ -32,6 +33,7 @@ import SearchPage, { useSelector } from './containers/SearchPage';
 import { fetchStemmedKeyword, SearchBarContentType } from './containers/SearchPage/reducers';
 import TestingPage from './containers/TestingPage';
 import SearchBarForLongOptionList from './components/SearchBarForLongOptionList';
+import QueryHistoryPage from './containers/QueryHistoryPage';
 
 const drawerWidth = 240;
 
@@ -160,7 +162,6 @@ const App = () => {
     const stemmedKeywordList = useSelector((state) => state.searchPageReducer.stemmedKeywordsList);
     const searchBarVisibilityStyle = useMemo(() => (location.pathname !== '/' ? { display: 'none' } : {}), [location.pathname]);
 
-
     useEffect(() => {
         fetchStemmedKeyword(dispatch);
     }, []);
@@ -226,7 +227,7 @@ const App = () => {
                     <div className={classes.search} style={searchBarVisibilityStyle}>
                         <SearchBarForLongOptionList
                             optionList={stemmedKeywordList}
-                            labelText='Search Stemmed Keywords'
+                            labelText='Search stemmed keywords to add to search bar'
                             appBar
                             getValueCallback={handleStemmedKeywordSelection}
                         />
@@ -258,6 +259,10 @@ const App = () => {
                         <ListItemIcon><MenuBookIcon /></ListItemIcon>
                         <ListItemText primary='Stemmed Keywords List' />
                     </ListItem>
+                    <ListItem button component={Link} to='/QueryHistory'>
+                        <ListItemIcon><HistoryIcon /></ListItemIcon>
+                        <ListItemText primary='Query History' />
+                    </ListItem>
                 </List>
             </Drawer>
             <main
@@ -270,6 +275,7 @@ const App = () => {
                     <Switch>
                         <Route path='/' exact component={SearchPage} />
                         <Route path='/StemmedKeywords' exact component={StemmedKeywordPage} />
+                        <Route path='/QueryHistory' exact component={QueryHistoryPage} />
                         <Route path='/Testing' exact component={TestingPage} />
                         <Redirect to='/' />
                     </Switch>

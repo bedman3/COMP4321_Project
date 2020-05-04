@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { useState } from 'react';
 import { TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Autocomplete, { RenderInputParams } from '@material-ui/lab/Autocomplete';
@@ -6,7 +6,6 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import { ListChildComponentProps, VariableSizeList } from 'react-window';
-import InputBase from '@material-ui/core/InputBase';
 
 
 const LISTBOX_PADDING = 8; // px

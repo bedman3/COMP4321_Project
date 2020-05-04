@@ -1,6 +1,10 @@
 import { Dispatch } from 'redux';
 import {
-    SearchPageReduxStateType, SET_IS_FETCHING_FLAG, SET_SEARCH_BAR, SET_SEARCH_RESULT, SET_STEMMED_KEYWORDS_LIST,
+    SearchPageReduxStateType,
+    SET_IS_FETCHING_FLAG,
+    SET_SEARCH_BAR,
+    SET_SEARCH_RESULT,
+    SET_STEMMED_KEYWORDS_LIST,
 } from './constants';
 import { commonHeader } from '../../api';
 import { setSearchResultAction, setStemmedKeywordsListAction } from './actions';

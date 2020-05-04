@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector as useReduxSelector } from 'react-redux';
-import {
-    createStyles, fade, makeStyles, Theme,
-} from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { ExpansionPanel } from '@material-ui/core';
