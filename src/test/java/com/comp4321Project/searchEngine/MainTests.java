@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 class MainTests {
-    @Test
+/*    @Test
     public void crawlUrlToRocksDB() {
         try {
             String url = "http://www.cse.ust.hk";
@@ -81,7 +81,7 @@ class MainTests {
         } catch (RocksDBException | IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     // debug code
     /*@AfterAll
