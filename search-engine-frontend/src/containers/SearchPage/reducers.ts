@@ -2,12 +2,13 @@ import { Dispatch } from 'redux';
 import {
     SearchPageReduxStateType,
     SET_IS_FETCHING_FLAG,
+    SET_QUERY_HISTORY,
     SET_SEARCH_BAR,
     SET_SEARCH_RESULT,
     SET_STEMMED_KEYWORDS_LIST,
 } from './constants';
 import { commonHeader } from '../../api';
-import { setSearchResultAction, setStemmedKeywordsListAction } from './actions';
+import { setQueryHistoryAction, setSearchResultAction, setStemmedKeywordsListAction } from './actions';
 
 export interface ISearchResultRecord {
     pageTitle: string,
@@ -20,15 +21,22 @@ export interface ISearchResultRecord {
     parentLinks: string[],
 }
 
+export interface IQueryHistory {
+    rawQuery: string,
+    queryResponse: ISearchResultResponse,
+}
+
 export type SearchBarContentType = string | undefined;
 export type SearchResultType = ISearchResultResponse | undefined;
 export type StemmedKeywordListType = string[] | undefined;
+export type QueryHistoryType = IQueryHistory[] | undefined
 
 export interface ISearchPageStore {
     searchBarContent: SearchBarContentType,
     searchResult: SearchResultType,
     stemmedKeywordsList: StemmedKeywordListType,
     isFetching: boolean,
+    queryHistory: QueryHistoryType,
 }
 
 const searchPageInitialStore: ISearchPageStore = {
@@ -36,7 +44,7 @@ const searchPageInitialStore: ISearchPageStore = {
     searchResult: undefined,
     stemmedKeywordsList: undefined,
     isFetching: false,
-    // searchResult: tempSearchResult,
+    queryHistory: undefined,
 };
 
 export const searchPageReducer = (
@@ -65,6 +73,11 @@ export const searchPageReducer = (
         return {
             ...state,
             isFetching: payload as boolean,
+        };
+    case SET_QUERY_HISTORY:
+        return {
+            ...state,
+            queryHistory: payload as QueryHistoryType,
         };
     default:
         return state;
@@ -95,6 +108,8 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
                     dispatch(setSearchResultAction(responseJson));
                     callback?.();
                 });
+            } else {
+                console.log({ fetchAPIError: response.json() });
             }
         }).catch((fetchAPIError) => {
             console.log({ fetchAPIError });
@@ -113,6 +128,27 @@ export const fetchStemmedKeyword = (dispatch: Dispatch) => {
                 }
                 dispatch(setStemmedKeywordsListAction(responseJson?.stemmedKeywordList));
             });
+        } else {
+            console.log({ fetchAPIError: response.json() });
         }
+    }).catch((fetchAPIError) => {
+        console.log({ fetchAPIError });
+    });
+};
+
+export const fetchQueryHistory = (dispatch: Dispatch) => {
+    fetch('http://localhost:8080/query-history', {
+        ...commonHeader,
+        method: 'GET',
+    }).then((response) => {
+        if (response.status === 200) {
+            response.json().then((responseJson: IQueryHistory[]) => {
+                dispatch(setQueryHistoryAction(responseJson));
+            });
+        } else {
+            console.log({ fetchAPIError: response.json() });
+        }
+    }).catch((fetchAPIError) => {
+        console.log({ fetchAPIError });
     });
 };

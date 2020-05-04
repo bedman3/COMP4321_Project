@@ -1,7 +1,10 @@
-import { SearchBarContentType, SearchResultType, StemmedKeywordListType } from './reducers';
+import {
+    QueryHistoryType, SearchBarContentType, SearchResultType, StemmedKeywordListType,
+} from './reducers';
 import {
     SearchPageReduxStateType,
     SET_IS_FETCHING_FLAG,
+    SET_QUERY_HISTORY,
     SET_SEARCH_BAR,
     SET_SEARCH_RESULT,
     SET_STEMMED_KEYWORDS_LIST,
@@ -24,6 +27,11 @@ export const setStemmedKeywordsListAction = (data: StemmedKeywordListType) : Sea
 
 export const setIsFetchingFlagAction = (data: boolean) : SearchPageReduxStateType => ({
     type: SET_IS_FETCHING_FLAG,
+    payload: data,
+});
+
+export const setQueryHistoryAction = (data: QueryHistoryType) : SearchPageReduxStateType => ({
+    type: SET_QUERY_HISTORY,
     payload: data,
 });
 

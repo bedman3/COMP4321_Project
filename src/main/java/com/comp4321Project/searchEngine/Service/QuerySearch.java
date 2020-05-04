@@ -145,7 +145,6 @@ public class QuerySearch {
                     resultsViewArrayList
             );
             rocksDBDao.putQueryCache(processedQueryPair, querySearchResponseView);
-            rocksDBDao.putQueryHistory(query, querySearchResponseView);
 
             return querySearchResponseView;
         }

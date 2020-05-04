@@ -40,7 +40,9 @@ public class QueryController {
     @CrossOrigin
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public QuerySearchResponseView search(@RequestBody SearchRequest searchRequest) throws RocksDBException {
-        return querySearch.search(searchRequest.query);
+        QuerySearchResponseView queryResponse = querySearch.search(searchRequest.query);
+        rocksDBDao.putQueryHistory(searchRequest.query, queryResponse);
+        return queryResponse;
     }
 
     @CrossOrigin

@@ -5,26 +5,26 @@ import java.io.Serializable;
 public class QueryHistoryView implements Serializable {
     String rawQuery;
 
-    public QueryHistoryView(String rawQuery, QuerySearchResponseView querySearchResponseView) {
+    public QueryHistoryView(String rawQuery, QuerySearchResponseView queryResponse) {
         this.rawQuery = rawQuery;
-        this.querySearchResponseView = querySearchResponseView;
+        this.queryResponse = queryResponse;
     }
 
-    QuerySearchResponseView querySearchResponseView;
+    QuerySearchResponseView queryResponse;
 
     public String getRawQuery() {
         return rawQuery;
     }
 
-    public QuerySearchResponseView getQuerySearchResponseView() {
-        return querySearchResponseView;
+    public QuerySearchResponseView getQueryResponse() {
+        return queryResponse;
     }
 
     @Override
     public String toString() {
         return "QueryHistoryView{" +
                 "rawQuery='" + rawQuery + '\'' +
-                ", querySearchResponseView=" + querySearchResponseView +
+                ", querySearchResponseView=" + queryResponse +
                 '}';
     }
 }
