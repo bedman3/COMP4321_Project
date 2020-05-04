@@ -4,7 +4,7 @@ import com.comp4321Project.searchEngine.Dao.RocksDBDao;
 import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Model.PostingList;
 import com.comp4321Project.searchEngine.Model.PostingNode;
-import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,9 +25,13 @@ public class InvertedFileClassTest {
     }
 
     @AfterAll
-    public static void removeTestRocksDBFiles() throws IOException {
-        File file = new File(rocksDBTestFilePath);
-        FileUtils.deleteDirectory(file);
+    public static void removeTestRocksDBFiles() {
+        try {
+            File file = new File(rocksDBTestFilePath);
+            FileUtils.deleteDirectory(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
