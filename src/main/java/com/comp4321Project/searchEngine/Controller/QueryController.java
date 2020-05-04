@@ -1,11 +1,9 @@
 package com.comp4321Project.searchEngine.Controller;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import com.comp4321Project.searchEngine.Model.Constants;
 import com.comp4321Project.searchEngine.Service.QuerySearch;
-import com.comp4321Project.searchEngine.View.Message;
-import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
-import com.comp4321Project.searchEngine.View.SearchResultsView;
-import com.comp4321Project.searchEngine.View.StemmedKeywordsView;
+import com.comp4321Project.searchEngine.View.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.rocksdb.RocksDBException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +60,12 @@ public class QueryController {
         }
 
         return arrayList;
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/query-history", method = RequestMethod.GET)
+    public List<QueryHistoryView> queryHistory() throws RocksDBException {
+        return querySearch.getQueryHistory(Constants.getDefaultNumOfQueryHistory());
     }
 
     static class SearchRequest {

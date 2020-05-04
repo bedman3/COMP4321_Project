@@ -6,6 +6,7 @@ import com.comp4321Project.searchEngine.Model.InvertedFile;
 import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 import com.comp4321Project.searchEngine.Util.TextProcessing;
 import com.comp4321Project.searchEngine.Util.Util;
+import com.comp4321Project.searchEngine.View.QueryHistoryView;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SearchResultsView;
 import com.comp4321Project.searchEngine.View.StemmedKeywordsView;
@@ -144,6 +145,7 @@ public class QuerySearch {
                     resultsViewArrayList
             );
             rocksDBDao.putQueryCache(processedQueryPair, querySearchResponseView);
+            rocksDBDao.putQueryHistory(query, querySearchResponseView);
 
             return querySearchResponseView;
         }
@@ -166,5 +168,21 @@ public class QuerySearch {
 
     public StemmedKeywordsView getAllStemmedKeywords() throws RocksDBException {
         return new StemmedKeywordsView(rocksDBDao.getStemmedKeywordCache());
+    }
+
+    public List<QueryHistoryView> getQueryHistory(int limit) throws RocksDBException {
+        byte[] nextAvailableIdByte = rocksDBDao.getRocksDB().get(rocksDBDao.getQueryHistoryRocksDBCol(), Constants.getNextAvailableIdLiteral().getBytes());
+        Integer totalNumOfHistory = Integer.parseInt(new String(nextAvailableIdByte));
+
+        Integer start;
+        if (totalNumOfHistory - limit >= 0) start = totalNumOfHistory - limit;
+        else start = 0;
+
+        ArrayList<QueryHistoryView> queryHistoryViews = new ArrayList<>();
+        for (Integer index = start; index < totalNumOfHistory; index++) {
+            queryHistoryViews.add(rocksDBDao.getQueryHistory(index.toString()));
+        }
+
+        return queryHistoryViews;
     }
 }

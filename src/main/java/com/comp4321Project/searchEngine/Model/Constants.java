@@ -11,6 +11,12 @@ public class Constants {
     private final static int connectionTimeout = 10;
     private final static double titleMultiplier = 0.5;
 
+    public static int getDefaultNumOfQueryHistory() {
+        return defaultNumOfQueryHistory;
+    }
+
+    private final static int defaultNumOfQueryHistory = 50;
+
     public static double getTitleMultiplier() {
         return titleMultiplier;
     }

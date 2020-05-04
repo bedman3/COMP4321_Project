@@ -6,6 +6,7 @@ import com.comp4321Project.searchEngine.Model.ProcessedQuery;
 import com.comp4321Project.searchEngine.Service.BatchProcessing;
 import com.comp4321Project.searchEngine.Util.CustomFSTSerialization;
 import com.comp4321Project.searchEngine.Util.Util;
+import com.comp4321Project.searchEngine.View.QueryHistoryView;
 import com.comp4321Project.searchEngine.View.QuerySearchResponseView;
 import com.comp4321Project.searchEngine.View.SiteMetaData;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -617,5 +618,18 @@ public class RocksDBDao {
         return (ArrayList<String>) CustomFSTSerialization.getInstance().asObject(cache);
     }
 
+    public void putQueryHistory(String rawQuery, QuerySearchResponseView querySearchResponseView) throws RocksDBException {
+        byte[] nextAvailableIdByte = rocksDB.get(this.queryHistoryRocksDBCol, Constants.getNextAvailableIdLiteral().getBytes());
+        Integer nextAvailableId = Integer.parseInt(new String(nextAvailableIdByte));
+        rocksDB.put(this.queryHistoryRocksDBCol, Constants.getNextAvailableIdLiteral().getBytes(), (new Integer(nextAvailableId + 1)).toString().getBytes());
 
+        rocksDB.put(this.queryHistoryRocksDBCol, nextAvailableId.toString().getBytes(),
+                CustomFSTSerialization.getInstance().asByteArray(new QueryHistoryView(rawQuery, querySearchResponseView)));
+    }
+
+    public QueryHistoryView getQueryHistory(String historyId) throws RocksDBException {
+        byte[] queryHistoryByte = rocksDB.get(this.queryHistoryRocksDBCol, historyId.getBytes());
+        if (queryHistoryByte == null) return null;
+        else return (QueryHistoryView) CustomFSTSerialization.getInstance().asObject(queryHistoryByte);
+    }
 }
