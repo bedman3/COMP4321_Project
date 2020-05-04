@@ -32,3 +32,4 @@ rocksDBFiles/
 testResult/
 logFolders/
 pagerank_*
+venv
