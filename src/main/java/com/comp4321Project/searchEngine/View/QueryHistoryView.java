@@ -4,13 +4,12 @@ import java.io.Serializable;
 
 public class QueryHistoryView implements Serializable {
     String rawQuery;
+    QuerySearchResponseView queryResponse;
 
     public QueryHistoryView(String rawQuery, QuerySearchResponseView queryResponse) {
         this.rawQuery = rawQuery;
         this.queryResponse = queryResponse;
     }
-
-    QuerySearchResponseView queryResponse;
 
     public String getRawQuery() {
         return rawQuery;

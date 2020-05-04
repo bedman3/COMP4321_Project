@@ -146,7 +146,14 @@ const SearchResultView = (props: SearchResultViewProps) => {
 
     const createSearchResultToView = (searchResultLocal: SearchResultType) => {
         if (searchResultLocal === undefined) return undefined;
-        if (searchResultLocal?.searchResults?.length === 0 || !searchResultLocal?.searchResults) return <Typography variant='h3'>No record match this search</Typography>;
+        if (searchResultLocal?.searchResults?.length === 0 || !searchResultLocal?.searchResults) {
+            return (
+                <Typography
+                    variant='h3'
+                >No record match this search
+                </Typography>
+            );
+        }
         return mapSearchResultToView(searchResultLocal);
     };
 
@@ -154,7 +161,7 @@ const SearchResultView = (props: SearchResultViewProps) => {
 
     return (
         <div>
-            { searchResultView }
+            {searchResultView}
         </div>
     );
 };

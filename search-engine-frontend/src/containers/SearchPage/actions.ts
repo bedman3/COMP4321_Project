@@ -20,17 +20,17 @@ export const setSearchResultAction = (data: SearchResultType): SearchPageReduxSt
     payload: data,
 });
 
-export const setStemmedKeywordsListAction = (data: StemmedKeywordListType) : SearchPageReduxStateType => ({
+export const setStemmedKeywordsListAction = (data: StemmedKeywordListType): SearchPageReduxStateType => ({
     type: SET_STEMMED_KEYWORDS_LIST,
     payload: data,
 });
 
-export const setIsFetchingFlagAction = (data: boolean) : SearchPageReduxStateType => ({
+export const setIsFetchingFlagAction = (data: boolean): SearchPageReduxStateType => ({
     type: SET_IS_FETCHING_FLAG,
     payload: data,
 });
 
-export const setQueryHistoryAction = (data: QueryHistoryType) : SearchPageReduxStateType => ({
+export const setQueryHistoryAction = (data: QueryHistoryType): SearchPageReduxStateType => ({
     type: SET_QUERY_HISTORY,
     payload: data,
 });

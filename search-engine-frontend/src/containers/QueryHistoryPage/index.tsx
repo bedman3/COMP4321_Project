@@ -1,15 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TypedUseSelectorHook, useDispatch, useSelector as useReduxSelector } from 'react-redux';
 import { createStyles, Theme, Typography } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import Grid from '@material-ui/core/Grid';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import { Autocomplete } from '@material-ui/lab';
 import TextField from '@material-ui/core/TextField';
-import {
-    fetchQueryHistory, IQueryHistory, QueryHistoryType, SearchResultType,
-} from '../SearchPage/reducers';
+import { fetchQueryHistory, IQueryHistory, SearchResultType } from '../SearchPage/reducers';
 import { RootState } from '../../rootReducer';
 import SearchResultView from '../../components/SearchResultView';
 

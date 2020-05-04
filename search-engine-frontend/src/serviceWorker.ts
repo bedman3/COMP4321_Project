@@ -21,13 +21,13 @@ const isLocalhost = Boolean(
 );
 
 type Config = {
-  onSuccess?: (registration: ServiceWorkerRegistration) => void;
-  onUpdate?: (registration: ServiceWorkerRegistration) => void;
+    onSuccess?: (registration: ServiceWorkerRegistration) => void;
+    onUpdate?: (registration: ServiceWorkerRegistration) => void;
 };
 
 export function register(config?: Config) {
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-    // The URL constructor is available in all browsers that support SW.
+        // The URL constructor is available in all browsers that support SW.
         const publicUrl = new URL(
             process.env.PUBLIC_URL as string,
             window.location.href,
@@ -51,7 +51,7 @@ export function register(config?: Config) {
                 navigator.serviceWorker.ready.then(() => {
                     console.log(
                         'This web app is being served cache-first by a service '
-              + 'worker. To learn more, visit https://bit.ly/CRA-PWA',
+                        + 'worker. To learn more, visit https://bit.ly/CRA-PWA',
                     );
                 });
             } else {
@@ -79,7 +79,7 @@ function registerValidSW(swUrl: string, config?: Config) {
                             // content until all client tabs are closed.
                             console.log(
                                 'New content is available and will be used when all '
-                  + 'tabs for this page are closed. See https://bit.ly/CRA-PWA.',
+                                + 'tabs for this page are closed. See https://bit.ly/CRA-PWA.',
                             );
 
                             // Execute callback
@@ -116,7 +116,7 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
             const contentType = response.headers.get('content-type');
             if (
                 response.status === 404
-        || (contentType != null && contentType.indexOf('javascript') === -1)
+                || (contentType != null && contentType.indexOf('javascript') === -1)
             ) {
                 // No service worker found. Probably a different app. Reload the page.
                 navigator.serviceWorker.ready.then((registration) => {

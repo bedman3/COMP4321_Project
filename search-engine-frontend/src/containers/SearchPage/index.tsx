@@ -25,8 +25,12 @@ const SearchPage = () => {
 
     return (
         <div>
-            <Grid hidden={searchResult === undefined || !searchResult?.searchResults || searchResult?.searchResults?.length === 0}>
-                <Typography variant='overline'>Show {searchResult?.searchResults?.length} results out of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)</Typography>
+            <Grid
+                hidden={searchResult === undefined || !searchResult?.searchResults || searchResult?.searchResults?.length === 0}
+            >
+                <Typography variant='overline'>Show {searchResult?.searchResults?.length} results out
+                    of {searchResult?.totalNumOfResult} documents ({searchResult?.totalTimeUsed} seconds)
+                </Typography>
             </Grid>
             <SearchResultView
                 searchResult={searchResult}
