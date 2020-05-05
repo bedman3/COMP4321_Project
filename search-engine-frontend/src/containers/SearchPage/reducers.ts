@@ -95,7 +95,7 @@ interface IStemmedKeywordResponse {
 }
 
 export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispatch: Dispatch, callback: () => void) => {
-    fetch('http://localhost:8080/search', {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/search`, {
         ...commonHeader,
         method: 'POST',
         body: JSON.stringify({
@@ -117,7 +117,7 @@ export const fetchSearchResult = (searchBarContent: SearchBarContentType, dispat
 };
 
 export const fetchStemmedKeyword = (dispatch: Dispatch) => {
-    fetch('http://localhost:8080/stemmed-keywords', {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/stemmed-keywords`, {
         ...commonHeader,
         method: 'GET',
     }).then((response) => {
@@ -137,7 +137,7 @@ export const fetchStemmedKeyword = (dispatch: Dispatch) => {
 };
 
 export const fetchQueryHistory = (dispatch: Dispatch) => {
-    fetch('http://localhost:8080/query-history', {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/query-history`, {
         ...commonHeader,
         method: 'GET',
     }).then((response) => {

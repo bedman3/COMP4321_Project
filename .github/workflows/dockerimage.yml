@@ -21,9 +21,19 @@ jobs:
         tags: "search-engine-backend"
     - name: Build Search Engine Frontend
       uses: elgohr/Publish-Docker-Github-Action@master
-      with: 
+      with:
         name: bedman3/comp4321-search-engine
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         workdir: search-engine-frontend
         tags: "search-engine-frontend"
+    - name: Build Search Engine Frontend For AWS
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: bedman3/comp4321-search-engine
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          workdir: search-engine-frontend
+          tags: "search-engine-frontend-aws"
+          docerfile: DockerfileAWS
+

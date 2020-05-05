@@ -23,13 +23,17 @@ then go to 2.
 Choose a path where you store your RocksDB Files (or load the existing RocksDB files)
 
 ```shell script
-# run the folloing script
+# run the following script in the project directory
 # you can try "~" here (put RocksDB files in your home directory), if you put the RocksDB files 
 # under /A/B/C/rocksDBFiles, then you put "/A/B/C" in <ENTER_PATH_HERE>
 export ROCKSDB_BASE_DIRECTORY=<ENTER_PATH_HERE>
 docker-compose pull
 docker-compose up -d
+```
 
+After setting up the containers, you can now do the web crawling and batch processing before query
+
+```shell script
 # if you do not have an existing RocksDB files, the application will generate the files
 # you then have to crawl the website data to the database
 
@@ -85,4 +89,10 @@ curl -i \
 
 # after finishing the batch processing, you can now query from the frontend interface
 # visit localhost:4000 and input your query in the search bar
+```
+
+Once you have finished all the running, you can do this to remove all running instances
+
+```shell script
+docker-compose down
 ```

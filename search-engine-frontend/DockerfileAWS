@@ -1,0 +1,12 @@
+FROM node:latest
+
+COPY . /frontend
+WORKDIR /frontend
+RUN echo "REACT_APP_BACKEND_URL=http://search-engine.martinwongsk.com:8080" > .env
+
+RUN yarn install
+RUN yarn global add serve
+RUN yarn build
+
+EXPOSE 4000
+CMD serve -s build -l 4000

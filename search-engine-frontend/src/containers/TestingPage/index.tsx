@@ -18,7 +18,7 @@ const TestingPage = () => {
 
 
     function fetchSuggestions() {
-        fetch('http://localhost:8080/suggestions', {
+        fetch(`${process.env.REACT_APP_BACKEND_URL}/suggestions`, {
             ...commonHeader,
             method: 'POST',
             body: JSON.stringify({
