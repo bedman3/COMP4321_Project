@@ -85,31 +85,6 @@ public class BatchProcessing {
             printWriter.close();
         }
 
-        // setup virtual env for python and download required python library, numpy and scipy
-        {
-//            Process process = new ProcessBuilder("./venv/bin/python", "PageRank.py").redirectErrorStream(true).start();
-            Process process = new ProcessBuilder("python", "-m", "venv", "venv").redirectErrorStream(true).start();
-            InputStream is = process.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-
-            System.err.println("creating virtual env for python");
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.err.println(line);
-            }
-
-            process = new ProcessBuilder("./venv/bin/pip", "install", "numpy", "scipy").redirectErrorStream(true).start();
-            is = process.getInputStream();
-            isr = new InputStreamReader(is);
-            br = new BufferedReader(isr);
-
-            System.err.println("downloading library for python");
-            while ((line = br.readLine()) != null) {
-                System.err.println(line);
-            }
-        }
-
         // compute page rank in python script
         {
             Process process = new ProcessBuilder("./venv/bin/python", "./PageRank.py").start();
