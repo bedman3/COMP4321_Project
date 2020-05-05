@@ -1,0 +1,14 @@
+version: "3"
+services:
+  search-engine-frontend:
+    image: bedman3/comp4321-search-engine:search-engine-frontend
+    ports:
+      - "4000:4000"
+    restart: always
+  search-engine-backend:
+    image: bedman3/comp4321-search-engine:search-engine-backend
+    ports:
+      - "8080:8080"
+    restart: always
+    volumes:
+    - ${ROCKSDB_BASE_DIRECTORY}/rocksDBFiles:/backend/rocksDBFiles
