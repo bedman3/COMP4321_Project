@@ -90,7 +90,7 @@ const SearchResultView = (props: SearchResultViewProps) => {
                         </Link>
                     </Grid>
                     <div className={classes.root} />
-                    <Grid item>
+                    <Grid item hidden={enableGetSimilarPage === undefined ? true : !enableGetSimilarPage}>
                         <Button variant='contained' color='primary' onClick={() => handleGetSimilarPage(value)}>
                             Get Similar Pages
                         </Button>
