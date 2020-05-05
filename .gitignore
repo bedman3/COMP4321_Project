@@ -33,3 +33,4 @@ testResult/
 logFolders/
 pagerank_*
 venv
+*.pdf
