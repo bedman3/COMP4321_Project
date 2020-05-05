@@ -27,6 +27,7 @@ Choose a path where you store your RocksDB Files (or load the existing RocksDB f
 # you can try "~" here (put RocksDB files in your home directory), if you put the RocksDB files 
 # under /A/B/C/rocksDBFiles, then you put "/A/B/C" in <ENTER_PATH_HERE>
 export ROCKSDB_BASE_DIRECTORY=<ENTER_PATH_HERE>
+docker-compose pull
 docker-compose up -d
 
 # if you do not have an existing RocksDB files, the application will generate the files
