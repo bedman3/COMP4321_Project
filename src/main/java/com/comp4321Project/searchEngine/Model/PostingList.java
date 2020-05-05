@@ -21,6 +21,29 @@ public class PostingList implements Serializable {
         else return (PostingList) CustomFSTSerialization.getInstance().asObject(byteArray);
     }
 
+    public static HashSet<String> findCommonSetBetweenPhrase(String s1, String s2, PostingList postingList1, PostingList postingList2) {
+        HashSet<String> hashSet = new HashSet<>();
+        Integer ptr1 = 0, ptr2 = 0, postingList1Length = postingList1.size(), postingList2Length = postingList2.size();
+        while (ptr1 < postingList1Length && ptr2 < postingList2Length) {
+            PostingNode pNode1 = postingList1.postingList.get(ptr1), pNode2 = postingList2.postingList.get(ptr2);
+
+            int compare = pNode1.getUrlIdInteger().compareTo(pNode2.getUrlIdInteger());
+            if (compare == 0) {
+                // check if the doc exists, if exists, check if there is such phrase
+                if (pNode1.isNextWordAPhrase(pNode2)) hashSet.add(pNode1.getUrlId()); // add result to the return set
+
+                ptr1++;
+                ptr2++;
+            } else if (compare < 0) {
+                ptr1++;
+            } else { // compare > 0
+                ptr2++;
+            }
+        }
+
+        return hashSet;
+    }
+
     public byte[] toBytesArray() {
         return CustomFSTSerialization.getInstance().asByteArray(this);
     }

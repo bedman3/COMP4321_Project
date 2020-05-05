@@ -5,10 +5,7 @@ import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InvertedFile {
     private final RocksDBDao rocksDBDao;
@@ -95,5 +92,61 @@ public class InvertedFile {
             }
         }
         this.hashMap.clear();
+    }
+
+    public HashSet<String> loadInvertedFileWithPhrases(ArrayList<ArrayList<String>> phrasesListInWordId) throws RocksDBException {
+        RocksDB rocksDB = rocksDBDao.getRocksDB();
+        HashSet<String> returnSet = null;
+        HashMap<String, PostingList> cacheMap = new HashMap<>();
+
+        // Each phrase have an AND relationship, check each phrase, if no result match, move on and search for another phrase
+        for (List<String> phraseWithWordId : phrasesListInWordId) {
+            HashSet<String> phraseDocSet = null;
+
+            if (phraseWithWordId.size() > 1) {
+                // get the posting list for each 2-gram, and check if there is any document contains them
+                for (int index = 1; index < phraseWithWordId.size(); index++) {
+                    // get the posting list of the two phrases and start finding relevant document
+                    PostingList postingList1 = cacheMap.get(phraseWithWordId.get(index - 1));
+                    PostingList postingList2 = cacheMap.get(phraseWithWordId.get(index));
+                    if (postingList1 == null) {
+                        postingList1 = PostingList.fromBytesArray(rocksDB.get(this.colHandle, phraseWithWordId.get(index - 1).getBytes()));
+                        cacheMap.put(phraseWithWordId.get(index - 1), postingList1);
+                    }
+                    if (postingList2 == null) {
+                        postingList2 = PostingList.fromBytesArray(rocksDB.get(this.colHandle, phraseWithWordId.get(index).getBytes()));
+                        cacheMap.put(phraseWithWordId.get(index), postingList2);
+                    }
+
+                    HashSet<String> commonDoc = PostingList.findCommonSetBetweenPhrase(phraseWithWordId.get(index - 1), phraseWithWordId.get(index), postingList1, postingList2);
+                    if (phraseDocSet == null) phraseDocSet = commonDoc;
+                    else phraseDocSet.retainAll(commonDoc); // get intersection
+
+                    if (phraseDocSet.size() == 0) break; // do not have to proceed getting common document
+                }
+
+                // put the results back to the return set
+                if (phraseDocSet.size() == 0) {
+                    break;
+                } else {
+                    // add the results back to the large return set, get the intersection
+                    if (returnSet == null) returnSet = phraseDocSet;
+                    else returnSet.retainAll(phraseDocSet);
+                }
+            } else if (phraseWithWordId.size() == 1) {
+                PostingList getList = cacheMap.get(phraseWithWordId.get(0));
+                if (getList == null) {
+                    getList = getPostingListWithWordId(phraseWithWordId.get(0));
+                    cacheMap.put(phraseWithWordId.get(0), getList);
+                }
+                HashSet<String> result = getList.getAllUrlIdFromPostingList();
+                if (returnSet == null) returnSet = result;
+                else returnSet.retainAll(result);
+            } else continue;
+
+            if (returnSet != null && returnSet.size() == 0) return returnSet; // no match available, return empty set
+        }
+
+        return returnSet == null ? new HashSet<>() : returnSet;
     }
 }

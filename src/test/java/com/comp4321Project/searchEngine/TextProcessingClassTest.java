@@ -33,13 +33,23 @@ public class TextProcessingClassTest {
 
     @Test
     public void testCleanQuery() {
-        String rawQuery = "Computer, VISION !!!!!! machiNe     testing LeArNinG";
+        String rawQuery = "Computer,  VISION !!!!!! machiNe     testing LeArNinG";
         String expectedQuery = "comput vision machin test learn";
 
         ProcessedQuery result = TextProcessing.cleanRawQuery(rawQuery);
 
         Assertions.assertArrayEquals(expectedQuery.split(" "), result.getQuery());
         Assertions.assertNull(result.getPhrases());
+        Assertions.assertArrayEquals(expectedQuery.split(" "), result.getFilteredQuery());
+
+        rawQuery = "Computer,  \"VISION !!!!!! machiNe     testing LeArNinG";
+        expectedQuery = "comput vision machin test learn";
+
+        result = TextProcessing.cleanRawQuery(rawQuery);
+
+        Assertions.assertArrayEquals(expectedQuery.split(" "), result.getQuery());
+        Assertions.assertNull(result.getPhrases());
+        Assertions.assertArrayEquals(expectedQuery.split(" "), result.getFilteredQuery());
     }
 
     @Test
@@ -86,5 +96,13 @@ public class TextProcessingClassTest {
 
         Assertions.assertArrayEquals(result.getQuery(), expectedQuery.split(" "));
         Assertions.assertNull(result.getPhrases());
+
+        rawQuery = "testing     \"Computer, VISION\" !!!!!!blanket \"machiNe   !!!!  tesTing LeArNinG\" \"wallet";
+        expectedPhrases = new String[][]{new String[]{"comput", "vision"}, new String[]{"machin", "test", "learn"}};
+        expectedQuery = "test blanket wallet";
+
+        result = TextProcessing.cleanRawQuery(rawQuery);
+
+        Assertions.assertArrayEquals(result.getFilteredQuery(), expectedQuery.split(" "));
     }
 }

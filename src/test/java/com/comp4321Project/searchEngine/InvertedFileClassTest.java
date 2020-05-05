@@ -13,6 +13,7 @@ import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -89,5 +90,42 @@ public class InvertedFileClassTest {
         Assertions.assertEquals(2, lList.size());
         Assertions.assertEquals(0, lList.get(0));
         Assertions.assertEquals(1, lList.get(1));
+    }
+
+    @Test
+    public void testHashSetUnionIntersection() {
+        HashSet<String> hashSet = new HashSet<>();
+        HashSet<String> hashSet1 = new HashSet<>();
+
+        hashSet.add("0");
+        hashSet.add("1");
+        hashSet.add("2");
+        hashSet.add("3");
+
+        hashSet1.add("1");
+        hashSet1.add("3");
+        hashSet1.add("5");
+        hashSet1.add("7");
+
+        hashSet.addAll(hashSet1);
+
+        Assertions.assertEquals(new HashSet<String>(Arrays.asList("0", "1", "2", "3", "5", "7")), hashSet);
+
+        hashSet.clear();
+        hashSet1.clear();
+
+        hashSet.add("0");
+        hashSet.add("1");
+        hashSet.add("2");
+        hashSet.add("3");
+
+        hashSet1.add("1");
+        hashSet1.add("3");
+        hashSet1.add("5");
+        hashSet1.add("7");
+
+        hashSet.retainAll(hashSet1);
+
+        Assertions.assertEquals(new HashSet<String>(Arrays.asList("1", "3")), hashSet);
     }
 }

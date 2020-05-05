@@ -100,10 +100,11 @@ public class TextProcessing {
      * @return
      */
     public static ProcessedQuery cleanRawQuery(String rawQuery) {
-        if (!rawQuery.contains("\"")) return new ProcessedQuery(null, cleanRawWords(rawQuery));
+        if (!rawQuery.contains("\"")) return new ProcessedQuery(null, cleanRawWords(rawQuery), cleanRawWords(rawQuery));
 
         List<String> phrasesList = new LinkedList<>();
-        int startPtr = -1, endPtr = 0, rawQueryLength = rawQuery.length();
+        StringBuilder stringBuilder = new StringBuilder();
+        int startPtr = -1, endPtr = 0, markPtr = 0, rawQueryLength = rawQuery.length();
         while (endPtr < rawQueryLength) {
             if (rawQuery.charAt(endPtr) == '\"') {
                 if (startPtr == -1) {
@@ -112,10 +113,18 @@ public class TextProcessing {
                 } else {
                     // there is a quote pair, extract the sentence in the quote
                     phrasesList.add(rawQuery.substring(startPtr, endPtr));
+                    if (startPtr != markPtr) {
+                        stringBuilder.append(rawQuery, markPtr, startPtr);
+                    }
+                    markPtr = endPtr + 1;
                     startPtr = -1;
                 }
             }
             endPtr++;
+        }
+
+        if (markPtr < endPtr) {
+            stringBuilder.append(rawQuery, markPtr, endPtr);
         }
 
         String[][] returnPhrase = phrasesList.stream()
@@ -123,6 +132,6 @@ public class TextProcessing {
                 .filter(Objects::nonNull)
                 .toArray(String[][]::new);
 
-        return new ProcessedQuery(returnPhrase.length == 0 ? null : returnPhrase, cleanRawWords(rawQuery));
+        return new ProcessedQuery(returnPhrase.length == 0 ? null : returnPhrase, cleanRawWords(rawQuery), cleanRawWords(stringBuilder.toString()));
     }
 }

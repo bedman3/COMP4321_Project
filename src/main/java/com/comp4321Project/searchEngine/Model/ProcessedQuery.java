@@ -6,9 +6,16 @@ public class ProcessedQuery {
     String[][] phrases;
     String[] query;
 
-    public ProcessedQuery(String[][] phrases, String[] query) {
+    public String[] getFilteredQuery() {
+        return filteredQuery;
+    }
+
+    String[] filteredQuery;
+
+    public ProcessedQuery(String[][] phrases, String[] query, String[] filteredQuery) {
         this.phrases = phrases;
         this.query = query;
+        this.filteredQuery = filteredQuery;
     }
 
     public String[][] getPhrases() {

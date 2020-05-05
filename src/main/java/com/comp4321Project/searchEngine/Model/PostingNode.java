@@ -1,9 +1,7 @@
 package com.comp4321Project.searchEngine.Model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PostingNode implements Serializable, Comparable<PostingNode> {
@@ -92,5 +90,16 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
     @Override
     public int compareTo(PostingNode postingNode) {
         return this.urlIdInteger.compareTo(postingNode.urlIdInteger);
+    }
+
+    public boolean isNextWordAPhrase(PostingNode nextNode) {
+        // this node is ahead of the nextNode, so this node index + 1 = next node index means a phrase
+
+        // minus 1 for each of the element in next node, if there is a match with next node, return true
+        HashSet<Integer> thisSet = new HashSet<>(this.locationList);
+        HashSet<Integer> nextSet = nextNode.locationList.stream().map(integer -> integer - 1).collect(Collectors.toCollection(HashSet::new));
+        thisSet.retainAll(nextSet); // find intersection
+
+        return thisSet.size() > 0;
     }
 }
