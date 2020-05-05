@@ -4,14 +4,26 @@
 
 #### 1. If you have no `Docker` and `Docker Compose`
 
-You need to first [install maven](https://maven.apache.org/install.html) (`sudo apt install maven` in Ubuntu) 
+You need to first [install maven](https://maven.apache.org/install.html) and 
+[install jdk8](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
 and run this program in linux (only tested in Ubuntu, not sure about Window). 
 Then [install python 3.x](https://docs.conda.io/en/latest/miniconda.html) and 
 [install the newest yarn](https://yarnpkg.com/getting-started/install).
 
 ```shell script
-# command to type
+# cd to the project directory
+# you will need 2 screen / terminal sessions
+# for the 1st session
+python -m venv venv # make sure your python version is 3.x, you can check via "python --version"
+./venv/bin/pip install scipy numpy
+mvn package
+java -jar target/searchEngine-0.0.1-SNAPSHOT.jar
 
+# in the 2nd session
+cd search-engine-frontend/
+yarn install
+yarn start
+# then go to localhost:3000, the frontend interface should be up
 ```
 
 or you can install `Docker` from [here](https://docs.docker.com/get-docker/) and 
@@ -31,7 +43,7 @@ docker-compose pull
 docker-compose up -d
 ```
 
-After setting up the containers, you can now do the web crawling and batch processing before query
+#### 3. After setting up the applications, you can now do the web crawling and batch processing before query
 
 ```shell script
 # if you do not have an existing RocksDB files, the application will generate the files
