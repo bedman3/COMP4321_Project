@@ -1,5 +1,7 @@
 package com.comp4321Project.searchEngine.Model;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -92,14 +94,33 @@ public class PostingNode implements Serializable, Comparable<PostingNode> {
         return this.urlIdInteger.compareTo(postingNode.urlIdInteger);
     }
 
-    public boolean isNextWordAPhrase(PostingNode nextNode) {
+    public HashSet<ImmutablePair<Integer, String>> isNextWordAPhrase(PostingNode nextNode, int index, HashSet<ImmutablePair<Integer, String>> phraseDocSet) {
+        if (!this.urlIdInteger.equals(nextNode.urlIdInteger)) return null;
+
+        // thisNode and nextNode have the same urlId but different wordId
         // this node is ahead of the nextNode, so this node index + 1 = next node index means a phrase
-
         // minus 1 for each of the element in next node, if there is a match with next node, return true
-        HashSet<Integer> thisSet = new HashSet<>(this.locationList);
-        HashSet<Integer> nextSet = nextNode.locationList.stream().map(integer -> integer - 1).collect(Collectors.toCollection(HashSet::new));
-        thisSet.retainAll(nextSet); // find intersection
 
-        return thisSet.size() > 0;
+        if (phraseDocSet == null) {
+            HashSet<ImmutablePair<Integer, String>> result = new HashSet<>();
+            HashSet<Integer> thisSet = new HashSet<>(this.locationList);
+            HashSet<Integer> nextSet = nextNode.locationList
+                    .stream()
+                    .map(integer -> integer - index)
+                    .collect(Collectors.toCollection(HashSet::new));
+
+            thisSet.retainAll(nextSet); // find intersection
+            thisSet.forEach(location -> result.add(new ImmutablePair<>(location, this.urlId)));
+            return result;
+        } else {
+            HashSet<ImmutablePair<Integer, String>> thisSet = new HashSet<>(phraseDocSet);
+            HashSet<ImmutablePair<Integer, String>> nextSet = new HashSet<>();
+            nextNode.locationList
+                    .stream()
+                    .map(integer -> integer - index)
+                    .forEach(location -> nextSet.add(new ImmutablePair<>(location, this.urlId)));
+            thisSet.retainAll(nextSet);
+            return thisSet;
+        }
     }
 }

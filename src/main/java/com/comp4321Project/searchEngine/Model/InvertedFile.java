@@ -1,11 +1,13 @@
 package com.comp4321Project.searchEngine.Model;
 
 import com.comp4321Project.searchEngine.Dao.RocksDBDao;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.ColumnFamilyHandle;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InvertedFile {
     private final RocksDBDao rocksDBDao;
@@ -101,7 +103,7 @@ public class InvertedFile {
 
         // Each phrase have an AND relationship, check each phrase, if no result match, move on and search for another phrase
         for (List<String> phraseWithWordId : phrasesListInWordId) {
-            HashSet<String> phraseDocSet = null;
+            HashSet<ImmutablePair<Integer, String>> phraseDocSet = null;
 
             if (phraseWithWordId.size() > 1) {
                 // get the posting list for each 2-gram, and check if there is any document contains them
@@ -118,7 +120,7 @@ public class InvertedFile {
                         cacheMap.put(phraseWithWordId.get(index), postingList2);
                     }
 
-                    HashSet<String> commonDoc = PostingList.findCommonSetBetweenPhrase(phraseWithWordId.get(index - 1), phraseWithWordId.get(index), postingList1, postingList2);
+                    HashSet<ImmutablePair<Integer, String>> commonDoc = PostingList.findCommonSetBetweenPhrase(postingList1, postingList2, index, phraseDocSet);
                     if (phraseDocSet == null) phraseDocSet = commonDoc;
                     else phraseDocSet.retainAll(commonDoc); // get intersection
 
@@ -129,9 +131,10 @@ public class InvertedFile {
                 if (phraseDocSet.size() == 0) {
                     break;
                 } else {
+                    HashSet<String> parsedPhraseDocSet = phraseDocSet.stream().map(ImmutablePair::getRight).distinct().collect(Collectors.toCollection(HashSet::new));
                     // add the results back to the large return set, get the intersection
-                    if (returnSet == null) returnSet = phraseDocSet;
-                    else returnSet.retainAll(phraseDocSet);
+                    if (returnSet == null) returnSet = parsedPhraseDocSet;
+                    else returnSet.retainAll(parsedPhraseDocSet);
                 }
             } else if (phraseWithWordId.size() == 1) {
                 PostingList getList = cacheMap.get(phraseWithWordId.get(0));
