@@ -1,0 +1,11 @@
+FROM node:latest
+
+COPY . /frontend
+WORKDIR /frontend
+RUN echo "REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}:${PORT}" > .env
+
+RUN yarn install
+RUN yarn global add serve
+RUN yarn build
+
+CMD serve -s build -l ${PORT}
