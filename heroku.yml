@@ -1,0 +1,8 @@
+setup:
+    config:
+        REACT_APP_BACKEND_URL: side-project-martin.herokuapp.com
+build:
+    docker:
+        web: search-engine-frontend/DockerfileAWS
+        backend: Dockerfile
+
