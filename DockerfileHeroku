@@ -11,4 +11,9 @@ RUN mvn package
 RUN rm -rf src/
 RUN rm -f *.pdf
 
-ENTRYPOINT ["java", "-Dserver.port=$PORT", "-jar","/backend/target/searchEngine-0.0.1-SNAPSHOT.jar"]
+RUN echo "[ -z \"$SSH_CLIENT\" ] && source <(curl --fail --retry 3 -sSL \"$HEROKU_EXEC_URL\")" > heroku-exec.sh
+RUN cat heroku-exec.sh
+RUN cp heroku-exec.sh /app/.prpfile.d/
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+ENTRYPOINT ["bash", "heroku-exec.sh", "&&", "java", "-Dserver.port=$PORT", "-jar","/backend/target/searchEngine-0.0.1-SNAPSHOT.jar"]
